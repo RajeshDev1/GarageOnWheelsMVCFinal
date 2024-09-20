@@ -1,0 +1,52 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.User>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th class="text-center">Name</th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Role)
+            </th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="text-center">
+                  @($"{item.FirstName} {item.LastName}") 
+                </td>          
+                <td class="text-center"> 
+                    @Html.DisplayFor(modelItem => item.Gender)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Role)
+                </td>
+                <td class="text-center">
+                    <a asp-action="Edit" asp-controller="User" asp-route-id="@item.Id" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a> |
+                    <a asp-action="Delete" asp-controller="User" asp-route-id="@item.Id" title="Delete" class="text-danger" onclick="return confirmDelete();">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    function confirmDelete() {
+        return confirm("Are you sure to Delete ?");
+    }
+</script>

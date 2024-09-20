@@ -1,0 +1,35 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.RevenueReportViewModel>
+
+  <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Garage Name</th>
+                <th>Report Date</th>
+                <th>Total Revenue</th>
+         
+            </tr>
+        </thead>
+        <tbody>
+        @if(Model == null)
+        {
+            <tr>
+                Record Not Found
+            </tr>
+        }
+        else
+        {
+            
+            @foreach (var report in Model)
+                {
+                    <tr>
+                        <td>@report.GarageName</td>
+                        <td>@report.ReportDate.ToShortDateString()</td>
+                        <td>@report.TotalRevenue</td>
+                   
+                    </tr>
+                }
+        }
+        </tbody>
+    </table>
+
+

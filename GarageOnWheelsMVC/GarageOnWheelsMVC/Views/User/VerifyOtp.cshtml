@@ -1,0 +1,54 @@
+﻿@*  @model GarageOnWheelsMVC.Models.ViewModel.OtpVerification
+@{
+    ViewData["Title"] = "VerifyOtp";
+}
+
+
+<form asp-action="VerifyOtp">
+    <div>
+        <label>Email</label>
+        <input asp-for="Email" readonly value="@TempData["Email"]" />
+    </div>
+    <div>
+        <label>Enter OTP:</label>
+        <input asp-for="OTP" required />
+    </div>
+    <button type="submit">Verify</button>
+</form>
+ *@
+
+
+ @model GarageOnWheelsMVC.Models.ViewModel.OtpVerificationViewModel
+@{
+    ViewData["Title"] = "VerifyOtp";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Verify OTP</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="VerifyOtp">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" readonly value="@TempData["Email"]" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Enter OTP:</label>
+                            <input asp-for="OTP" class="form-control" required />
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Verify</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>                           

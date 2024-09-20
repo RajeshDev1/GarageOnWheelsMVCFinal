@@ -1,0 +1,144 @@
+﻿@model GarageOnWheelsMVC.Models.ViewModel.GarageViewModel
+
+@{
+    bool isEdit = Model.Id != Guid.Empty;
+    ViewData["Title"] = isEdit ? "Edit Garage" : "Create Garage";
+}
+
+<h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form asp-action="Save" method="post" class="needs-validation">
+
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="form-label">Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter garage name" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="UserId" class="form-label">Owner Name</label>
+                            <select id="userid" asp-for="UserId" class="form-select form-select-lg" required>
+                                <option value="">Select Garage Owner</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <input asp-for="UserId" value="@Guid.Empty" hidden />
+                }
+
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Address" class="form-label">Address</label>
+                    <input asp-for="Address" class="form-control" placeholder="Enter garage address" required />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="CountryId" class="form-label">Country</label>
+                        <select id="country" asp-for="CountryId" class="form-select form-select-lg" required>
+                            <option value="">Select Country</option>
+                        </select>
+                        <span asp-validation-for="CountryId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="StateId" class="form-label">State</label>
+                        <select id="state" asp-for="StateId" class="form-select form-select-lg" required>
+                            <option value="">Select State</option>
+                        </select>
+                        <span asp-validation-for="StateId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="CityId" class="form-label">City</label>
+                        <select id="city" asp-for="CityId" class="form-select form-select-lg" required>
+                            <option value="">Select City</option>
+                        </select>
+                        <span asp-validation-for="CityId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="AreaId" class="form-label">Area</label>
+                        <select id="area" asp-for="AreaId" class="form-select form-select-lg" required>
+                            <option value="">Select Area</option>
+                        </select>
+                        <span asp-validation-for="AreaId" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary w-100">
+                    @if (isEdit)
+                    {
+                        <text>Update Garage</text>
+                    }
+                    else
+                    {
+                        <text>Create Garage</text>
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $userIdSelect = $('#userid');
+
+            // Function to populate the garage owners dropdown
+            function populateGarageOwners() {
+                $.getJSON('@Url.Action("GetAllGarageOwners", "User")')
+                    .done(function (users) {
+                        $.each(users, function (index, user) {
+                            $userIdSelect.append(
+                                $('<option>', { value: user.Id, text: user.FirstName + ' ' + user.LastName })
+                            );
+                        });
+
+                        // If editing, set the selected value based on the model
+                        var currentUserId = '@Model.UserId';
+                        if ('@Model.Id' !== '') {
+                            $userIdSelect.val(currentUserId);
+                        }
+                    })
+                    .fail(function () {
+                        alert("Error fetching garage owners.");
+                    });
+            }
+
+            // Function to pre-select values in cascading dropdowns
+            function preselectDropdowns() {
+                $("#country").val('@Model.CountryId').triggerchange();
+                $("#state").val('@Model.StateId').triggerchange();
+                $("#city").val('@Model.CityId').triggerchange();
+                $("#area").val('@Model.AreaId').triggerchange();
+            }
+
+            // Call the functions to execute
+            populateGarageOwners();
+            preselectDropdowns();
+        });
+    </script>
+    <script src="~/js/cascadingddl.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

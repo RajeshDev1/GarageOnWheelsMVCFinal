@@ -1,0 +1,277 @@
+﻿@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GarageOnWheelsMVC</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" />
+    <style>
+     
+        .sidebar 
+        {
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            z-index: 1;
+            background-color: #4169E1 !important;
+            transition: width 0.3s ease;
+        }
+
+        #mainNavbar {
+            background-color: #4169E1 !important;
+        
+        }
+
+            #mainNavbar a:hover {
+            background-color: red;
+        }
+
+            .sidebar.collapsed
+            {
+                width: 50px;
+            }
+
+        .content
+        {
+            padding-left: 220px;
+            transition: padding-left 0.3s ease;
+        }
+
+            .content.collapsed 
+            {
+                padding-left: 80px;
+            }
+
+        .navbar-custom 
+        {
+            transition: margin-left 0.3s ease;
+        }
+
+        .navbar-collapsed
+        {
+            margin-left: 50px;
+        }
+
+    
+        a {
+            text-decoration: none;
+        }
+
+        .sidebar a span
+        {
+            display: inline;
+        }
+
+        .sidebar a:hover 
+        {
+            background-color: red;
+        }
+
+        .sidebar.collapsed a span 
+        {
+            display: none;
+        }
+
+        .sidebar-toggle-btn 
+        {
+            cursor: pointer;
+            border: none;
+            display: inline;
+            background: none;
+        }
+
+          .logout-link {
+        background-color: red;
+        color: white; 
+        border-radius: 5px; 
+        padding: 10px; 
+        transition: background-color 0.3s ease; 
+    }
+
+    .logout-link:hover {
+        background-color: darkred; 
+    }
+
+        .navbar-custom {
+            background-color: #f8f9fa; 
+        }
+
+        .navbar-nav .nav-item {
+            margin: 0 0.5rem; 
+        }
+
+      #toast-container > .toast {
+          margin-top:60px;
+      }
+
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom" id="mainNavbar">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav ms-auto d-flex align-items-center">
+                @if (User.Identity.IsAuthenticated)
+                {
+
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <li class="nav-item me-3">
+                            <span class="navbar-text d-flex align-items-center">
+                                <i class="fa-solid fa-user-shield"></i>@User.FindFirstValue(System.Security.Claims.ClaimTypes.Name)
+                            </span>
+                        </li>
+                    }
+                    else if (User.IsInRole("GarageOwner"))
+                    {
+                        <li class="nav-item me-3">
+                            <span class="navbar-text d-flex align-items-center">
+                                <i class="fa-solid fa-user-tie"></i>@User.FindFirstValue(System.Security.Claims.ClaimTypes.Name)
+                            </span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item me-3">
+                            <span class="navbar-text d-flex align-items-center">
+                                <i class="fas fa-user me-2"></i>@User.FindFirstValue(System.Security.Claims.ClaimTypes.Name)
+                            </span>
+                        </li>
+                    }
+                 
+                    <li class="nav-item">
+                        <a class="nav-link logout-link me-3" asp-controller="Account" asp-action="Logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Account/Login">Login</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </nav>
+
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="sidebar bg-dark" id="sidebar">
+            <btn class="d-flex align-items-center sidebar-toggle-btn text-light p-3" id="sidebarToggle">
+                <i class="fas fa-bars ms-auto"></i>
+            </btn>
+            <a href="/Account/Dashboard" class="text-light d-flex align-items-center p-3">
+                <i class="fas fa-home me-2"></i>
+                <span>Dashboard</span>
+            </a>
+
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <a href="/User/GetAllUsers" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-users me-2"></i>
+                    <span>Users</span>
+                </a>
+                <a href="/Garage/GetAllGarages" class="text-light d-flex align-items-center p-3">
+                    <i class="fa-solid fa-car me-2"></i>
+                    <span>Garages</span>
+                </a>
+                <a href="/RevenueReport/GenerateRevenue" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-file-alt me-2"></i>
+                    <span>Revenue Reports</span>
+                </a>
+            }
+
+            @if (User.IsInRole("GarageOwner"))
+            {
+                <a href="/Garage/GetGaragesByUserId" class="text-light d-flex align-items-center p-3">
+                    <i class="fa-solid fa-car me-2"></i>
+                    <span>Garages</span>
+                </a>
+
+                <a href="/User/GetAllCustomers" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-users me-2"></i>
+                    <span>Customers</span>
+                </a>
+
+                <a href="/Order/GetOrdersByGarage" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-tasks me-2"></i>
+                    <span>Orders</span>
+                </a>
+
+                <a href="/RevenueReport/GenerateRevenue" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-file-alt me-2"></i>
+                    <span>Revenue Reports</span>
+                </a>
+            }
+
+            @if (User.IsInRole("Customer"))
+            {
+                <a href="/Order/Create" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-redo me-2"></i>
+                    <span>Request Order</span>
+                </a>
+
+                <a href="/Order/OrderHistory" class="text-light d-flex align-items-center p-3">
+                    <i class="fas fa-tasks me-2"></i>
+                    <span>Order History</span>
+                </a>
+            }
+
+            <a>
+                <a href="@Url.Action("ChangePassword", "User", new { id = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) })" class="text-light d-flex align-items-center p-3" title="Change Password">
+                    <i class="fa-solid fa-key me-2"></i>
+                    <span>Change Password</span>
+                </a>
+
+            <a asp-controller="user" asp-action="EditProfile" asp-route-id="@User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)" class="text-light d-flex align-items-center p-3">
+                <i class="fas fa-user me-2"></i>
+                <span>Edit</span>
+            </a>
+
+        </div>
+    }
+
+    <!-- Main content area -->
+    <div class="content" id="content">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const navbar = document.getElementById('mainNavbar');
+
+        // Set initial state
+        sidebar.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+            navbar.classList.toggle('navbar-collapsed');
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

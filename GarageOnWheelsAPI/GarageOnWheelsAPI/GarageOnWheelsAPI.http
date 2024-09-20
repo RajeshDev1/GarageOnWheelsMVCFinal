@@ -1,0 +1,6 @@
+@GarageOnWheelsAPI_HostAddress = http://localhost:5030
+
+GET {{GarageOnWheelsAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

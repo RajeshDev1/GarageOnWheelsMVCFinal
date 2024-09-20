@@ -1,0 +1,46 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.OrderViewModel>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+      
+            <th class="text-center">Order Date</th>
+            <th class="text-center">Total Amount</th>
+            <th class="text-center">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+
+                <td class="text-center">
+                    @order.OrderDate.ToString("dd-MM-yyyy")
+                </td>
+                <td class="text-center">
+                    @order.TotalAmount.ToString("C")
+                </td>
+                <td class="text-center">
+                    @switch (order.Status)
+                    {
+                        case OrderStatus.Pending:
+                            <div>
+                                <i class="fas fa-hourglass-half" title="Pending" style="font-size: 14px; color: #f39c12;"></i>
+                                Pending
+                            </div>
+                            break;
+                        case OrderStatus.Completed:
+                            <div>
+                                <i class="fas fa-check-circle" title="Completed" style="font-size: 14px; color: #2ecc71;"></i>
+                                Completed
+                            </div>
+                            break;
+
+                    }
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+

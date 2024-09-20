@@ -1,0 +1,16 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Order History";
+
+}
+
+<div class="container mt-5">
+    <h1 class="text-center">@ViewData["Title"]</h1>
+
+    <div id="userTable" class="table-responsive">
+        @Html.Partial("_OrderHistory", Model)
+
+    </div>
+
+</div>

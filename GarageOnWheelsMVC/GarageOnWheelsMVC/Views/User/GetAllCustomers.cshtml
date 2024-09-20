@@ -1,0 +1,21 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.User>
+
+@{
+    ViewData["Title"] = "Customer Details";
+
+}
+
+<div class="container mt-5">
+    <h1 class="text-center">@ViewData["Title"]</h1>
+
+    <div class="row mb-3">
+        <div class="col">
+            <a class="btn btn-secondary" href="@Url.Action("Create", "User")"> + CUSTOMER</a>
+        </div>
+    </div>
+    <div id="userTable" class="table-responsive">
+        @Html.Partial("_UserListPartial", Model)
+
+    </div>
+
+</div>

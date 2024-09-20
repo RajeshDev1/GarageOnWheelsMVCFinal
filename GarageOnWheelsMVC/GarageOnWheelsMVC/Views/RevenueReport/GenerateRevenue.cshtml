@@ -1,0 +1,91 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.RevenueReportViewModel>
+
+@{
+    ViewData["Title"] = "Generate Revenue Report";
+    var garageId = ViewBag.GarageId;
+}
+
+<h3 style="align-items:center">Generate Revenue Report</h3>
+
+
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <form id="formid" asp-action="ByDateRange" method="post" class="form-inline d-flex justify-content-between">
+
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <div class="form-group me-2">
+                    <label for="GarageId" class="form-label">Garage Name:</label>
+                    <select id="GarageId" name="GarageId" class="form-select form-select-sm" required>
+
+                        <option value="">Select Garage</option>
+                    </select>
+                </div>
+            }
+            else
+            {
+                <input name="GarageId" value="@garageId" type="hidden" />
+            }
+
+            <div class="form-group me-2">
+                <label for="StartDate" class="form-label">Start Date:</label>
+                <input id="startDate" name="startDate" class="form-control form-control-sm" type="date" required />
+            </div>
+
+            <div class="form-group me-2">
+                <label for="EndDate" class="form-label">End Date:</label>
+                <input id="endDate" name="endDate" class="form-control form-control-sm" type="date" required />
+            </div>
+
+            <button type="submit" class="btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+<hr />
+
+<!-- Partial view for revenue report table -->
+<div id="revenueTable" class="table-responsive justify-content-center">
+    @Html.Partial("_RevenueReportTable", Model)
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // AJAX call to fetch garages
+            $.ajax({
+                url: '@Url.Action("GetGarages", "RevenueReport")',
+                method: 'GET',
+                success: function (data) {
+                    var garageDropdown = $('#GarageId');                   
+                    $.each(data, function (i, garage) {
+                        garageDropdown.append('<option value="' + garage.id + '">' + garage.name + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching garages:', error);
+                }
+            });
+
+            $('#formid').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        $('#revenueTable').html(response);
+                    },
+                    error: function () {
+                        alert("An error occurred while processing your request.");
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,18 @@
+﻿
+@{
+    ViewData["Title"] = "Dashboard";
+
+}
+
+ @section Scripts {
+     <script>
+         $(document).ready(function(){
+             var message = '@TempData["Successful"]';  
+             if(message)
+             {
+                 console.log(message);
+                toastr.success(message);
+             }
+         });
+     </script>
+ }

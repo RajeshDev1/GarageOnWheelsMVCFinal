@@ -1,0 +1,23 @@
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.GarageViewModel>
+
+@{
+    ViewData["Title"] = "Garage Details";
+
+}
+
+<div class="container mt-5">
+    <h1 class="text-center">@ViewData["Title"]</h1>
+
+    @if (User.IsInRole("SuperAdmin"))
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <a class="btn btn-secondary" href="@Url.Action("Save", "Garage")"> + GARAGE</a>
+            </div>
+        </div>
+    }
+    <div id="userTable" class="table-responsive">
+        @Html.Partial("_GarageListPartial", Model)
+
+    </div>
+</div>
