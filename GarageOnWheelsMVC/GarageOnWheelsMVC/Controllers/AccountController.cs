@@ -17,6 +17,7 @@ using GarageOnWheelsMVC.Helper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Data;
+using System.Net.Http.Headers;
 
 namespace GarageOnWheelsMVC.Controllers
 {
@@ -24,17 +25,30 @@ namespace GarageOnWheelsMVC.Controllers
     {
         private readonly HttpClient _httpClient;
         string baseurl = "https://localhost:7107/api/";
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
 
-        public AccountController(HttpClient httpClient)
+        public AccountController(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-
+        public void SetAuthorize(HttpContext httpContext)
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            else
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
+            }
+        }
 
         [HttpGet]
         public IActionResult Dashboard()
@@ -89,10 +103,10 @@ namespace GarageOnWheelsMVC.Controllers
 
             var response = await SendPostRequest<User>("auth/register", userModel);
             if (response.StatusCode == HttpStatusCode.Created)
-            { 
-                    await SendOtp(model.Email);
-                    TempData["Email"] = model.Email;
-                    return RedirectToAction("VerifyOtp");        
+            {
+                await SendOtp(model.Email);
+                TempData["Email"] = model.Email;
+                return RedirectToAction("VerifyOtp");
             }
             return View(model);
         }
@@ -102,14 +116,14 @@ namespace GarageOnWheelsMVC.Controllers
         private async Task<HttpResponseMessage> SendPostRequest<T>(string endpoint, T model)
         {
             var jsonModel = JsonSerializer.Serialize(model);
-            var content = new StringContent(jsonModel, Encoding.UTF8, "application/json"); 
+            var content = new StringContent(jsonModel, Encoding.UTF8, "application/json");
             return await _httpClient.PostAsync($"{baseurl}{endpoint}", content);
         }
 
         [HttpGet]
         public IActionResult Login()
         {
-            
+
             return View();
         }
 
@@ -119,12 +133,12 @@ namespace GarageOnWheelsMVC.Controllers
         {
             if (!ModelState.IsValid)
             {
-            
                 return View(model);
             }
 
             // Call the Web API to authenticate the user
             var response = await SendPostRequest<LoginViewModel>("auth/login", model);
+
             if (response.IsSuccessStatusCode)
             {
                 // If the response is successful, retrieve the token
@@ -138,18 +152,36 @@ namespace GarageOnWheelsMVC.Controllers
                 var role = SessionHelper.GetRoleFromToken(token);
                 var id = SessionHelper.GetUserIdFromToken(HttpContext);
 
-                // Perform sign-in logic
+                // Perform sign-in logic    
                 await SignInUser(role, id, name);
 
-                // Set a success message in TempData to show on the next page
+                // when Success then go to Next Page
                 TempData["Successful"] = "Login Successfully";
 
                 // Redirect to the dashboard after successful login
                 return RedirectToAction("Dashboard", "Account");
             }
 
-            // If login fails, return the same view with an error message
-            ModelState.AddModelError("", "Invalid login credentials");
+            // Handle Unauthorized (invalid credentials)
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                TempData["Message"] = "Invalid login credentials. Please check your email and password.";
+                TempData["MessageType"] = "error";  // Message type for Toastr
+            }
+            // Handle BadRequest (e.g., missing required fields)
+            else if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                TempData["Message"] = "Invalid request. Please check your input and try again.";
+                TempData["MessageType"] = "warning";
+            }
+            // Handle other error cases
+            else
+            {
+                TempData["Message"] = "An error occurred while processing your request. Please try again later.";
+                TempData["MessageType"] = "error";
+            }
+
+            // Return the same view with the model, so it retains the user's input
             return View(model);
         }
 
@@ -158,7 +190,7 @@ namespace GarageOnWheelsMVC.Controllers
         [HttpGet]
         public IActionResult VerifyOtp()
         {
-            TempData.Keep("Email"); 
+            TempData.Keep("Email");
             return View();
         }
 

@@ -16,88 +16,66 @@ namespace GarageOnWheelsMVC.Controllers
     public class OrderController : Controller
     {
 
-        private readonly HttpClient _httpClient;
-        string baseurl = "https://localhost:7107/api/";
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        private readonly ApiHelper _apiHelper;
+
+        public OrderController(ApiHelper apiHelper)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        public OrderController(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
+            _apiHelper = apiHelper;
         }
 
-        public void SetAuthorize()
-        {
-            var token = HttpContext.Session.GetString("Token");
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
-        }
-
+    
         public IActionResult Index()
         {
             return View();
         }
 
         [Authorize]
-        public async Task<IActionResult> GetOrdersByGarage()
-         {
-            SetAuthorize();
-            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _httpClient.GetAsync($"{baseurl}Garage/by-specificUserId/{userId}");
+        public async Task<IActionResult> GetOrdersByGarage(int page = 1, int pageSize = 3)
+        {
+            // Fetch the user ID from the session
+            var userId = SessionHelper.GetUserIdFromToken(HttpContext); 
 
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"API Error: {response.ReasonPhrase}");
-                return BadRequest("Error fetching garage data from the API.");
-            }
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
+            // Get the garage associated with the user
+            var garage = await _apiHelper.GetAsync<GarageViewModel>($"garage/by-specificUserId/{userId}", HttpContext);
 
-            GarageViewModel garage;
-            try
-            {
-                 garage = JsonSerializer.Deserialize<GarageViewModel>(jsonResponse, options);
-            }
-            catch (JsonException ex)
-            {
-                return BadRequest("Error deserializing garage data.");
-            }
             if (garage == null || garage.Id == Guid.Empty)
             {
                 return BadRequest("Invalid garage data received.");
             }
-            response = await _httpClient.GetAsync($"{baseurl}Order/GetOrdersByGarage/{garage.Id}");
 
-            if (!response.IsSuccessStatusCode)
+            // Fetch the orders for the garage
+            var orders = await _apiHelper.GetAsync<List<Order>>($"Order/GetOrdersByGarage/{garage.Id}",HttpContext);
+
+            if (orders == null)
             {
                 return BadRequest("Error fetching orders data from the API.");
             }
-            jsonResponse = await response.Content.ReadAsStringAsync();
 
-            List<Order> orders;
-            try
+            // Total count of orders
+            var totalCount = orders.Count;
+
+            // Paginate the orders
+            var paginatedOrders = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Create the view model with paginated orders and paging info
+            var viewModel = new OrderListViewModel
             {
-                orders = JsonSerializer.Deserialize<List<Order>>(jsonResponse, options);
-            }
-            catch (JsonException ex)
-            {
-                return BadRequest("Error deserializing order data.");
-            }
-            return View(orders);
+                Orders = paginatedOrders,
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = page,
+                    TotalItems = totalCount,
+                    ItemsPerPage = pageSize
+                }
+            };
+
+            // Return the paginated orders to the view
+            return View(viewModel);
         }
 
 
-
-
         [HttpGet]
-        [Authorize(Roles ="GarageOwner,Customer")]
+        [Authorize(Roles = "GarageOwner,Customer")]
         public IActionResult Create()
         {
             return View();
@@ -107,125 +85,110 @@ namespace GarageOnWheelsMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order model)
         {
-            SetAuthorize();
-
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var id = SessionHelper.GetUserIdFromToken(HttpContext);
-            model.UserId = id;
-            model.CreatedBy = id;
-            var jsonmodel = JsonSerializer.Serialize(model);
-            var content = new StringContent(jsonmodel, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{baseurl}order/CreateOrder", content);
+            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
+            model.UserId = userId;
+            model.CreatedBy = userId;
+
+            var response = await _apiHelper.SendPostRequest("order/CreateOrder", model, HttpContext);
+
             if (response.StatusCode == HttpStatusCode.Created)
             {
                 return RedirectToAction("Dashboard", "Account");
             }
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var Message = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", Message);
-            }
+
+            var message = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", message);
+
             return View(model);
         }
 
         [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> Edit(Guid id)
         {
-            SetAuthorize();
-            var response = await _httpClient.GetAsync($"{baseurl}order/GetOrderById/{id}");
-            var orders = JsonSerializer.Deserialize<Order>(await response.Content.ReadAsStringAsync(), JsonOptions);
-            return View(orders);
+            var order = await _apiHelper.GetAsync<Order>($"order/GetOrderById/{id}", HttpContext);
+
+            if (order == null)
+            {
+                return BadRequest("Order not found.");
+            }
+
+            return View(order);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Order model)
         {
-            SetAuthorize();
             if (!ModelState.IsValid)
             {
-                
                 return View(model);
             }
 
-            var id = SessionHelper.GetUserIdFromToken(HttpContext);
-            model.UpdatedBy = id;
+            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
+            model.UpdatedBy = userId;
 
-            var jsonModel = JsonSerializer.Serialize(model);
-            var content = new StringContent(jsonModel, Encoding.UTF8, "application/json");           
-            var response = await _httpClient.PutAsync($"{baseurl}Order/UpdateOrder/{model.Id}", content);
+            var response = await _apiHelper.SendJsonAsync($"Order/UpdateOrder/{model.Id}", model, HttpMethod.Put, HttpContext);
 
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Dashboard", "Account");
             }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", string.IsNullOrWhiteSpace(errorMessage) ? "An error occurred while updating the order." : errorMessage);
-                return View(model);
-            }
+
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", string.IsNullOrWhiteSpace(errorMessage) ? "An error occurred while updating the order." : errorMessage);
+
+            return View(model);
         }
 
-        [Authorize(Roles ="Customer")]
-        public async Task<IActionResult> OrderHistory(Guid userId)
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> OrderHistory(int page = 1, int pageSize = 5)
         {
-            SetAuthorize();
-            try
+            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
+            var orders = await _apiHelper.GetAsync<List<OrderViewModel>>($"order/GetOrderHistory/{userId}", HttpContext);
+
+            if (orders == null || !orders.Any())
             {
-                userId = SessionHelper.GetUserIdFromToken(HttpContext);
-                var apiUrl = ($"{baseurl}order/GetOrderHistory/{userId}");
-
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var orders = await response.Content.ReadFromJsonAsync<List<OrderViewModel>>();
-
-                    if (orders == null || !orders.Any())
-                    {
-                        ViewBag.Message = "No orders found.";
-                        return View(new List<OrderViewModel>());
-                    }
-
-                    return View(orders);
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                {
-                    ViewBag.Message = "No orders found.";
-                    return View(new List<OrderViewModel>());
-                }
-                else
-                {
-                    ViewBag.Message = "An error occurred while fetching orders.";
-                    return View(new List<OrderViewModel>());
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Message = $"An error occurred: {ex.Message}";
+                ViewBag.Message = "No orders found.";
                 return View(new List<OrderViewModel>());
             }
+            var totalCount = orders.Count;
+            var paginatedOrders = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var viewModel = new OrderHistoryViewModel
+            {
+                Orders = paginatedOrders,
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = page,
+                    TotalItems = totalCount,
+                    ItemsPerPage = pageSize
+                }
+            };
+
+            return View(viewModel);
         }
 
-        [Authorize(Roles ="GarageOwner")]
+
+        [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            SetAuthorize();
-            string previousUrl = Request.Headers["Referer"].ToString();
-            var response = await _httpClient.DeleteAsync($"{baseurl}Order/DeleteOrder/{id}");
+            var response = await _apiHelper.DeleteAsync($"Order/DeleteOrder/{id}", HttpContext);
+
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
+                string previousUrl = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrEmpty(previousUrl))
                 {
                     return Redirect(previousUrl);
                 }
             }
-            return BadRequest();
+
+            return BadRequest("Error deleting the order.");
         }
+
     }
 }

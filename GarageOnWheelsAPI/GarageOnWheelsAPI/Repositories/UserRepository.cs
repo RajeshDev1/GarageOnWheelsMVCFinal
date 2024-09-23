@@ -93,7 +93,8 @@ namespace GarageOnWheelsAPI.Repositories
 
         public async Task<User> getUserEmailAsync(string email,string Password)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.IsEmailVerified && u.PasswordHash == Password && !u.IsDelete);
+            var query = _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.IsEmailVerified && u.PasswordHash == Password && !u.IsDelete);
+            return await query;
             
         }
 

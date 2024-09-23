@@ -1,24 +1,25 @@
-﻿@model IEnumerable<GarageOnWheelsMVC.Models.User>
+﻿@model GarageOnWheelsMVC.Models.ViewModel.UserListViewModel
+
 
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th class="text-center">Name</th>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Gender)
+                @Html.DisplayNameFor(model => model.Users.First().Gender)
             </th>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Email)
+                @Html.DisplayNameFor(model => model.Users.First().Email)
             </th>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Role)
+                @Html.DisplayNameFor(model => model.Users.First().Role)
             </th>
             <th class="text-center">Action</th>
         </tr>
     </thead>
 
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Users)
         {
             <tr>
                 <td class="text-center">

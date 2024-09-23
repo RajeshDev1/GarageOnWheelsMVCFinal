@@ -71,7 +71,7 @@ namespace GarageOnWheelsAPI.Repositories
         }
 
         public async Task<Garage> GetGarageByOwnerIdAsync(Guid ownerId)
-        {        
+        {               
             return await _context.Garages
                 .FirstOrDefaultAsync(g => g.UserId == ownerId && !g.IsDelete);
         }

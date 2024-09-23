@@ -27,20 +27,14 @@ namespace GarageOnWheelsMVC.Controllers
 {
     public class UserController : Controller
     {
-        private readonly HttpClient _httpClient;
         private readonly ApiHelper _apiHelper;
-        private string baseurl;
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        private readonly string baseUrl;
 
 
-        public UserController(HttpClient httpClient, IConfiguration configuration, ApiHelper apiHelper)
-        {
-            _httpClient = httpClient;
-            baseurl = configuration["AppSettings:BaseUrl"];
+        public UserController(ApiHelper apiHelper, IConfiguration configuration)
+        {       
             _apiHelper = apiHelper;
+            baseUrl = configuration["AppSettings:BaseUrl"];
         }
         public IActionResult Dashboard()
         {
@@ -50,32 +44,64 @@ namespace GarageOnWheelsMVC.Controllers
 
         //Get All User
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(int page = 1, int pageSize = 3)
         {
-            var users = await _apiHelper.GetAsync<List<User>>("user/all");
+            var users = await _apiHelper.GetAsync<List<User>>("user/all",HttpContext);
             if (users == null)
             {
                 return BadRequest("Error occurs during fetch user ");
             }
-            return View(users);
+
+            var totalCount = users.Count;
+
+            // Get the paginated list
+            var paginatedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var viewModel = new UserListViewModel
+            {
+                Users = paginatedUsers,
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = page,
+                    TotalItems = totalCount,
+                    ItemsPerPage = pageSize
+                }
+            };
+            return View(viewModel);
         }
 
         //Get All Customer
         [Authorize(Roles = "GarageOwner")]
-        public async Task<IActionResult> GetAllCustomers()
+        public async Task<IActionResult> GetAllCustomers(int page = 1, int pageSize = 3)
         {
-            var users = await _apiHelper.GetAsync<List<User>>("user/allCustomer");
+            var users = await _apiHelper.GetAsync<List<User>>("user/allCustomer", HttpContext);
             if (users == null)
             {
                 return BadRequest("Error occurs during fetch Customers ");
             }
-            return View(users);
+
+            var totalCount = users.Count;
+
+            // Get the paginated list
+            var paginatedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var viewModel = new UserListViewModel
+            {
+                Users = paginatedUsers,
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = page,
+                    TotalItems = totalCount,
+                    ItemsPerPage = pageSize
+                }
+            };
+            return View(viewModel);
         }
         //Ge all GarageOwner
         [Authorize(Roles = "SuperAdmin")]
         public async Task<JsonResult> GetAllGarageOwners()
         {
-            var users = await _apiHelper.GetAsync<List<User>>("user/allgarageowner");
+            var users = await _apiHelper.GetAsync<List<User>>("user/allgarageowner", HttpContext);
             return new JsonResult(users ?? new List<User>());
         }
 
@@ -83,7 +109,7 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize(Roles = "SuperAdmin")]
         public async Task<JsonResult> GetUsersByRole()
         {
-            var users = await _apiHelper.GetAsync<List<User>>("user/by-role?role=GarageOwner");
+            var users = await _apiHelper.GetAsync<List<User>>("user/by-role?role=GarageOwner", HttpContext);
             return new JsonResult(users ?? new List<User>());
         }
 
@@ -114,11 +140,11 @@ namespace GarageOnWheelsMVC.Controllers
 
             var userModel = RegisterViewModel.Mapping(model);
             userModel.CreatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _apiHelper.SendPostRequest("user/create", userModel);
+            var response = await _apiHelper.SendPostRequest("user/create", userModel,HttpContext);
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                await _apiHelper.SendOtp(model.Email);
+                await _apiHelper.SendOtp(model.Email,HttpContext);
                 TempData["Email"] = model.Email;
                 return RedirectToAction("VerifyOtp");
             }
@@ -136,7 +162,7 @@ namespace GarageOnWheelsMVC.Controllers
         public async Task<IActionResult> VerifyOtp(OtpVerificationViewModel model)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"auth/verify-email?email={model.Email}&otp={model.OTP}");
-            var response = await _apiHelper.SendJsonAsync(request.RequestUri.ToString(), model, HttpMethod.Post);
+            var response = await _apiHelper.SendJsonAsync(request.RequestUri.ToString(), model, HttpMethod.Post,HttpContext);
 
             if (response.IsSuccessStatusCode)
             {
@@ -151,19 +177,19 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var user = await _apiHelper.GetAsync<User>($"user/{id}");
+            var user = await _apiHelper.GetAsync<User>($"user/{id}", HttpContext);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var userViewModel = RegisterViewModel.Mapping(user);
+            var userViewModel = UpdateUserViewModel.mapping(user);
             return View(userViewModel);
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(RegisterViewModel model, string? previousUrl)
+        public async Task<IActionResult> Edit(UpdateUserViewModel model, string? previousUrl)
         {
             if (!ModelState.IsValid)
             {
@@ -172,7 +198,7 @@ namespace GarageOnWheelsMVC.Controllers
             }
 
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put);
+            var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
@@ -188,13 +214,13 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize]
         public async Task<IActionResult> EditProfile(Guid id)
         {
-            var user = await _apiHelper.GetAsync<User>($"user/{id}");
+            var user = await _apiHelper.GetAsync<User>($"user/{id}", HttpContext);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var userViewModel = RegisterViewModel.Mapping(user);
+            var userViewModel = UpdateUserViewModel.mapping(user);
             return View(userViewModel);
         }
 
@@ -208,7 +234,7 @@ namespace GarageOnWheelsMVC.Controllers
             }
 
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put);
+            var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
@@ -220,24 +246,21 @@ namespace GarageOnWheelsMVC.Controllers
 
 
         public async Task<IActionResult> Delete(Guid id)
-        {        
-            var response = await _httpClient.DeleteAsync($"{baseurl}user/delete/{id}");
+        {
+            var endpoint = $"{baseUrl}user/delete/{id}"; 
+            var response = await _apiHelper.DeleteAsync(endpoint, HttpContext); 
+
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 TempData["Successful"] = "User successfully deleted!";
                 return RedirectToAction("GetAllUsers");
             }
-            return BadRequest();
+            return BadRequest($"Failed to delete the user. Status Code: {response.StatusCode}, Reason: {response.ReasonPhrase}");
         }
 
-        // Helper Method
-       
-
-
-        // Check the Email Exist or not
         private async Task<bool> IsEmailExists(string email)
         {
-            var emailExists = await _apiHelper.CheckIfExists($"user/search?email={email}");
+            var emailExists = await _apiHelper.CheckIfExists($"user/search?email={email}", HttpContext);
             if (emailExists)
             {
                 ModelState.AddModelError("Email", "Email Already Exist.");
@@ -251,8 +274,7 @@ namespace GarageOnWheelsMVC.Controllers
             ViewBag.id = id;
             return View();
         }
-        
-        
+
         [HttpPost]
         public async Task<IActionResult> ChangePassword(Guid id, ChangePasswordViewModel model)
         {
@@ -262,20 +284,13 @@ namespace GarageOnWheelsMVC.Controllers
                 return View(model);
             }
 
-            // Create a new change password request object
-            var changePasswordRequest = new
-            {
-                currentPassword = model.OldPassword,
-                newPassword = model.NewPassword
-            };
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}user/change-password/{id}?currentPassword={model.OldPassword}&newPassword={model.NewPassword}");
 
-            // Send the request using ApiHelper
-            var response = await _apiHelper.SendJsonAsync($"user/change-password/{id}", changePasswordRequest, HttpMethod.Post);
-
+            var response = await _apiHelper.SendRequestAsync(request, HttpContext);
             if (response.IsSuccessStatusCode)
             {
-                TempData["Successful"] = "Password changed successfully.";
-                return RedirectToAction("ChangePassword");
+                TempData["Successful"] = "Password Changed Successfully."; 
+                return RedirectToAction("ChangePassword", new { id = id }); 
             }
 
             if (response.StatusCode == HttpStatusCode.BadRequest)

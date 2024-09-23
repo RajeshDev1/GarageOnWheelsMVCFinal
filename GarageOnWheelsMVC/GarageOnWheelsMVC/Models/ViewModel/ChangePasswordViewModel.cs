@@ -15,7 +15,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
 
         [Required(ErrorMessage = "Confirm Password is required.")]
         [DisplayName("Confirm Password")]
-        [Compare("NewPassword", ErrorMessage = "Confirm Password does not match the New Password.")]
+        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
     }

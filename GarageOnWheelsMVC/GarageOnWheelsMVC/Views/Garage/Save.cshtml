@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <label asp-for="UserId" class="form-label">Owner Name</label>
-                            <select id="userid" asp-for="UserId" class="form-select form-select-lg" required>
+                            <select id="userid" asp-for="UserId" class="form-select form-select-lg" placeholder="Select GarageOwner" required>
                                 <option value="">Select Garage Owner</option>
                             </select>
                         </div>
@@ -103,20 +103,26 @@
         $(document).ready(function () {
             var $userIdSelect = $('#userid');
 
+            // Get the current user ID from the model
+            var currentUserId = '@Model.UserId';
+
             // Function to populate the garage owners dropdown
             function populateGarageOwners() {
                 $.getJSON('@Url.Action("GetAllGarageOwners", "User")')
                     .done(function (users) {
+                        console.log(users);  // Logging users array
+                        console.log(currentUserId);  // Logging the current user ID
+
+                        // Loop through the users and populate the dropdown
                         $.each(users, function (index, user) {
                             $userIdSelect.append(
                                 $('<option>', { value: user.Id, text: user.FirstName + ' ' + user.LastName })
                             );
                         });
 
-                        // If editing, set the selected value based on the model
-                        var currentUserId = '@Model.UserId';
-                        if ('@Model.Id' !== '') {
-                            $userIdSelect.val(currentUserId);
+                        // Set the selected value for garage owner after dropdown is populated
+                        if (currentUserId !== '00000000-0000-0000-0000-000000000000') {
+                            $userIdSelect.val(currentUserId);  // Set selected value to the current user
                         }
                     })
                     .fail(function () {
@@ -124,19 +130,13 @@
                     });
             }
 
-            // Function to pre-select values in cascading dropdowns
-            function preselectDropdowns() {
-                $("#country").val('@Model.CountryId').triggerchange();
-                $("#state").val('@Model.StateId').triggerchange();
-                $("#city").val('@Model.CityId').triggerchange();
-                $("#area").val('@Model.AreaId').triggerchange();
-            }
-
-            // Call the functions to execute
             populateGarageOwners();
-            preselectDropdowns();
+           
         });
     </script>
+    
+
+
     <script src="~/js/cascadingddl.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

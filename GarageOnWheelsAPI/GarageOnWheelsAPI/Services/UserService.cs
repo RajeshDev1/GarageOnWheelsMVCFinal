@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading.Tasks;
 using GarageOnWheelsAPI.Data;
 using GarageOnWheelsAPI.DTOs;
-using GarageOnWheelsAPI.DTOs.Auth;
 using GarageOnWheelsAPI.Enums;
 using GarageOnWheelsAPI.Interfaces.IServices;
 using GarageOnWheelsAPI.Interfaces.Repositories;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GarageOnWheelsAPI.DTOs;
-using GarageOnWheelsAPI.DTOs.Auth;
 using GarageOnWheelsAPI.Enums;
 using GarageOnWheelsAPI.Models.DatabaseModels;
 

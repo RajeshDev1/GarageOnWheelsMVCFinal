@@ -4,9 +4,11 @@ using GarageOnWheelsMVC.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using NuGet.Common;
+using System.Drawing.Printing;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Policy;
@@ -18,26 +20,11 @@ namespace GarageOnWheelsMVC.Controllers
    
     public class GarageController : Controller
     {
+        private readonly ApiHelper _apiHelper;
 
-        private readonly HttpClient _httpClient;
-        string baseurl = "https://localhost:7107/api/";
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        public GarageController(ApiHelper apiHelper)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        public GarageController(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
-
-        public void SetAuthorize()
-        {
-            var token = HttpContext.Session.GetString("Token");
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
+            _apiHelper = apiHelper;
         }
 
         public IActionResult Dashboard()
@@ -46,21 +33,28 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> GetAllGarages()
+        public async Task<IActionResult> GetAllGarages(int page = 1, int pageSize = 2)
         {
-            SetAuthorize();
-            var response = await _httpClient.GetAsync($"{baseurl}Garage/all");
-            List<GarageViewModel> garages;
-            try
+            var garages = await _apiHelper.GetAsync<List<GarageViewModel>>("Garage/all",HttpContext);
+
+            if (garages == null)
             {
-                garages = JsonSerializer.Deserialize<List<GarageViewModel>>(await response.Content.ReadAsStringAsync(), JsonOptions);
+                return BadRequest("Error retrieving garages.");
             }
-            catch (JsonException ex)
+            var totalCount = garages.Count;
+            var paginatedGarages = garages.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var viewModel = new GarageListViewModel
             {
-                Console.WriteLine($"Deserialization error: {ex.Message}");
-                return BadRequest("Error deserializing user data.");
-            }
-            return View(garages);
+                Garages = paginatedGarages,
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = page,
+                    TotalItems = totalCount,
+                    ItemsPerPage = pageSize
+                }
+            };
+            return View(viewModel);
         }
 
 
@@ -68,64 +62,55 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllGarageNames()
         {
-            SetAuthorize();
-            var response = await _httpClient.GetAsync($"{baseurl}Garage/all");
-            List<GarageViewModel> garages;
-            try
+            var garages = await _apiHelper.GetAsync<List<GarageViewModel>>("Garage/all", HttpContext);
+            if (garages == null)
             {
-                garages = JsonSerializer.Deserialize<List<GarageViewModel>>(await response.Content.ReadAsStringAsync(), JsonOptions);
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine($"Deserialization error: {ex.Message}");
-                return BadRequest("Error deserializing user data.");
+                return BadRequest("Error retrieving garage names.");
             }
             return new JsonResult(garages);
         }
 
-        public async Task<IActionResult> GetGaragesByUserId()   
+        public async Task<IActionResult> GetGaragesByUserId(int page = 1, int pageSize = 2)
         {
-            SetAuthorize();
             var id = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _httpClient.GetAsync($"{baseurl}garage/by-userid/{id}");
-            List<GarageViewModel> garages;
-            try
+            var garages = await _apiHelper.GetAsync<List<GarageViewModel>>($"garage/by-userid/{id}", HttpContext);
+            if (garages == null)
             {
-                garages = JsonSerializer.Deserialize<List<GarageViewModel>>(await response.Content.ReadAsStringAsync(), JsonOptions);
+                return BadRequest("Error retrieving garages.");
             }
-            catch (JsonException ex)
-            {
-                Console.WriteLine($"Deserialization error: {ex.Message}");
-                return BadRequest("Error deserializing user data.");
-            }
-            return View(garages);
-        }
+            var totalCount = garages.Count;
+            var paginatedGarages = garages.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
+            var viewModel = new GarageListViewModel
+            {
+                Garages = paginatedGarages,
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = page,
+                    TotalItems = totalCount,
+                    ItemsPerPage = pageSize
+                }
+            };
+            return View(viewModel);
+           
+        }
         public async Task<IActionResult> GetGaragesBySpecificUserId()
         {
-            SetAuthorize();
             var id = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _httpClient.GetAsync($"{baseurl}garage/by-userid/{id}");
-            List<GarageViewModel> garages;
-            try
+            var garages = await _apiHelper.GetAsync<List<GarageViewModel>>($"garage/by-userid/{id}", HttpContext);
+            if (garages == null)
             {
-                garages = JsonSerializer.Deserialize<List<GarageViewModel>>(await response.Content.ReadAsStringAsync(), JsonOptions);
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine($"Deserialization error: {ex.Message}");
-                return BadRequest("Error deserializing user data.");
+                return BadRequest("Error retrieving garages.");
             }
             return new JsonResult(garages);
         }
 
-        // Here u can Perform 2 Operation(Create a Garage, Update a Garage)
 
-        [Authorize(Roles ="SuperAdmin,GarageOwner")]
+
+        [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            SetAuthorize();
-            var response = await _httpClient.DeleteAsync($"{baseurl}garage/delete/{id}");
+            var response = await _apiHelper.DeleteAsync($"garage/delete/{id}", HttpContext);
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 return RedirectToAction("GetAllGarages", "Garage");
@@ -133,33 +118,27 @@ namespace GarageOnWheelsMVC.Controllers
             return BadRequest();
         }
 
-
         [HttpGet]
-
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<IActionResult> Save(Guid? id)
-        {
-            SetAuthorize();
-
+            {
             GarageViewModel model = new GarageViewModel();
 
             if (id.HasValue)
             {
-                var response = await _httpClient.GetAsync($"{baseurl}garage/{id.Value}");
-                if (response.IsSuccessStatusCode)
+                model = await _apiHelper.GetAsync<GarageViewModel>($"garage/{id.Value}",HttpContext);
+                if (model == null)
                 {
-                    model = JsonSerializer.Deserialize<GarageViewModel>(await response.Content.ReadAsStringAsync(), JsonOptions);
+                    return BadRequest("Error retrieving garage data.");
                 }
             }
+            model.UserId = Guid.Empty;
             return View("Save", model);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(GarageViewModel model)
         {
-            SetAuthorize();
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -170,45 +149,45 @@ namespace GarageOnWheelsMVC.Controllers
                 model.UserId = SessionHelper.GetUserIdFromToken(HttpContext);
             }
 
-        
-            if (model.Id == Guid.Empty) 
+            if (model.Id == Guid.Empty)
             {
-                
-                var existingGarageResponse = await _httpClient.GetAsync($"{baseurl}garage/getbyownerid?ownerId={model.UserId}");
-                if (existingGarageResponse.IsSuccessStatusCode)
+                var existingGarage = await _apiHelper.GetBoolAsync($"garage/getbyownerid?ownerId={model.UserId}", HttpContext);
+                if (existingGarage)
                 {
-                    var existingGarage = JsonSerializer.Deserialize<bool>(await existingGarageResponse.Content.ReadAsStringAsync(), JsonOptions);
-                    if (existingGarage)
-                    {
-                        ModelState.AddModelError("", "You already have a garage. Only one garage can be created per owner.");
-                        return View(model);
-                    }
+                    ModelState.AddModelError("", "You already have a garage. Only one garage can be created per owner.");
+                    return View(model);
                 }
 
                 model.CreatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-
-                
-                var jsonModel = JsonSerializer.Serialize(model);
-                var content = new StringContent(jsonModel, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{baseurl}garage/create", content);
+                var response = await _apiHelper.SendPostRequest("garage/create", model, HttpContext);
 
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
-                    return RedirectToAction("GetAllGarages", "Garage");
+                    if (User.IsInRole("SuperAdmin"))
+                    {
+                        return RedirectToAction("GetAllGarages", "Garage");
+                    }
+                    else
+                    {
+                        return RedirectToAction("GetGaragesByUserId", "Garage");
+                    }
                 }
             }
-            else 
+            else
             {
                 model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-
-                // Serialize and Put (update) the garage data
-                var jsonModel = JsonSerializer.Serialize(model);
-                var content = new StringContent(jsonModel, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PutAsync($"{baseurl}garage/update/{model.Id}", content);
+                var response = await _apiHelper.SendJsonAsync($"garage/update/{model.Id}", model, HttpMethod.Put, HttpContext);
 
                 if (response.StatusCode == HttpStatusCode.NoContent)
                 {
-                    return RedirectToAction("GetAllGarages", "Garage");
+                    if (User.IsInRole("SuperAdmin"))
+                    {
+                        return RedirectToAction("GetAllGarages", "Garage");
+                    }
+                    else
+                    {
+                        return RedirectToAction("GetGaragesByUserId", "Garage");
+                    }
                 }
             }
 

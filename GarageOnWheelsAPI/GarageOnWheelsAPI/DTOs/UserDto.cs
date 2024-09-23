@@ -1,5 +1,4 @@
-﻿using GarageOnWheelsAPI.DTOs.Auth;
-using GarageOnWheelsAPI.Enums;
+﻿using GarageOnWheelsAPI.Enums;
 using GarageOnWheelsAPI.Models.DatabaseModels;
 using System.ComponentModel.DataAnnotations;
 

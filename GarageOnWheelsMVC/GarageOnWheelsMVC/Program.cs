@@ -1,15 +1,11 @@
-
+using GarageOnWheelsMVC.Helper;
 using GarageOnWheelsMVC.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace GarageOnWheelsMVC
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
+
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<ApiHelper>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.AddControllers().AddJsonOptions(options =>
@@ -30,8 +26,7 @@ namespace GarageOnWheelsMVC
               options.LoginPath = "/Account/Login";
               options.AccessDeniedPath = "/";
           });
-
-
+            
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(20);
@@ -62,6 +57,4 @@ namespace GarageOnWheelsMVC
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
-        }
-    }
-}
+        

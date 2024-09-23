@@ -1,59 +1,44 @@
-﻿using GarageOnWheelsMVC.Models; 
+﻿using GarageOnWheelsMVC.Helper;
+using GarageOnWheelsMVC.Models;
 using GarageOnWheelsMVC.Models.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Text.Json;
-using GarageOnWheelsMVC.Helper;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authorization;
 
 namespace GarageOnWheelsMVC.Controllers
 {
     public class RevenueReportController : Controller
     {
-        private readonly HttpClient _httpClient;
-        string baseurl = "https://localhost:7107/api/";
-        public RevenueReportController(HttpClient httpClient)
+        private readonly ApiHelper _apiHelper;
+
+        public RevenueReportController(ApiHelper apiHelper)
         {
-            _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("https://localhost:7107/api/");
+            _apiHelper = apiHelper;
         }
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-          
-        public void SetAuthorize()
-        {
-            var token = HttpContext.Session.GetString("Token");
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
-        }
-
-
 
         [HttpPost]
-        [Authorize(Roles ="SuperAdmin,GarageOwner")]
+        [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<IActionResult> ByDateRange(Guid garageId, DateTime startDate, DateTime endDate)
         {
-
-            SetAuthorize();
             try
             {
-                var response = await _httpClient.GetAsync($"RevenueReport/GetRevenueReportByDateRange?garageId={garageId}&startDate={startDate:O}&endDate={endDate:O}");
-                response.EnsureSuccessStatusCode();
+                // Use ApiHelper to fetch the revenue reports by date range
+                var endpoint = $"RevenueReport/GetRevenueReportByDateRange?garageId={garageId}&startDate={startDate:O}&endDate={endDate:O}";
+                var revenueReports = await _apiHelper.GetAsync<List<RevenueReportViewModel>>(endpoint, HttpContext);
 
-                var content = await response.Content.ReadAsStringAsync();
-                var revenueReports = JsonConvert.DeserializeObject<List<RevenueReportViewModel>>(content);
-                return PartialView("_RevenueReportTable",revenueReports);
+                if (revenueReports != null)
+                {
+                    return PartialView("_RevenueReportTable", revenueReports);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Error fetching revenue reports.");
+                    return View();
+                }
             }
             catch (Exception ex)
             {
@@ -65,57 +50,50 @@ namespace GarageOnWheelsMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> GetGarages()
         {
-            SetAuthorize();
             try
             {
-                // Call your API to get the list of garages
-                var response = await _httpClient.GetAsync($"{baseurl}Garage/all");
-                response.EnsureSuccessStatusCode();
+                // Use ApiHelper to get the list of garages
+                var garages = await _apiHelper.GetAsync<IEnumerable<GarageViewModel>>("Garage/all", HttpContext);
 
-                var content = await response.Content.ReadAsStringAsync();
-                var garages = JsonConvert.DeserializeObject<IEnumerable<GarageViewModel>>(content);
-
-                // Return the list of garages as JSON
-                return Json(garages.Select(g => new { id = g.Id, name = g.Name }));
+                if (garages != null)
+                {
+                    // Return the list of garages as JSON
+                    return Json(garages.Select(g => new { id = g.Id, name = g.Name }));
+                }
+                else
+                {
+                    return BadRequest("Error fetching garages.");
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Deserialization error: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
                 return BadRequest(new { error = ex.Message });
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> GenerateRevenue()
         {
-            SetAuthorize();
             if (!User.IsInRole("SuperAdmin"))
             {
                 var userId = SessionHelper.GetUserIdFromToken(HttpContext);
-                var response = await _httpClient.GetAsync($"{baseurl}Garage/by-userid/{userId}");
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    return BadRequest("Error fetching garage data from the API.");
-                }
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                List<GarageViewModel> garages;
-
-                garages = JsonConvert.DeserializeObject<List<GarageViewModel>>(jsonResponse);
+                var endpoint = $"Garage/by-userid/{userId}";
+                var garages = await _apiHelper.GetAsync<List<GarageViewModel>>(endpoint, HttpContext);
 
                 if (garages == null || !garages.Any())
                 {
                     return BadRequest("Garage data is null.");
                 }
 
-
                 var firstGarage = garages.First();
                 ViewBag.GarageId = firstGarage.Id;
             }
+
+            // Return an empty model
             var model = new List<RevenueReportViewModel>();
             return View(model);
         }
-
-
     }
 }

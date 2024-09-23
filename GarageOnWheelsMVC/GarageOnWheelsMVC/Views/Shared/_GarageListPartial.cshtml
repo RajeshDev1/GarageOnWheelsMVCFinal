@@ -1,23 +1,23 @@
-﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.GarageViewModel>
+﻿@model GarageOnWheelsMVC.Models.ViewModel.GarageListViewModel
 
 
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(model => model.Garages.First().Name)
             </th>
             <th class="text-center">
-                GarageOwnerName
+              Garage Owner
             </th>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Address)
+                @Html.DisplayNameFor(model => model.Garages.First().Address)
             </th>
             <th class="text-center">Action</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Garages)
         {
             <tr>
                 <td class="text-center">

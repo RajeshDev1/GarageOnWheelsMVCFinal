@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.OrderViewModel>
+﻿@model GarageOnWheelsMVC.Models.ViewModel.OrderHistoryViewModel
 
 <table class="table table-bordered table-striped">
     <thead>
@@ -10,7 +10,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var order in Model)
+        @foreach (var order in Model.Orders)
         {
             <tr>
 
