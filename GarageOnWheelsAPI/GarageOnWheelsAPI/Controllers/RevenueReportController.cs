@@ -14,25 +14,13 @@ namespace GarageOnWheelsAPI.Controllers
     {
 
         private readonly IRevenueService _revenueService;
+        private readonly ILogger<RevenueReportController> _logger;
 
-        public RevenueReportController(IRevenueService revenueService)
+        public RevenueReportController(IRevenueService revenueService , ILogger<RevenueReportController> logger)
         {
             _revenueService = revenueService;
+            _logger = logger;
         }
-   /*     [HttpGet("GetRevenueReportByDate")]
-        public async Task<IActionResult> GetRevenueReportByDate([FromQuery] Guid garageId, [FromQuery] DateTime date)
-        {
-            try
-            {
-                var revenueReport = await _revenueService.GetRevenueReportByDateAsync(garageId, date);
-                return Ok(revenueReport);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception if necessary
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }*/
 
         [HttpGet("GetRevenueReportByDateRange")]   
         public async Task<IActionResult> GetRevenueReportByDateRange([FromQuery] Guid garageId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
@@ -44,25 +32,9 @@ namespace GarageOnWheelsAPI.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception if necessary
+                _logger.LogError(ex, "An error occurred while trying to retrieve all users.");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-        }
-
-    /*    [HttpGet("GetAllRevenueReports")]
-        public async Task<IActionResult> GetAllRevenueReports([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
-        {
-            try
-            {
-                var revenueReports = await _revenueService.GetAllRevenueReportsAsync(startDate, endDate);
-                return Ok(revenueReports);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception if necessary
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-*/
+        }  
     }
 }

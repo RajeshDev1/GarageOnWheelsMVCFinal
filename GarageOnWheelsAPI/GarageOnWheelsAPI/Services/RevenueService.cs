@@ -19,9 +19,6 @@ namespace GarageOnWheelsAPI.Services
             _garageRepository = garageRepository;
         }
 
-
-
-
         public async Task<IEnumerable<RevenueReportDto>> GetRevenueReportByDateRangeAsync(Guid garageId, DateTime startDate, DateTime endDate)
         {
             var orders = await _orderRepository.GetOrdersByGarageIdAsync(garageId);

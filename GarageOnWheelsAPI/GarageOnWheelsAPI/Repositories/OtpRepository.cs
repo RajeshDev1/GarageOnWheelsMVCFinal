@@ -28,7 +28,7 @@ namespace GarageOnWheelsAPI.Repositories
 
         public async Task<Otp> GetOtpByUserIdAsync(string email)
         {
-            return await _context.Otps.FirstOrDefaultAsync(x => x.Email == email);
+            return await _context.Otps.FirstOrDefaultAsync(o => o.Email == email);
         }
     }
 }

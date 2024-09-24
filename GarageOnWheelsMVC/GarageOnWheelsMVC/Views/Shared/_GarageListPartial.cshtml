@@ -1,23 +1,26 @@
-﻿@model GarageOnWheelsMVC.Models.ViewModel.GarageListViewModel
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.GarageViewModel>
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" id="garageTable">
     <thead>
         <tr>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Garages.First().Name)
+                @Html.DisplayNameFor(model => model.Name)
             </th>
             <th class="text-center">
-              Garage Owner
+                GarageOwnerName
             </th>
             <th class="text-center">
-                @Html.DisplayNameFor(model => model.Garages.First().Address)
+                @Html.DisplayNameFor(model => model.Address)
             </th>
             <th class="text-center">Action</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Garages)
+        @foreach (var item in Model)
         {
             <tr>
                 <td class="text-center">
@@ -27,7 +30,7 @@
                     @Html.DisplayFor(modelItem => item.GarageOwnerName)
                 </td>
                 <td class="text-center">
-                    @($"{item.Address}, {item.City.Name}, {item.State.Name},{item.Country.Name},{item.Area.Name}")
+                    @($"{item.Country.Name},{item.State.Name},{item.City.Name},{item.Area.Name},{item.Address}.")
                 </td>
                 <td class="text-center">
                     <a asp-action="Save" asp-controller="Garage" asp-route-id="@item.Id" title="Edit">
@@ -43,7 +46,18 @@
     </tbody>
 </table>
 <script>
+    $(document).ready(function () {
+        // Initialize DataTable
+        $('#garageTable').DataTable();
+
+        // Toastr notification for success message
+        var message = '@TempData["Successful"]';
+        if (message) {
+            toastr.success(message);
+        }
+    });
+
     function confirmDelete() {
-        return confirm("Are you Sure to Delete ?"); 
+        return confirm("Are you sure to Delete?");
     }
 </script>

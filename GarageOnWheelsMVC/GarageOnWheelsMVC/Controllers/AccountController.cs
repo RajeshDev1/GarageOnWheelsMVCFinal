@@ -166,7 +166,7 @@ namespace GarageOnWheelsMVC.Controllers
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 TempData["Message"] = "Invalid login credentials. Please check your email and password.";
-                TempData["MessageType"] = "error";  // Message type for Toastr
+                TempData["MessageType"] = "error";  // Message type for Toaster
             }
             // Handle BadRequest (e.g., missing required fields)
             else if (response.StatusCode == HttpStatusCode.BadRequest)

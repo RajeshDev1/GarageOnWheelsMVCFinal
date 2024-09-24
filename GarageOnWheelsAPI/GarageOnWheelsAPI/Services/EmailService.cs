@@ -18,7 +18,7 @@ namespace GarageOnWheelsAPI.Services
 
         public async Task SendOtpEmailAsync(string email, string otpCode)
         {
-            _logger.LogInformation("Preparing to send OTP email to: {Email}", email);
+           
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("GarageOnWheelsApp", "paridajamuna123@gmail.com"));
@@ -32,17 +32,14 @@ namespace GarageOnWheelsAPI.Services
             using var client = new SmtpClient();
             try
             {
-                client.CheckCertificateRevocation = false; // Disables certificate revocation check
-                client.SslProtocols = SslProtocols.Tls12;  // Specify the SSL/TLS version
-
-                _logger.LogInformation("Connecting to SMTP server...");
+                client.CheckCertificateRevocation = false; 
+                client.SslProtocols = SslProtocols.Tls12;  
+                //Connect to the smtp server
                 await client.ConnectAsync("smtp.gmail.com", 587);
-                _logger.LogInformation("Authenticating...");
+                //authenticate
                 await client.AuthenticateAsync("paridajamuna123@gmail.com", "cwgx dqky qnfv dodm");
-
-                _logger.LogInformation("Sending OTP email...");
-                await client.SendAsync(message);
-                _logger.LogInformation("OTP email sent successfully.");
+                //Send Email
+                await client.SendAsync(message);              
             }
             catch (Exception ex)
             {
@@ -50,12 +47,9 @@ namespace GarageOnWheelsAPI.Services
             }
             finally
             {
-                _logger.LogInformation("Disconnecting from SMTP server...");
+                // Disconnect 
                 await client.DisconnectAsync(true);
-                _logger.LogInformation("Disconnected from SMTP server.");
             }
         }
-
-
     }
 }

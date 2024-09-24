@@ -1,4 +1,4 @@
-﻿@model GarageOnWheelsMVC.Models.ViewModel.GarageListViewModel
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.GarageViewModel>
 
 @{
     ViewData["Title"] = "Garage Details";
@@ -20,14 +20,5 @@
         @Html.Partial("_GarageListPartial", Model)
 
     </div>
-    @* <nav aria-label="Page navigation">
-        <ul class="pagination">
-            @for (var i = 1; i <= Model.PagingInfo.TotalPages; i++)
-            {
-                <li class="page-item @(Model.PagingInfo.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("GetGargesByUserId", new { page = i })">@i</a>
-                </li>
-            }
-        </ul>
-    </nav> *@
+ 
 </div>

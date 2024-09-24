@@ -1,6 +1,10 @@
-﻿@model GarageOnWheelsMVC.Models.ViewModel.OrderListViewModel
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.Order>
 
-<table class="table table-bordered table-striped">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+<table class="table table-bordered table-striped" id="orderTable">
     <thead>
         <tr>
             <th class="text-center">Service Details</th>
@@ -8,10 +12,10 @@
             <th class="text-center">Total Amount</th>
             <th class="text-center">Status</th>
             <th class="text-center">Actions</th>
-        </tr>  
+        </tr>
     </thead>
     <tbody>
-        @foreach (var order in Model.Orders)
+        @foreach (var order in Model)
         {
             <tr>
                 <td class="text-center">
@@ -28,27 +32,36 @@
                     {
                         case OrderStatus.Pending:
                             <div>
-                                <i class="fas fa-hourglass-half"  title="Pending" style="font-size: 14px; color: #f39c12;"></i>
+                                <i class="fas fa-hourglass-half" title="Pending" style="font-size: 14px; color: #f39c12;"></i>
                                 Pending
                             </div>
                             break;
                         case OrderStatus.Completed:
                             <div>
-                                <i class="fas fa-check-circle"  title="Completed"  style="font-size: 14px; color: #2ecc71;"></i>
+                                <i class="fas fa-check-circle" title="Completed" style="font-size: 14px; color: #2ecc71;"></i>
                                 Completed
                             </div>
-                            break;                     
-
+                            break;
                     }
                 </td>
                 <td class="text-center">
-                    <a asp-action="Edit" asp-controller="Order" asp-route-id="@order.Id" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a> |
+                    @if(order.Status == OrderStatus.Pending)
+                    {
+                        <a asp-action="Edit" asp-controller="Order" asp-route-id="@order.Id" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <span>|</span>
+                        <a asp-action="Delete" asp-controller="Order" asp-route-id="@order.Id" title="Delete" class="text-danger" onclick="return confirmDelete();">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Delete" asp-controller="Order" asp-route-id="@order.Id" title="Delete" class="text-danger" onclick="return confirmDelete();">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    }
 
-                    <a asp-action="Delete" asp-controller="Order" asp-route-id="@order.Id" title="Delete" class="text-danger" onclick="return confirmDelete();">
-                        <i class="fas fa-trash-alt"></i>
-                    </a>
                 </td>
             </tr>
         }
@@ -57,7 +70,16 @@
 
 
 <script>
+    $(document).ready(function () {   
+        $('#orderTable').DataTable();
+
+        var message = '@TempData["Successful"]';
+        if (message) {
+            toastr.success(message);
+        }
+    });
+
     function confirmDelete() {
-        return confirm("Are you delete this order?");
+        return confirm("Are you sure to Delete?");
     }
 </script>

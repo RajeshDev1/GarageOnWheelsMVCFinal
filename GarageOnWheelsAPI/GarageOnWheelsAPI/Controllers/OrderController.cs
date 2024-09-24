@@ -67,13 +67,12 @@ namespace GarageOnWheelsAPI.Controllers
         // Get all orders by a specific garageId
 
         [HttpGet("GetOrdersByGarage/{garageId}")]
+        [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> GetOrdersByGarage(Guid garageId)
         {
             try
-            {
-                // Fetch orders for the given garage ID
-                var orders = await _orderService.GetOrdersByGarageIdAsync(garageId);
-                // Check if any orders were found
+            {               
+                var orders = await _orderService.GetOrdersByGarageIdAsync(garageId);           
                 if (orders == null || !orders.Any())
                 {
                     return NotFound(new { Message = "No orders found for the specified garage." });
@@ -83,8 +82,7 @@ namespace GarageOnWheelsAPI.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (optional)
-                // _logger.LogError(ex, "Error fetching orders for Garage ID: {GarageId}", garageId);
+                 _logger.LogError(ex, "Error fetching orders for Garage ID: {GarageId}", garageId);
 
                 return StatusCode(500, new { Message = "An error occurred while fetching orders." });
             }
@@ -93,7 +91,7 @@ namespace GarageOnWheelsAPI.Controllers
 
 
         [HttpPost("CreateOrder")]
-        //[Authorize(Roles = "GarageOwner")]
+        [Authorize(Roles = "GarageOwner,Customer")]
         public async Task<IActionResult> CreateOrder([FromBody] OrderDto order)
         {          
             if (!ModelState.IsValid)
@@ -111,8 +109,7 @@ namespace GarageOnWheelsAPI.Controllers
 
                 await _orderService.CreateOrderAsync(order);
                 return Ok(order);
-
-                /*return CreatedAtAction(nameof(GetOrderByIdAsync), new { id = order.Id }, order);*/
+    
             }
             catch (Exception ex)
             {
@@ -122,7 +119,7 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
         [HttpPut("UpdateOrder/{id}")]
-  
+        [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] OrderDto order)
         {
             if (id != order.Id)
@@ -144,18 +141,11 @@ namespace GarageOnWheelsAPI.Controllers
 
 
         [HttpDelete("DeleteOrder/{id}")]
-
+        [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
             try
-            {
-
-              /*  var order = await _orderService.GetOrderByIdAsync(id);
-                if (order == null) 
-                {
-                    return NotFound();
-                }*/
-
+            {       
                 await _orderService.DeleteOrderAsync(id);
                 return NoContent();
             }
@@ -167,6 +157,7 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
         [HttpGet("GetOrderHistory/{userId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetOrderHistory(Guid userId)
         {
             try

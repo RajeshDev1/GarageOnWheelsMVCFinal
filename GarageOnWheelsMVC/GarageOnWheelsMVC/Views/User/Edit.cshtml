@@ -47,15 +47,29 @@
                         </div>
                         <span asp-validation-for="Gender" class="text-danger"></span>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Role" class="form-label">Select User Type</label>
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <div class="mb-3">
+                            <label asp-for="Role" class="form-label">Select User Type</label>
                         <select asp-for="Role" class="form-select" required>
                             <option selected disabled value="">Select Type</option>
                             <option value="GarageOwner">GarageOwner</option>
                             <option value="Customer">Customer</option>
                         </select>
                         <span asp-validation-for="Role" class="text-danger"></span>
-                    </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label asp-for="Role" class="form-label">Select User Type</label>
+                            <select asp-for="Role" class="form-select" required>
+                                <option selected disabled value="">Select Type</option>                         
+                                <option value="Customer">Customer</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+                    }
                     <div class="mb-3">
                         <label asp-for="PhoneNo" class="form-label">Phone No</label>
                         <input type="tel" asp-for="PhoneNo" class="form-control" required pattern="\d+" title="Phone number should contain only digits." />

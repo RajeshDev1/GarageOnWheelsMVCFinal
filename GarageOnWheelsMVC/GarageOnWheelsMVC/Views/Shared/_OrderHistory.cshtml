@@ -1,16 +1,20 @@
-﻿@model GarageOnWheelsMVC.Models.ViewModel.OrderHistoryViewModel
+﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.OrderViewModel>
 
-<table class="table table-bordered table-striped">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+<table class="table table-bordered table-striped" id="orderTable">
     <thead>
         <tr>
-      
+
             <th class="text-center">Order Date</th>
             <th class="text-center">Total Amount</th>
             <th class="text-center">Status</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var order in Model.Orders)
+        @foreach (var order in Model)
         {
             <tr>
 
@@ -35,7 +39,6 @@
                                 Completed
                             </div>
                             break;
-
                     }
                 </td>
 
@@ -44,3 +47,10 @@
     </tbody>
 </table>
 
+<script>
+    $(document).ready(function () {
+        $('#orderTable').DataTable();
+    });
+
+
+</script>

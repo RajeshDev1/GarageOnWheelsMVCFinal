@@ -138,7 +138,6 @@ namespace GarageOnWheelsAPI.Controllers
 
         [HttpPut("update/{id:guid}")]
         [Authorize]
-
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -222,10 +221,10 @@ namespace GarageOnWheelsAPI.Controllers
                 var result = await _userService.ChangePasswordAsync(id, currentPassword, newPassword);
                 if (result.Succeeded)
                 {
-                    var errorMessage = result.Errors.FirstOrDefault()?.Description;
-                    return BadRequest(errorMessage);
-                }
-                return Ok("Password changes Successfully.");
+                    return Ok("Password changes Successfully.");
+                }           
+                var errorMessage = result.Errors.FirstOrDefault()?.Description;
+                return BadRequest(errorMessage);
             }
             catch (Exception ex)
             {

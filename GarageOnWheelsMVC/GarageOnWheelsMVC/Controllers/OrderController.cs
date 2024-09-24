@@ -30,7 +30,7 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> GetOrdersByGarage(int page = 1, int pageSize = 3)
+        public async Task<IActionResult> GetOrdersByGarage()
         {
             // Fetch the user ID from the session
             var userId = SessionHelper.GetUserIdFromToken(HttpContext); 
@@ -50,29 +50,10 @@ namespace GarageOnWheelsMVC.Controllers
             {
                 return BadRequest("Error fetching orders data from the API.");
             }
-
-            // Total count of orders
-            var totalCount = orders.Count;
-
-            // Paginate the orders
-            var paginatedOrders = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            // Create the view model with paginated orders and paging info
-            var viewModel = new OrderListViewModel
-            {
-                Orders = paginatedOrders,
-                PagingInfo = new PagingInfo
-                {
-                    CurrentPage = page,
-                    TotalItems = totalCount,
-                    ItemsPerPage = pageSize
-                }
-            };
-
+          
             // Return the paginated orders to the view
-            return View(viewModel);
+            return View(orders);
         }
-
 
         [HttpGet]
         [Authorize(Roles = "GarageOwner,Customer")]
@@ -98,7 +79,16 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                return RedirectToAction("Dashboard", "Account");
+                TempData["SuccessMessage"] = "Order created successfully!";
+
+                if (User.IsInRole("GarageOwner"))
+                {
+                    return RedirectToAction("GetOrdersByGarage", "Order");
+                }
+                else if (User.IsInRole("Customer"))
+                {
+                    return RedirectToAction("OrderHistory", "Order"); 
+                }
             }
 
             var message = await response.Content.ReadAsStringAsync();
@@ -146,7 +136,7 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> OrderHistory(int page = 1, int pageSize = 5)
+        public async Task<IActionResult> OrderHistory()
         {
             var userId = SessionHelper.GetUserIdFromToken(HttpContext);
             var orders = await _apiHelper.GetAsync<List<OrderViewModel>>($"order/GetOrderHistory/{userId}", HttpContext);
@@ -156,20 +146,8 @@ namespace GarageOnWheelsMVC.Controllers
                 ViewBag.Message = "No orders found.";
                 return View(new List<OrderViewModel>());
             }
-            var totalCount = orders.Count;
-            var paginatedOrders = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            var viewModel = new OrderHistoryViewModel
-            {
-                Orders = paginatedOrders,
-                PagingInfo = new PagingInfo
-                {
-                    CurrentPage = page,
-                    TotalItems = totalCount,
-                    ItemsPerPage = pageSize
-                }
-            };
 
-            return View(viewModel);
+            return View(orders);
         }
 
 

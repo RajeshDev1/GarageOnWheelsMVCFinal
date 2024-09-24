@@ -31,23 +31,23 @@
 
                                 <form asp-action="Login" asp-controller="Account" method="post">
                                     @Html.AntiForgeryToken()
-                                    <div class="d-flex align-items-center mb-3 pb-1">
+                                    <div class="d-flex align-items-center mb-4 pb-1">
                                         <span class="h3 fw-bold mb-0">Sign In to Your Account</span>
                                     </div>
 
-                                    <div class="form-outline mb-3">
+                                    <div class="form-outline mb-4">
                                         <label asp-for="Email" class="form-label">Email <span class="required-asterisk">*</span></label>
                                         <input asp-for="Email" class="form-control form-control-lg" placeholder="Enter your Email" />
                                         <span asp-validation-for="Email" class="text-danger"></span>
                                     </div>
 
-                                    <div class="form-outline mb-3">
+                                    <div class="form-outline mb-4">
                                         <label asp-for="Password" class="form-label">Password <span class="required-asterisk">*</span></label>
                                         <input asp-for="Password" class="form-control form-control-lg" placeholder="Enter your Password" />
                                         <span asp-validation-for="Password" class="text-danger"></span>
                                     </div>
 
-                                    <div class="form-outline mb-3">
+                                    <div class="form-outline mb-4">
                                         @if (TempData["Message"] != null)
                                         {
                                             <span class="text-danger form-outline mb-2">@TempData["Message"] </span>

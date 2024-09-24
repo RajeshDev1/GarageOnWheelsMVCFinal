@@ -9,88 +9,94 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form asp-action="Create" asp-controller="Order" method="post" class="needs-validation">
-                    @Html.AntiForgeryToken()
-                    <div class="form-group mb-3">
-                        <label asp-for="GarageId" class="form-label">Select Garage</label>
-                        <select id="garage" asp-for="GarageId" class="form-select form-select-lg" required>
-                            <option value="">Select Garage</option>
-                        </select>
-                        <span asp-validation-for="GarageId" class="text-danger"></span>
-                    </div>            
+            <form id="createOrderForm" method="post" class="needs-validation">
+                @Html.AntiForgeryToken()
+                <div class="form-group mb-3">
+                    <label asp-for="GarageId" class="form-label">Select Garage</label>
+                    <select id="garage" asp-for="GarageId" class="form-select form-select-lg" required>
+                        <option value="">Select Garage</option>
+                    </select>
+                    <span asp-validation-for="GarageId" class="text-danger"></span>
+                </div>
 
                 <div class="form-group mb-3">
                     <label asp-for="ServiceDetails" class="form-label">Service Details</label>
                     <textarea asp-for="ServiceDetails" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
                     <span asp-validation-for="ServiceDetails" class="text-danger"></span>
                 </div>
-    
 
-                <button type="submit" class="btn btn-primary w-100" >Create Order</button>
+                <button type="submit" class="btn btn-primary w-100">Create Order</button>
             </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
             var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
-       
-        var $garageSelect = $('#garage');
-            if (role == "Customer") {
+            var $garageSelect = $('#garage');
 
+            // Fetch garages based on user role
+            if (role === "Customer") {
                 $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
                     .done(function (garages) {
-                        console.log("Response received:", garages);
-
-                        $.each(garages, function (index, garage) {
-                            var id = garage.Id;
-                            var name = garage.Name;
-
+                        garages.forEach(function (garage) {
                             $garageSelect.append(
                                 $('<option>', {
-                                    value: id,
-                                    text: name
+                                    value: garage.Id,
+                                    text: garage.Name
                                 })
                             );
                         });
                     })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.error("Error during AJAX call:", textStatus, errorThrown);
+                    .fail(function () {
                         alert("An error occurred while fetching garages. Please try again later.");
                     });
-
-            }
-            else {
-
+            } else {
                 $.getJSON('@Url.Action("GetGaragesBySpecificUserId", "Garage")')
                     .done(function (garages) {
-                        console.log("Response received:", garages);
-
-                        $.each(garages, function (index, garage) {
-                            var id = garage.Id;
-                            var name = garage.Name;
-
+                        garages.forEach(function (garage) {
                             $garageSelect.append(
                                 $('<option>', {
-                                    value: id,
-                                    text: name
+                                    value: garage.Id,
+                                    text: garage.Name
                                 })
                             );
                         });
                     })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.error("Error during AJAX call:", textStatus, errorThrown);
+                    .fail(function () {
                         alert("An error occurred while fetching garages. Please try again later.");
                     });
-
             }
 
+            // Handle form submission
+            $('#createOrderForm').submit(function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Create", "Order")',
+                    data: $(this).serialize(),
+                    success: function () {
+                        var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
+                        if (role === "GarageOwner") {
+                            window.location.href = '@Url.Action("GetOrdersByGarage", "Order")';
+                        } else {
+                            window.location.href = '@Url.Action("OrderHistory", "Order")';
+                        }
+                    },
+                    error: function (xhr) {
+                        // Handle errors
+                        var errorMessage = xhr.responseText || "An error occurred. Please try again.";
+                        alert(errorMessage);
+                    }
+                });
+            });
         });
     </script>
 
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 }

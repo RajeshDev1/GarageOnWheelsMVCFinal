@@ -13,7 +13,6 @@ namespace GarageOnWheelsMVC.Models
         [StringLength(50, MinimumLength = 2, ErrorMessage = "LastName is Required")]
         public string LastName { get; set; }
         [Required]
-        [EmailAddress]
         [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}" + @"\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\" + @".)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Invalid Email Format")]
         public string Email { get; set; }
         [Required]

@@ -18,7 +18,7 @@ namespace GarageOnWheelsAPI.Services
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel >= LogLevel.Error; // Adjust as necessary
+            return logLevel >= LogLevel.Error; 
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

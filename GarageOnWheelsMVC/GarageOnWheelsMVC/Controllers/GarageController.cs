@@ -33,28 +33,15 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> GetAllGarages(int page = 1, int pageSize = 2)
+        public async Task<IActionResult> GetAllGarages()
         {
             var garages = await _apiHelper.GetAsync<List<GarageViewModel>>("Garage/all",HttpContext);
-
+                
             if (garages == null)
             {
                 return BadRequest("Error retrieving garages.");
-            }
-            var totalCount = garages.Count;
-            var paginatedGarages = garages.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var viewModel = new GarageListViewModel
-            {
-                Garages = paginatedGarages,
-                PagingInfo = new PagingInfo
-                {
-                    CurrentPage = page,
-                    TotalItems = totalCount,
-                    ItemsPerPage = pageSize
-                }
-            };
-            return View(viewModel);
+            }     
+            return View(garages);
         }
 
 
@@ -70,28 +57,15 @@ namespace GarageOnWheelsMVC.Controllers
             return new JsonResult(garages);
         }
 
-        public async Task<IActionResult> GetGaragesByUserId(int page = 1, int pageSize = 2)
+        public async Task<IActionResult> GetGaragesByUserId()
         {
             var id = SessionHelper.GetUserIdFromToken(HttpContext);
             var garages = await _apiHelper.GetAsync<List<GarageViewModel>>($"garage/by-userid/{id}", HttpContext);
             if (garages == null)
             {
                 return BadRequest("Error retrieving garages.");
-            }
-            var totalCount = garages.Count;
-            var paginatedGarages = garages.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var viewModel = new GarageListViewModel
-            {
-                Garages = paginatedGarages,
-                PagingInfo = new PagingInfo
-                {
-                    CurrentPage = page,
-                    TotalItems = totalCount,
-                    ItemsPerPage = pageSize
-                }
-            };
-            return View(viewModel);
+            }           
+            return View(garages);
            
         }
         public async Task<IActionResult> GetGaragesBySpecificUserId()
@@ -121,20 +95,28 @@ namespace GarageOnWheelsMVC.Controllers
         [HttpGet]
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<IActionResult> Save(Guid? id)
-            {
+        {
             GarageViewModel model = new GarageViewModel();
 
             if (id.HasValue)
             {
-                model = await _apiHelper.GetAsync<GarageViewModel>($"garage/{id.Value}",HttpContext);
+                model = await _apiHelper.GetAsync<GarageViewModel>($"garage/{id.Value}", HttpContext);
                 if (model == null)
                 {
                     return BadRequest("Error retrieving garage data.");
                 }
+
+                // If editing, populate UserId (owner ID) from model
+                model.UserId = model.UserId; // Assuming this is set in the GarageViewModel
             }
-            model.UserId = Guid.Empty;
+            else
+            {
+                model.UserId = Guid.Empty; // New garage, no owner selected yet
+            }
+
             return View("Save", model);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(GarageViewModel model)
@@ -163,14 +145,9 @@ namespace GarageOnWheelsMVC.Controllers
 
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
-                    if (User.IsInRole("SuperAdmin"))
-                    {
-                        return RedirectToAction("GetAllGarages", "Garage");
-                    }
-                    else
-                    {
-                        return RedirectToAction("GetGaragesByUserId", "Garage");
-                    }
+                    return User.IsInRole("SuperAdmin")
+                        ? RedirectToAction("GetAllGarages", "Garage")
+                        : RedirectToAction("GetGaragesByUserId", "Garage");
                 }
             }
             else
@@ -180,19 +157,15 @@ namespace GarageOnWheelsMVC.Controllers
 
                 if (response.StatusCode == HttpStatusCode.NoContent)
                 {
-                    if (User.IsInRole("SuperAdmin"))
-                    {
-                        return RedirectToAction("GetAllGarages", "Garage");
-                    }
-                    else
-                    {
-                        return RedirectToAction("GetGaragesByUserId", "Garage");
-                    }
+                    return User.IsInRole("SuperAdmin")
+                        ? RedirectToAction("GetAllGarages", "Garage")
+                        : RedirectToAction("GetGaragesByUserId", "Garage");
                 }
             }
 
             return View(model);
         }
+
 
 
     }

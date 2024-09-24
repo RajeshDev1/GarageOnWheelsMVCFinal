@@ -9,25 +9,24 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form asp-action="Edit" asp-controller="Order" method="post" class="needs-validation">
+            <form asp-action="Edit" asp-controller="Order" method="post" class="needs-validation" novalidate>
 
-               
                 <input type="hidden" asp-for="Id" />
 
                 <div class="form-group mb-3">
                     <label asp-for="TotalAmount" class="form-label">Total Amount</label>
-                    <input asp-for="TotalAmount" class="form-control" type="number" step="0.01" placeholder="Enter the total amount" required />
+                    <input asp-for="TotalAmount" id="totalAmount" class="form-control" type="number" step="0.01" placeholder="Enter the total amount" />
                     <span asp-validation-for="TotalAmount" class="text-danger"></span>
                 </div>
+
                 <input asp-for="GarageId" hidden />
-                <input asp-for="UserId" hidden/>
+                <input asp-for="UserId" hidden />
                 <input asp-for="ServiceDetails" hidden />
 
                 <div class="form-group mb-3">
                     <label asp-for="Status" class="form-label">Order Status</label>
                     <select asp-for="Status" class="form-select form-select-lg" required>
                         <option value="">Select Status</option>
-                        <option value="Pending">Pending</option>
                         <option value="Completed">Completed</option>
                     </select>
                     <span asp-validation-for="Status" class="text-danger"></span>
@@ -39,12 +38,58 @@
     </div>
 </div>
 
-
-
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/cascadingddl.js"></script>
+
+    <script>
+        // Client-side form validation
+        (function () {
+            'use strict';
+
+            var forms = document.querySelectorAll('.needs-validation');
+
+            // Loop over the forms and prevent submission if the form is invalid
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    var totalAmount = $('#totalAmount').val(); // Get the value of TotalAmount
+
+                    // Check if TotalAmount is filled in and greater than 0
+                    if (totalAmount === "" || parseFloat(totalAmount) <= 0) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        alert("Please provide a valid Total Amount greater than 0.");
+                    }
+
+                    // This ensures the form is only submitted if all fields are valid
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        event.preventDefault(); // Prevent default submission for AJAX handling
+
+                        // Use AJAX to submit the form and redirect on success
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("Edit", "Order")',
+                            data: $(form).serialize(),
+                            success: function () {
+                                // Redirect to GetOrdersByGarage after successful form submission
+                                window.location.href = '@Url.Action("GetOrdersByGarage", "Order")';
+                            },
+                            error: function (xhr) {
+                                var errorMessage = xhr.responseText || "An error occurred. Please try again.";
+                                alert(errorMessage);
+                            }
+                        });
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+
 }

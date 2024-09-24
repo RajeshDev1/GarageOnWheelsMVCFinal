@@ -44,61 +44,29 @@ namespace GarageOnWheelsMVC.Controllers
 
         //Get All User
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> GetAllUsers(int page = 1, int pageSize = 3)
+        public async Task<IActionResult> GetAllUsers()
         {
             var users = await _apiHelper.GetAsync<List<User>>("user/all",HttpContext);
             if (users == null)
             {
                 return BadRequest("Error occurs during fetch user ");
-            }
-
-            var totalCount = users.Count;
-
-            // Get the paginated list
-            var paginatedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var viewModel = new UserListViewModel
-            {
-                Users = paginatedUsers,
-                PagingInfo = new PagingInfo
-                {
-                    CurrentPage = page,
-                    TotalItems = totalCount,
-                    ItemsPerPage = pageSize
-                }
-            };
-            return View(viewModel);
+            }          
+            return View(users);
         }
 
         //Get All Customer
         [Authorize(Roles = "GarageOwner")]
-        public async Task<IActionResult> GetAllCustomers(int page = 1, int pageSize = 3)
+        public async Task<IActionResult> GetAllCustomers()
         {
             var users = await _apiHelper.GetAsync<List<User>>("user/allCustomer", HttpContext);
             if (users == null)
             {
                 return BadRequest("Error occurs during fetch Customers ");
             }
-
-            var totalCount = users.Count;
-
-            // Get the paginated list
-            var paginatedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var viewModel = new UserListViewModel
-            {
-                Users = paginatedUsers,
-                PagingInfo = new PagingInfo
-                {
-                    CurrentPage = page,
-                    TotalItems = totalCount,
-                    ItemsPerPage = pageSize
-                }
-            };
-            return View(viewModel);
+            return View(users);
         }
         //Ge all GarageOwner
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<JsonResult> GetAllGarageOwners()
         {
             var users = await _apiHelper.GetAsync<List<User>>("user/allgarageowner", HttpContext);
@@ -135,6 +103,7 @@ namespace GarageOnWheelsMVC.Controllers
             // Check if email exists
             if (await IsEmailExists(model.Email))
             {
+                ModelState.AddModelError("", "Email already exists.");
                 return View(model);
             }
 
@@ -148,7 +117,7 @@ namespace GarageOnWheelsMVC.Controllers
                 TempData["Email"] = model.Email;
                 return RedirectToAction("VerifyOtp");
             }
-
+            ModelState.AddModelError("", "An error occurred while creating the user.");
             return View(model);
         }
 
@@ -166,7 +135,15 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Login", "Account");
+                TempData["Successful"] = "A User has been Created Successfully!";
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("GetAllUsers"); 
+                }
+                else if (User.IsInRole("GarageOwner"))
+                {
+                    return RedirectToAction("GetAllCustomers"); 
+                }
             }
 
             ModelState.AddModelError("", "Invalid OTP. Please try again.");
@@ -247,7 +224,7 @@ namespace GarageOnWheelsMVC.Controllers
 
         public async Task<IActionResult> Delete(Guid id)
         {
-            var endpoint = $"{baseUrl}user/delete/{id}"; 
+            var endpoint = $"user/delete/{id}"; 
             var response = await _apiHelper.DeleteAsync(endpoint, HttpContext); 
 
             if (response.StatusCode == HttpStatusCode.NoContent)
@@ -290,7 +267,7 @@ namespace GarageOnWheelsMVC.Controllers
             if (response.IsSuccessStatusCode)
             {
                 TempData["Successful"] = "Password Changed Successfully."; 
-                return RedirectToAction("ChangePassword", new { id = id }); 
+                return RedirectToAction("ChangePassword", new { id = id });   
             }
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
