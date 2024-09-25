@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
- 
+
     LoadCountries();
 
     $('#country').change(function () {
@@ -11,7 +11,7 @@
             alert("Select Country");
             $('#state').empty();
             $('#city').empty();
-            $('#area').empty(); 
+            $('#area').empty();
             $('#state').append('<option value="">Select State</option>');
             $('#city').append('<option value="">Select City</option>');
             $('#area').append('<option value="">Select Area</option>');
@@ -80,7 +80,7 @@ function LoadStates(countryId) {
     $('#state').empty();
     $('#city').empty();
     $('#area').empty();
-   
+
 
     $.ajax({
         url: '/Location/GetStates?Id=' + countryId,
@@ -98,7 +98,7 @@ function LoadStates(countryId) {
                 $('#state').attr('disabled', true);
                 $('#city').attr('disabled', true);
                 $('#area').attr('disabled', true);
-               
+
             }
         },
         error: function (error) {
@@ -128,7 +128,7 @@ function LoadCities(stateId) {
             else {
                 $('#city').attr('disabled', true);
                 $('#area').attr('disabled', true);
-               
+
             }
         },
         error: function (error) {
@@ -154,12 +154,12 @@ function LoadAreas(cityId) {
             }
             else {
                 $('#area').attr('disabled', true);
-      
+
             }
         },
         error: function (error) {
             alert("Error Comes here ", error.statusText);
         }
     });
-  
+
 }

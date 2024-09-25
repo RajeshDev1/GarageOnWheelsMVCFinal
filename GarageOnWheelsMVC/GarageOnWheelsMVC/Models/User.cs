@@ -22,9 +22,12 @@ namespace GarageOnWheelsMVC.Models
         public string Password { get; set; }
         [Required(ErrorMessage ="Select the Role")]
         public UserRole Role { get; set; }
-        [Required]
-        [DataType(DataType.PhoneNumber)]
+
+        [Required(ErrorMessage = "Phone number is required.")]
+        [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid phone number format.")]
+        [RegularExpression(@"^(\+91[\-\s]?)?[6-9]\d{9}$", ErrorMessage = "Please enter a valid Phone number.")]
         public string PhoneNo { get; set; }
+
         [Required]
         public Gender Gender { get; set; } = Gender.Male;
         [Required(ErrorMessage ="Address must be Required")]

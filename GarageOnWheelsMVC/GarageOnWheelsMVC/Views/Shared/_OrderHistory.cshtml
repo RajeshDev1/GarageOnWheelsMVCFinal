@@ -1,58 +1,65 @@
 ﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.OrderViewModel>
 
+
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+
+<div class="container mt-4">
+    <table class="table table-bordered table-striped" id="orderTable">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center">Order Date</th>
+                <th class="text-center">Total Amount</th>
+                <th class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td class="text-center">
+                        @order.OrderDate.ToString("dd-MM-yyyy")
+                    </td>
+                    <td class="text-center">
+                        @order.TotalAmount.ToString("C")
+                    </td>
+                    <td class="text-center">
+                        @switch (order.Status)
+                        {
+                            case OrderStatus.Pending:
+                                <div>
+                                    <i class="fas fa-hourglass-half" title="Pending" style="font-size: 14px; color: #f39c12;"></i>
+                                    Pending
+                                </div>
+                                break;
+                            case OrderStatus.Completed:
+                                <div>
+                                    <i class="fas fa-check-circle" title="Completed" style="font-size: 14px; color: #2ecc71;"></i>
+                                    Completed
+                                </div>
+                                break;
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-
-<table class="table table-bordered table-striped" id="orderTable">
-    <thead>
-        <tr>
-
-            <th class="text-center">Order Date</th>
-            <th class="text-center">Total Amount</th>
-            <th class="text-center">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var order in Model)
-        {
-            <tr>
-
-                <td class="text-center">
-                    @order.OrderDate.ToString("dd-MM-yyyy")
-                </td>
-                <td class="text-center">
-                    @order.TotalAmount.ToString("C")
-                </td>
-                <td class="text-center">
-                    @switch (order.Status)
-                    {
-                        case OrderStatus.Pending:
-                            <div>
-                                <i class="fas fa-hourglass-half" title="Pending" style="font-size: 14px; color: #f39c12;"></i>
-                                Pending
-                            </div>
-                            break;
-                        case OrderStatus.Completed:
-                            <div>
-                                <i class="fas fa-check-circle" title="Completed" style="font-size: 14px; color: #2ecc71;"></i>
-                                Completed
-                            </div>
-                            break;
-                    }
-                </td>
-
-            </tr>
-        }
-    </tbody>
-</table>
-
 <script>
     $(document).ready(function () {
         // Initialize DataTable with 5 entries per page
         $('#orderTable').DataTable({
             "pageLength": 5,
-            "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]]
+            "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
+            "dom": '<"top"f>rt<"bottom"lp><"clear">'
         });
+
+        var message = '@TempData["Successful"]';
+        if (message) {
+            console.log(message);
+            toastr.success(message);
+        }
     });
 </script>

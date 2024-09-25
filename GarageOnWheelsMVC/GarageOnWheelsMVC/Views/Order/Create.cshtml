@@ -6,11 +6,65 @@
 
 <h2 class="text-center mb-4">Create Order</h2>
 
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        transition: border-color 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+    .btn {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .d-flex {
+        gap: 1rem; /* space between buttons */
+    }
+</style>
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <form id="createOrderForm" method="post" class="needs-validation">
                 @Html.AntiForgeryToken()
+
                 <div class="form-group mb-3">
                     <label asp-for="GarageId" class="form-label">Select Garage</label>
                     <select id="garage" asp-for="GarageId" class="form-select form-select-lg" required>
@@ -25,7 +79,17 @@
                     <span asp-validation-for="ServiceDetails" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Create Order</button>
+                <div class="form-group mb-3 d-flex">
+                    <button type="submit" class="btn btn-primary flex-fill me-2">Create Order</button>
+                    @if (User.IsInRole("GarageOwner"))
+                    {
+                        <a href="@Url.Action("GetOrdersByGarage", "Order")" class="btn btn-secondary flex-fill">Cancel</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("OrderHistory", "Order")" class="btn btn-secondary flex-fill">Cancel</a>
+                    }
+                </div>
             </form>
         </div>
     </div>
@@ -72,29 +136,35 @@
                     });
             }
 
-            // Handle form submission
             $('#createOrderForm').submit(function (event) {
-                event.preventDefault(); // Prevent the default form submission
-
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("Create", "Order")',
-                    data: $(this).serialize(),
-                    success: function () {
-                        var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
-                        if (role === "GarageOwner") {
-                            window.location.href = '@Url.Action("GetOrdersByGarage", "Order")';
-                        } else {
-                            window.location.href = '@Url.Action("OrderHistory", "Order")';
+                // Check if the form is valid before proceeding
+                if (this.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    event.preventDefault(); // Prevent default form submission
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Create", "Order")',
+                        data: $(this).serialize(),
+                        success: function () {
+                            var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
+                            if (role === "GarageOwner") {
+                                window.location.href = '@Url.Action("GetOrdersByGarage", "Order")';
+                            } else {
+                                window.location.href = '@Url.Action("OrderHistory", "Order")';
+                            }
+                        },
+                        error: function (xhr) {
+                            // Handle errors
+                            var errorMessage = xhr.responseText || "An error occurred. Please try again.";
+                            alert(errorMessage);
                         }
-                    },
-                    error: function (xhr) {
-                        // Handle errors
-                        var errorMessage = xhr.responseText || "An error occurred. Please try again.";
-                        alert(errorMessage);
-                    }
-                });
+                    });
+                }
+                $(this).addClass('was-validated'); // Add validation class
             });
+
         });
     </script>
 

@@ -23,9 +23,12 @@ namespace GarageOnWheelsAPI.DTOs
                     public string Password { get; set; }
                     [Required(ErrorMessage ="Select a Role")]
                     public UserRole Role { get; set; }
-                    [Required]
-                    [DataType(DataType.PhoneNumber)]
+
+                    [Required(ErrorMessage = "Phone number is required.")]
+                    [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid phone number format.")]
+                    [RegularExpression(@"^(\+91[\-\s]?)?[6-9]\d{9}$", ErrorMessage = "Please enter a valid Indian phone number.")]
                     public string PhoneNo { get; set; }
+
                     [Required(ErrorMessage ="Select a Gender")]
                     public Gender Gender { get; set; } = Gender.Male;
                     [Required]

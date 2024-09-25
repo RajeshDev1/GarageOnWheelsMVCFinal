@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 
 namespace GarageOnWheelsMVC.Models.ViewModel
@@ -19,6 +20,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [Remote(action: "IsEmailAvailable", controller: "Account", ErrorMessage = "Email is already in use.")]
         [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}" + @"\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Invalid email format.")]
         public string Email { get; set; }
 
@@ -33,7 +35,9 @@ namespace GarageOnWheelsMVC.Models.ViewModel
 
         [Required(ErrorMessage = "Phone number is required.")]
         [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid phone number format.")]
+        [RegularExpression(@"^(\+91[\-\s]?)?[6-9]\d{9}$", ErrorMessage = "Please enter a valid Phone number.")]
         public string PhoneNo { get; set; }
+
 
         [Required(ErrorMessage = "Gender is required.")]
         public Gender Gender { get; set; } = Gender.Male;
@@ -60,8 +64,6 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         [Required]
         public bool IsDelete { get; set; } = false;
         public bool? IsProfileEdit { get; set; }
-
-
 
         public static User Mapping(RegisterViewModel model)
         {

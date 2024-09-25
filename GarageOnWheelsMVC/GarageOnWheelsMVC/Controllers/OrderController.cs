@@ -68,7 +68,7 @@ namespace GarageOnWheelsMVC.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(model); // Returns the same view with validation messages
             }
 
             var userId = SessionHelper.GetUserIdFromToken(HttpContext);
@@ -79,23 +79,25 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                TempData["SuccessMessage"] = "Order created successfully!";
+                TempData["Successful"] = "Order created successfully!";
 
+                // Redirect based on user role
                 if (User.IsInRole("GarageOwner"))
                 {
                     return RedirectToAction("GetOrdersByGarage", "Order");
                 }
                 else if (User.IsInRole("Customer"))
                 {
-                    return RedirectToAction("OrderHistory", "Order"); 
+                    return RedirectToAction("OrderHistory", "Order");
                 }
             }
 
             var message = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError("", message);
 
-            return View(model);
+            return View(model); // Return the same view with error message
         }
+
 
         [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> Edit(Guid id)

@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
 using NuGet.Common;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 
 namespace GarageOnWheelsMVC.Controllers
@@ -164,37 +165,27 @@ namespace GarageOnWheelsMVC.Controllers
             return View(userViewModel);
         }
 
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Edit(UpdateUserViewModel model)
         {
-            // Validate the model state
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Retrieve the UpdatedBy field from the session/token
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-
-            // Send the request to update the user
             var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
-
-            // Check if the update was successful
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                // Store a success message in TempData for the next request
                 TempData["Successful"] = "User successfully updated!";
                 return RedirectToAction("GetAllUsers");
             }
-
-            // Handle unsuccessful update case
             ModelState.AddModelError(string.Empty, "Failed to update user. Please try again.");
             return View(model);
         }
 
-
-        //Edit Profile
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> EditProfile(Guid id)
@@ -287,7 +278,5 @@ namespace GarageOnWheelsMVC.Controllers
             ViewBag.id = id;
             return View(model);
         }
-
-
     }
 }

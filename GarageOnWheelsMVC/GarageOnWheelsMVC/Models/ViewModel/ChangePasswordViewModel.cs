@@ -11,6 +11,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
 
         [Required(ErrorMessage = "New Password is required.")]
         [DisplayName("New Password")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$", ErrorMessage = "Password must have at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character.")]
         public string NewPassword { get; set; }
 
         [Required(ErrorMessage = "Confirm Password is required.")]

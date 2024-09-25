@@ -1,9 +1,6 @@
 ﻿@model IEnumerable<GarageOnWheelsMVC.Models.User>
 
-
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
  
 <table class="table table-bordered table-striped" id="userTable">
     <thead>
@@ -51,7 +48,8 @@
     </tbody>
 </table>
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function () {
         $('#userTable').DataTable({
@@ -59,7 +57,8 @@
             "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
             "columnDefs": [
                 { "orderable": false, "targets": -1 } 
-            ]
+            ],
+            "dom": '<"top"f>rt<"bottom"lp><"clear">'
         });
     });
 

@@ -28,7 +28,7 @@ namespace GarageOnWheelsAPI.Repositories
                                  .Include(g => g.City)
                                  .Include(g => g.Area);
 
-                 return await query.Where(g => !g.IsDelete && !g.User.IsDelete).ToListAsync();
+                 return await query.Where(g => !g.IsDelete && !g.User.IsDelete && g.User.IsEmailVerified).ToListAsync();
 
         }
 

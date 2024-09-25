@@ -32,17 +32,17 @@
                                 <form asp-action="Login" asp-controller="Account" method="post">
                                     @Html.AntiForgeryToken()
                                     <div class="d-flex align-items-center mb-4 pb-1">
-                                        <span class="h3 fw-bold mb-0">Sign In to Your Account</span>
+                                        <span class="h3 fw-bold mb-0">Login to Your Account</span>
                                     </div>
 
                                     <div class="form-outline mb-4">
-                                        <label asp-for="Email" class="form-label">Email <span class="required-asterisk">*</span></label>
+                                        <label asp-for="Email" class="form-label">Email<span class="text-danger fw-bold">*</span></label>
                                         <input asp-for="Email" class="form-control form-control-lg" placeholder="Enter your Email" />
                                         <span asp-validation-for="Email" class="text-danger"></span>
                                     </div>
 
                                     <div class="form-outline mb-4">
-                                        <label asp-for="Password" class="form-label">Password <span class="required-asterisk">*</span></label>
+                                        <label asp-for="Password" class="form-label">Password<span class="text-danger fw-bold">*</span></label>
                                         <input asp-for="Password" class="form-control form-control-lg" placeholder="Enter your Password" />
                                         <span asp-validation-for="Password" class="text-danger"></span>
                                     </div>
@@ -58,7 +58,8 @@
                                         <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
                                     </div>
 
-                                    <p class="mb-5 pb-lg-2">Don't have an account? <a href="@Url.Action("Registration", "Account")" style="color: #393f81;">Register Here</a></p>
+                                    <p class="mb-5 pb-lg-2">Don't have an account? <a href="@Url.Action("Registration", "Account")" style="color: #393f81;"><strong>Register Here</strong></a></p>
+
                                     <a href="#" class="small text-muted">Terms of use.</a>
                                     <a href="#" class="small text-muted">Privacy policy</a>
                                 </form>

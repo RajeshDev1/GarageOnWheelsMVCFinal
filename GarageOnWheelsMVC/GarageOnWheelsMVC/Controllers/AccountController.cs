@@ -92,13 +92,10 @@ namespace GarageOnWheelsMVC.Controllers
             {
                 return View(model);
             }
-            // Check if username or email already exists
             if (await IsEmailExists(model))
             {
                 return View(model);
             }
-
-            // Process profile image and map to User model
             var userModel = RegisterViewModel.Mapping(model);
 
             var response = await SendPostRequest<User>("auth/register", userModel);
@@ -111,8 +108,7 @@ namespace GarageOnWheelsMVC.Controllers
             return View(model);
         }
 
-
-        //Helper method to send post request
+   
         private async Task<HttpResponseMessage> SendPostRequest<T>(string endpoint, T model)
         {
             var jsonModel = JsonSerializer.Serialize(model);
@@ -135,39 +131,25 @@ namespace GarageOnWheelsMVC.Controllers
             {
                 return View(model);
             }
-
-            // Call the Web API to authenticate the user
             var response = await SendPostRequest<LoginViewModel>("auth/login", model);
 
             if (response.IsSuccessStatusCode)
             {
-                // If the response is successful, retrieve the token
                 var token = await response.Content.ReadAsStringAsync();
-
-                // Extract details from the token
                 var name = SessionHelper.GetUsernameFromToken(token);
                 HttpContext.Session.SetString("Token", token);
                 HttpContext.Session.SetString("Name", name);
 
                 var role = SessionHelper.GetRoleFromToken(token);
-                var id = SessionHelper.GetUserIdFromToken(HttpContext);
-
-                // Perform sign-in logic    
+                var id = SessionHelper.GetUserIdFromToken(HttpContext);  
                 await SignInUser(role, id, name);
-
-                // when Success then go to Next Page
                 TempData["Successful"] = "Login Successfully";
-
-                // Redirect to the dashboard after successful login
                 return RedirectToAction("Dashboard", "Account");
             }
             
                 TempData["Message"] = "Invalid login credentials. Please check your email and password.";
-                TempData["MessageType"] = "error";  // Message type for Toaster
+                TempData["MessageType"] = "error";  
             
-
-
-            // Return the same view with the model, so it retains the user's input
             return View(model);
         }
 
@@ -241,7 +223,19 @@ namespace GarageOnWheelsMVC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
+        // Remote validation action for checking if email is already taken
+        [AcceptVerbs("Get", "Post")]
+        public async Task<IActionResult> IsEmailAvailable(string email)
+        {
+            var emailExists = await CheckIfExists($"user/search?email={email}");
 
+            if (emailExists)
+            {
+                return Json($"{email} is already in use.");
+            }
+
+            return Json(true);
+        }
 
 
     }
