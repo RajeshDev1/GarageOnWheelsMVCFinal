@@ -16,7 +16,7 @@
             @if (User.IsInRole("SuperAdmin"))
             {
                 <div class="form-group me-2">
-                    <label for="GarageId" class="form-label">Garage Name:</label>
+                    <label for="GarageId" class="form-label">Garage Name <span class="text-danger fw-bold">*</span></label>
                     <select id="GarageId" name="GarageId" class="form-select form-select-sm" required>
 
                         <option value="">Select Garage</option>
@@ -29,12 +29,12 @@
             }
 
             <div class="form-group me-2">
-                <label for="StartDate" class="form-label">Start Date:</label>
+                <label for="StartDate" class="form-label">Start Date <span class="text-danger fw-bold">*</span></label>
                 <input id="startDate" name="startDate" class="form-control form-control-sm" type="date" required />
             </div>
 
             <div class="form-group me-2">
-                <label for="EndDate" class="form-label">End Date:</label>
+                <label for="EndDate" class="form-label">End Date <span class="text-danger fw-bold">*</span></label>
                 <input id="endDate" name="endDate" class="form-control form-control-sm" type="date" required />
             </div>
 

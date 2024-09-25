@@ -34,11 +34,12 @@
         </tbody>
     </table>
 
-    <script>
+<script>
     $(document).ready(function () {
-        // Initialize DataTable
-        $('#revenueeTable').DataTable();
-
+        // Initialize DataTable with 5 entries per page
+        $('#revenueeTable').DataTable({
+            "pageLength": 5, 
+            "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]] 
+        });
     });
-
-    </script>
+</script>

@@ -161,25 +161,11 @@ namespace GarageOnWheelsMVC.Controllers
                 // Redirect to the dashboard after successful login
                 return RedirectToAction("Dashboard", "Account");
             }
-
-            // Handle Unauthorized (invalid credentials)
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
+            
                 TempData["Message"] = "Invalid login credentials. Please check your email and password.";
                 TempData["MessageType"] = "error";  // Message type for Toaster
-            }
-            // Handle BadRequest (e.g., missing required fields)
-            else if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                TempData["Message"] = "Invalid request. Please check your input and try again.";
-                TempData["MessageType"] = "warning";
-            }
-            // Handle other error cases
-            else
-            {
-                TempData["Message"] = "An error occurred while processing your request. Please try again later.";
-                TempData["MessageType"] = "error";
-            }
+            
+
 
             // Return the same view with the model, so it retains the user's input
             return View(model);
@@ -219,8 +205,13 @@ namespace GarageOnWheelsMVC.Controllers
 
             var response = await _httpClient.SendAsync(request);
             HttpContext.Session.Clear();
+
+            // Add a success message to TempData
+            TempData["LogoutSuccess"] = "You have been successfully logged out.";
+
             return RedirectToAction("Login");
         }
+
 
         private async Task SendOtp(string email)
         {

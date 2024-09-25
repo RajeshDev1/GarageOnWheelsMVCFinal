@@ -18,7 +18,7 @@
                 }
 
                 <div class="form-group mb-3">
-                    <label asp-for="Name" class="form-label">Name</label>
+                    <label asp-for="Name" class="form-label">Name<span class="text-danger fw-bold">*</span></label>
                     <input asp-for="Name" class="form-control" placeholder="Enter garage name" required />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
@@ -30,7 +30,7 @@
                         // Read-only for SuperAdmin
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">Owner Name</label>
+                                <label class="form-label">Owner Name<span class="text-danger fw-bold">*</span></label>
                                 <input type="text" class="form-control" value="@Model.GarageOwnerName" readonly />
                             </div>
                         </div>
@@ -46,23 +46,24 @@
                     // Dropdown for SuperAdmin
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label asp-for="UserId" class="form-label">Owner Name</label>
+                            <label asp-for="UserId" class="form-label">Owner Name<span class="text-danger fw-bold">*</span></label>
                             <select id="userid" asp-for="UserId" class="form-select form-select-lg" placeholder="Select GarageOwner" required>
                                 <option value="">Select Garage Owner</option>
                             </select>
+                            <span asp-validation-for="UserId" class="text-danger"></span>
                         </div>
                     </div>
                 }
 
                 <div class="form-group mb-3">
-                    <label asp-for="Address" class="form-label">Address</label>
+                    <label asp-for="Address" class="form-label">Address<span class="text-danger">*</span></label>
                     <input asp-for="Address" class="form-control" placeholder="Enter garage address" required />
                     <span asp-validation-for="Address" class="text-danger"></span>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-4">
-                        <label asp-for="CountryId" class="form-label">Country</label>
+                        <label asp-for="CountryId" class="form-label">Country<span class="text-danger fw-bold">*</span></label>
                         <select id="country" asp-for="CountryId" class="form-select form-select-lg" required>
                             <option value="">Select Country</option>
                         </select>
@@ -70,7 +71,7 @@
                     </div>
 
                     <div class="col-md-6 mb-4">
-                        <label asp-for="StateId" class="form-label">State</label>
+                        <label asp-for="StateId" class="form-label">State<span class="text-danger fw-bold">*</span></label>
                         <select id="state" asp-for="StateId" class="form-select form-select-lg" required>
                             <option value="">Select State</option>
                         </select>
@@ -80,7 +81,7 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-4">
-                        <label asp-for="CityId" class="form-label">City</label>
+                        <label asp-for="CityId" class="form-label">City<span class="text-danger fw-bold">*</span></label>
                         <select id="city" asp-for="CityId" class="form-select form-select-lg" required>
                             <option value="">Select City</option>
                         </select>
@@ -88,24 +89,33 @@
                     </div>
 
                     <div class="col-md-6 mb-4">
-                        <label asp-for="AreaId" class="form-label">Area</label>
+                        <label asp-for="AreaId" class="form-label">Area<span class="text-danger fw-bold">*</span></label>
                         <select id="area" asp-for="AreaId" class="form-select form-select-lg" required>
                             <option value="">Select Area</option>
                         </select>
                         <span asp-validation-for="AreaId" class="text-danger"></span>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary w-100">
+                            @if (isEdit)
+                            {
+                                <text>Update Garage</text>
+                            }
+                            else
+                            {
+                                <text>Create Garage</text>
+                            }
+                        </button>
+                    </div>
 
-                <button type="submit" class="btn btn-primary w-100">
-                    @if (isEdit)
-                    {
-                        <text>Update Garage</text>
-                    }
-                    else
-                    {
-                         <text>Create Garage</text>                    
-                    }
-                </button>
+                        <div class="col-md-6">
+                            <a asp-action="GetAllGarages" class="btn btn-secondary w-100">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
             </form>
         </div>
     </div>

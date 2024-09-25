@@ -70,16 +70,24 @@
 
 
 <script>
-    $(document).ready(function () {   
-        $('#orderTable').DataTable();
+    $(document).ready(function () {
+        $('#orderTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
+            "columnDefs": [
+                { "orderable": false, "targets": -1 } 
+            ]
+        });
 
+        // Toastr notification for success message
         var message = '@TempData["Successful"]';
-        if (message) {
+        if (message && message !== 'null' && message !== '') {
             toastr.success(message);
         }
     });
 
     function confirmDelete() {
-        return confirm("Are you sure to Delete?");
+        return confirm("Are you sure you want to delete?");
     }
 </script>
+

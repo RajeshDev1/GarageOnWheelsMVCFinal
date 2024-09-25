@@ -105,13 +105,11 @@ namespace GarageOnWheelsMVC.Controllers
                 {
                     return BadRequest("Error retrieving garage data.");
                 }
-
-                // If editing, populate UserId (owner ID) from model
-                model.UserId = model.UserId; // Assuming this is set in the GarageViewModel
+                model.UserId = model.UserId; 
             }
             else
             {
-                model.UserId = Guid.Empty; // New garage, no owner selected yet
+                model.UserId = Guid.Empty; 
             }
 
             return View("Save", model);
@@ -145,6 +143,8 @@ namespace GarageOnWheelsMVC.Controllers
 
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
+                    // Store a success message in TempData for the next request
+                    TempData["Successful"] = "Garage successfully Created.";
                     return User.IsInRole("SuperAdmin")
                         ? RedirectToAction("GetAllGarages", "Garage")
                         : RedirectToAction("GetGaragesByUserId", "Garage");
@@ -157,6 +157,8 @@ namespace GarageOnWheelsMVC.Controllers
 
                 if (response.StatusCode == HttpStatusCode.NoContent)
                 {
+                    // Store a success message in TempData for the next request
+                    TempData["Successful"] = "Garage successfully Updated.";
                     return User.IsInRole("SuperAdmin")
                         ? RedirectToAction("GetAllGarages", "Garage")
                         : RedirectToAction("GetGaragesByUserId", "Garage");

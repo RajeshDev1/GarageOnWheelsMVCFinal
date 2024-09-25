@@ -13,24 +13,24 @@
                 <form asp-action="Edit" asp-controller="User" method="post">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="FirstName" class="form-label">First Name</label>
+                            <label asp-for="FirstName" class="form-label">First Name <span class="text-danger">*</span></label>
                             <input type="text" asp-for="FirstName" class="form-control" />
                             <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="LastName" class="form-label">Last Name</label>
+                            <label asp-for="LastName" class="form-label">Last Name <span class="text-danger">*</span></label>
                             <input type="text" asp-for="LastName" class="form-control" required />
                             <span asp-validation-for="LastName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label">Email</label>
+                        <label asp-for="Email" class="form-label">Email<span class="text-danger fw-bold">*</span></label>
                         <input type="email" asp-for="Email" class="form-control" required readonly />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>                
                             
                     <div class="mb-3">
-                        <label class="form-label">Gender</label>
+                        <label class="form-label">Gender <span class="text-danger">*</span></label>
                         <div class="d-flex gap-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" asp-for="Gender" value="Female" required />
@@ -50,7 +50,7 @@
                     @if (User.IsInRole("SuperAdmin"))
                     {
                         <div class="mb-3">
-                            <label asp-for="Role" class="form-label">Select User Type</label>
+                            <label asp-for="Role" class="form-label">Select User Type <span class="text-danger fw-bold">*</span></label>
                         <select asp-for="Role" class="form-select" required>
                             <option selected disabled value="">Select Type</option>
                             <option value="GarageOwner">GarageOwner</option>
@@ -62,7 +62,7 @@
                     else
                     {
                         <div class="mb-3">
-                            <label asp-for="Role" class="form-label">Select User Type</label>
+                            <label asp-for="Role" class="form-label">Select User Type <span class="text-danger fw-bold">*</span></label>
                             <select asp-for="Role" class="form-select" required>
                                 <option selected disabled value="">Select Type</option>                         
                                 <option value="Customer">Customer</option>
@@ -71,21 +71,21 @@
                         </div>
                     }
                     <div class="mb-3">
-                        <label asp-for="PhoneNo" class="form-label">Phone No</label>
+                        <label asp-for="PhoneNo" class="form-label">Phone No <span class="text-danger">*</span></label>
                         <input type="tel" asp-for="PhoneNo" class="form-control" required pattern="\d+" title="Phone number should contain only digits." />
                         <span asp-validation-for="PhoneNo" class="text-danger"></span>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="CountryId" class="form-label">Country</label>
+                            <label asp-for="CountryId" class="form-label">Country<span class="text-danger">*</span></label>
                             <select id="country" asp-for="CountryId" class="form-select" required>
                                 <option value="">Select Country</option>
                             </select>
                             <span asp-validation-for="CountryId" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="StateId" class="form-label">State</label>
+                            <label asp-for="StateId" class="form-label">State<span class="text-danger">*</span></label>
                             <select id="state" asp-for="StateId" class="form-select" required>
                                 <option value="">Select State</option>
                             </select>
@@ -95,14 +95,14 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="CityId" class="form-label">City</label>
+                            <label asp-for="CityId" class="form-label">City<span class="text-danger">*</span></label>
                             <select id="city" asp-for="CityId" class="form-select" required>
                                 <option value="">Select City</option>
                             </select>
                             <span asp-validation-for="CityId" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="AreaId" class="form-label">Area</label>
+                            <label asp-for="AreaId" class="form-label">Area<span class="text-danger">*</span></label>
                             <select id="area" asp-for="AreaId" class="form-select" required>
                                 <option value="">Select Area</option>
 
@@ -115,7 +115,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="Address" class="form-label">Address</label>
+                                    <label asp-for="Address" class="form-label">Address <span class="text-danger">*</span></label>
                                     <input type="text" asp-for="Address" class="form-control" required />
                                     <span asp-validation-for="Address" class="text-danger"></span>
                                 </div>
@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-center mt-3">
-                            <a class="btn btn-warning me-2" href="@Url.Action("Dashboard", "Account")">CANCLE</a>
+                            <a class="btn btn-warning me-2" href="@Url.Action("GetAllUsers", "User")">CANCLE</a>
                             <button type="submit" class="btn btn-primary">SAVE</button>
                         </div>
                     </div>

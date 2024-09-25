@@ -49,8 +49,10 @@
 
 <script>
     $(document).ready(function () {
-        $('#orderTable').DataTable();
+        // Initialize DataTable with 5 entries per page
+        $('#orderTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]]
+        });
     });
-
-
 </script>

@@ -7,7 +7,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         public Guid Id { get; set; }
         [Required(ErrorMessage ="Name is Required")]
         public string Name { get; set; }
-        [Required]
+        [Required(ErrorMessage ="Select a garage Owner")]
         public Guid UserId { get; set; }
         [Required(ErrorMessage ="Address is Required")]
         public string Address { get; set; }
@@ -21,13 +21,16 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         public Guid UpdatedBy { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
-        [Required]
+        [Required(ErrorMessage = "Country is required.")]
         public int CountryId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "State is required.")]
         public int StateId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "City is required.")]
         public int CityId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Area is required.")]
         public int AreaId { get; set; }
         public  Country? Country { get; set; }
         public  City? City { get; set; }

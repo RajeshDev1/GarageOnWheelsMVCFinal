@@ -59,7 +59,7 @@ namespace GarageOnWheelsAPI.Repositories
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             return await _context.Users
-                .Where(u => (int)u.Role != (int)UserRole.SuperAdmin && u.IsDelete == false).ToListAsync();
+                .Where(u => (int)u.Role != (int)UserRole.SuperAdmin && u.IsDelete == false && u.IsEmailVerified).ToListAsync();
         }
 
         public async Task<IEnumerable<User>> GetAllCustomersAsync()

@@ -166,25 +166,33 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(UpdateUserViewModel model, string? previousUrl)
+        public async Task<IActionResult> Edit(UpdateUserViewModel model)
         {
+            // Validate the model state
             if (!ModelState.IsValid)
             {
-                ViewBag.previousurl = Request.Headers["Referer"].ToString();
                 return View(model);
             }
 
+            // Retrieve the UpdatedBy field from the session/token
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
+
+            // Send the request to update the user
             var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
 
+            // Check if the update was successful
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
+                // Store a success message in TempData for the next request
                 TempData["Successful"] = "User successfully updated!";
-                return !string.IsNullOrEmpty(previousUrl) ? Redirect(previousUrl) : RedirectToAction("GetAllUsers");
+                return RedirectToAction("GetAllUsers");
             }
 
+            // Handle unsuccessful update case
+            ModelState.AddModelError(string.Empty, "Failed to update user. Please try again.");
             return View(model);
         }
+
 
         //Edit Profile
         [HttpGet]

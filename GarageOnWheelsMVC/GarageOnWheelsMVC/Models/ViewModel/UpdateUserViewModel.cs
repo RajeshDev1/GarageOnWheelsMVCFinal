@@ -29,13 +29,16 @@ namespace GarageOnWheelsMVC.Models.ViewModel
 
         public Guid UpdatedBy { get; set; }
         public DateTime UpdatedDate { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Country is required.")]
         public int CountryId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "State is required.")]
         public int StateId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "City is required.")]
         public int CityId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Area is required.")]
         public int AreaId { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;

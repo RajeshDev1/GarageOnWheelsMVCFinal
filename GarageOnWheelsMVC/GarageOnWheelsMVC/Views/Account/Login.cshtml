@@ -76,38 +76,33 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        var message = '@TempData["Message"]';
-        var messageType = '@TempData["MessageType"]';
-
-        if (message && messageType) {
-            if (messageType === 'success') {
+    <script>
+        $(document).ready(function () {
+            var message = '@TempData["Success"]';
+            if (message) {
                 toastr.success(message);
-            } else if (messageType === 'error') {
-                toastr.error(message);
-            } else if (messageType === 'warning') {
-                toastr.warning(message);
+                console.log(message);
             }
-        }
-    });
-
-        // Handle field validation messages
-        $('input[required]').on('blur', function () {
-            if ($(this).val().trim() === '') {
-                $(this).next('.text-danger').text('This field is required.');
-            } else {
-                $(this).next('.text-danger').text('');
-            }
+            else 
+            // Handle field validation messages
+            $('input[required]').on('blur', function () {
+                if ($(this).val().trim() === '') {
+                    $(this).next('.text-danger').text('This field is required.');
+                } else {
+                    $(this).next('.text-danger').text('');
+                }
+            });
         });
-    });
-</script>
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 }
+
+
+
+
