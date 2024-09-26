@@ -33,7 +33,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         [Required]
         public UserRole Role { get; set; } = UserRole.Customer;
 
-        [Required(ErrorMessage = "Phone number is required.")]
+        [Required(ErrorMessage = "Phone No is required.")]
         [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid phone number format.")]
         [RegularExpression(@"^(\+91[\-\s]?)?[6-9]\d{9}$", ErrorMessage = "Please enter a valid Phone number.")]
         public string PhoneNo { get; set; }

@@ -97,31 +97,33 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
-                        <button type="submit" class="btn btn-primary w-100">
-                            @if (isEdit)
-                            {
-                                <text>Update Garage</text>
-                            }
-                            else
-                            {
-                                <text>Create Garage</text>
-                            }
-                        </button>
-                    </div>
-
-                    <div class="col-md-6">
-                        @if (User.IsInRole("GarageOwner"))
-                        {
-                            <a asp-action="GetGaragesByUserId" class="btn btn-secondary w-100">Cancel</a>
-                        }
-                        else
-                        {
-                            <a asp-action="GetAllGarages" class="btn btn-secondary w-100">Cancel</a>
-                        }
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between">
+                            <div class="col-md-6 p-0">
+                                @if (User.IsInRole("GarageOwner"))
+                                {
+                                    <a asp-action="GetGaragesByUserId" class="btn btn-warning w-100">Cancel</a>
+                                }
+                                else
+                                {
+                                    <a asp-action="GetAllGarages" class="btn btn-warning w-100">Cancel</a>
+                                }
+                            </div>
+                            <div class="col-md-6 p-0">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    @if (isEdit)
+                                    {
+                                        <text>Update Garage</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Create Garage</text>
+                                    }
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </form>
         </div>
     </div>

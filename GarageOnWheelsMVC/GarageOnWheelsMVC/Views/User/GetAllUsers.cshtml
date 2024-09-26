@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<GarageOnWheelsMVC.Models.User>
 
 @{
-    ViewData["Title"] = "User Details";
+    ViewData["Title"] = "Users";
 
 }
 
 <div class="container mt-5">
-    <h1 class="text-center">@ViewData["Title"]</h1>
+    <h1>@ViewData["Title"]</h1>
 
     <div class="row mb-3">
         <div class="col">
-            <a class="btn btn-secondary" href="@Url.Action("Create", "User")"> + USER</a>
+            <a class="btn btn-secondary" href="@Url.Action("Create", "User")"> + User</a>
         </div>
     </div>
     <div class="table-responsive">

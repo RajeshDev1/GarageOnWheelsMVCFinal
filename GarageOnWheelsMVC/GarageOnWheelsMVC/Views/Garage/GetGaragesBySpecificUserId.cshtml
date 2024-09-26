@@ -1,12 +1,12 @@
 ﻿@model IEnumerable<GarageOnWheelsMVC.Models.ViewModel.GarageViewModel>
 
 @{
-    ViewData["Title"] = "Garage Details";
+    ViewData["Title"] = "Garages";
 
 }
 
 <div class="container mt-5">
-    <h1 class="text-center">@ViewData["Title"]</h1>
+    <h1>@ViewData["Title"]</h1>
 
     @if (User.IsInRole("SuperAdmin"))
     {

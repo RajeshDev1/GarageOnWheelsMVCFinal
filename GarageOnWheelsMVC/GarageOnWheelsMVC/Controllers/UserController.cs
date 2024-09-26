@@ -83,15 +83,18 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
        
-        // Get Form to Create the User
+   
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public IActionResult Create()
         {
-            return View();
+            var model = new RegisterViewModel
+            {
+                Gender = Gender.Male
+            };
+            return View(model);
         }
 
 
-        // POST: Handle New user Creation
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RegisterViewModel model)
@@ -180,7 +183,14 @@ namespace GarageOnWheelsMVC.Controllers
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 TempData["Successful"] = "User successfully updated!";
-                return RedirectToAction("GetAllUsers");
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("GetAllUsers");
+                }
+                else if (User.IsInRole("GarageOwner"))
+                {
+                    return RedirectToAction("GetAllCustomers");
+                }
             }
             ModelState.AddModelError(string.Empty, "Failed to update user. Please try again.");
             return View(model);

@@ -6,89 +6,40 @@
 
 <h2 class="text-center mb-4">Create Order</h2>
 
-<style>
-    .container {
-        margin-top: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        font-weight: bold;
-    }
-
-    .form-control {
-        border-radius: 0.5rem;
-        border: 1px solid #ced4da;
-        transition: border-color 0.2s;
-    }
-
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-
-    .btn {
-        border-radius: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: none;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        border: none;
-    }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-    .d-flex {
-        gap: 1rem; /* space between buttons */
-    }
-</style>
-
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form id="createOrderForm" method="post" class="needs-validation">
+            <form id="createOrderForm" method="post">
                 @Html.AntiForgeryToken()
 
-                <div class="form-group mb-3">
-                    <label asp-for="GarageId" class="form-label">Select Garage</label>
-                    <select id="garage" asp-for="GarageId" class="form-select form-select-lg" required>
+                <div class="mb-3">
+                    <label asp-for="GarageId" class="form-label">Garage<span class="text-danger fw-bold">*</span></label>
+                    <select id="garage" asp-for="GarageId" class="form-select" required>
                         <option value="">Select Garage</option>
                     </select>
                     <span asp-validation-for="GarageId" class="text-danger"></span>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="ServiceDetails" class="form-label">Service Details</label>
+                <div class="mb-3">
+                    <label asp-for="ServiceDetails" class="form-label">Service Details<span class="text-danger fw-bold">*</span></label>
                     <textarea asp-for="ServiceDetails" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
                     <span asp-validation-for="ServiceDetails" class="text-danger"></span>
                 </div>
 
-                <div class="form-group mb-3 d-flex">
-                    <button type="submit" class="btn btn-primary flex-fill me-2">Create Order</button>
-                    @if (User.IsInRole("GarageOwner"))
-                    {
-                        <a href="@Url.Action("GetOrdersByGarage", "Order")" class="btn btn-secondary flex-fill">Cancel</a>
-                    }
-                    else
-                    {
-                        <a href="@Url.Action("OrderHistory", "Order")" class="btn btn-secondary flex-fill">Cancel</a>
-                    }
+                <div class="row">
+                    <div class="col-6">
+                        @if (User.IsInRole("GarageOwner"))
+                        {
+                            <a href="@Url.Action("GetOrdersByGarage", "Order")" class="btn btn-warning w-100">Cancel</a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("OrderHistory", "Order")" class="btn btn-warning w-100">Cancel</a>
+                        }
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-primary w-100">Create</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -102,8 +53,6 @@
         $(document).ready(function () {
             var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
             var $garageSelect = $('#garage');
-
-            // Fetch garages based on user role
             if (role === "Customer") {
                 $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
                     .done(function (garages) {
@@ -137,12 +86,11 @@
             }
 
             $('#createOrderForm').submit(function (event) {
-                // Check if the form is valid before proceeding
                 if (this.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();
                 } else {
-                    event.preventDefault(); // Prevent default form submission
+                    event.preventDefault(); 
                     $.ajax({
                         type: 'POST',
                         url: '@Url.Action("Create", "Order")',
@@ -161,10 +109,8 @@
                             alert(errorMessage);
                         }
                     });
-                }
-                $(this).addClass('was-validated'); // Add validation class
+                }            
             });
-
         });
     </script>
 

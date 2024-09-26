@@ -3,6 +3,23 @@
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
 
+<style>
+
+    table.dataTable thead th {
+        background-color: blue;
+        color: white; 
+    }
+
+    .dataTables_filter{
+        margin-bottom:15px;
+    }
+</style>
+
+<div class="mb-2">
+    <i class="fas fa-hourglass-half" title="Pending" style="font-size: 14px; color: #f39c12;"></i> Pending &nbsp; &nbsp;
+    <i class="fas fa-check-circle" title="Completed" style="font-size: 14px; color: #2ecc71;"></i> Completed
+</div>
+
 <div class="container mt-4">
     <table class="table table-bordered table-striped" id="orderTable">
         <thead class="thead-dark">

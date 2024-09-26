@@ -56,7 +56,7 @@ namespace GarageOnWheelsAPI.Services
             // Update the order details
             existingOrder.UserId = order.UserId;
             existingOrder.TotalAmount = order.TotalAmount;
-            existingOrder.Status = (int) order.Status;
+            existingOrder.Status = (int)order.Status;
             existingOrder.UpdatedBy = order.UpdatedBy;
             existingOrder.UpdatedDate = DateTime.Now;
             existingOrder.ServiceDetails = order.ServiceDetails;

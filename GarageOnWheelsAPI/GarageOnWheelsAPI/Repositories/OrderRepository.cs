@@ -58,7 +58,7 @@ namespace GarageOnWheelsAPI.Repositories
         // Retrieves all orders associated with a specific garage.
         public async Task<IEnumerable<Orders>> GetOrdersByGarageIdAsync(Guid garageId)
         {
-            return await _context.Orders.Where(o => o.GarageId == garageId).ToListAsync();
+            return await _context.Orders.Where(o => o.GarageId == garageId && !o.IsDelete).ToListAsync();
         }
 
         // Updates an existing order.
@@ -74,13 +74,14 @@ namespace GarageOnWheelsAPI.Repositories
         // Deletes an order by its ID (soft delete by setting IsDelete to true).
         public async Task DeleteOrderAsync(Guid id)
         {
-            var order = await GetOrderByIdAsync(id);
+            var order = await _context.Orders.FindAsync(id);
             if (order != null)
             {
                 order.IsDelete = true;
-                await UpdateOrderAsync(order);
+                _context.Orders.Update(order);
+                await _context.SaveChangesAsync();
             }
-        }
+        }   
 
         // Retrieves all orders placed on a specific date.
         public async Task<IEnumerable<Orders>> GetOrdersBySpecificDateAsync(DateTime date)

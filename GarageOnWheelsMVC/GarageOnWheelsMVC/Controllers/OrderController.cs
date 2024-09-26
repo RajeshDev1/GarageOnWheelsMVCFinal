@@ -111,7 +111,6 @@ namespace GarageOnWheelsMVC.Controllers
 
             return View(order);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Order model)
@@ -121,6 +120,9 @@ namespace GarageOnWheelsMVC.Controllers
                 return View(model);
             }
 
+            // Set the updated order status to 'Success' if applicable
+            model.Status = OrderStatus.Completed;
+
             var userId = SessionHelper.GetUserIdFromToken(HttpContext);
             model.UpdatedBy = userId;
 
@@ -128,7 +130,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Dashboard", "Account");
+                return RedirectToAction("GetOrdersByGarage", "Order");
             }
 
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -136,6 +138,8 @@ namespace GarageOnWheelsMVC.Controllers
 
             return View(model);
         }
+
+
 
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> OrderHistory()
@@ -152,7 +156,6 @@ namespace GarageOnWheelsMVC.Controllers
             return View(orders);
         }
 
-
         [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -160,11 +163,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                string previousUrl = Request.Headers["Referer"].ToString();
-                if (!string.IsNullOrEmpty(previousUrl))
-                {
-                    return Redirect(previousUrl);
-                }
+                return RedirectToAction("GetOrdersByGarage", "Order");
             }
 
             return BadRequest("Error deleting the order.");

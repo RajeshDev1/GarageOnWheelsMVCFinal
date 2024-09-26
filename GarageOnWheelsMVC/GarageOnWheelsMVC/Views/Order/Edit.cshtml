@@ -6,66 +6,13 @@
 
 <h2 class="text-center mb-4">Edit Order</h2>
 
-<style>
-    .container {
-        margin-top: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        font-weight: bold;
-    }
-
-    .form-control {
-        border-radius: 0.5rem;
-        border: 1px solid #ced4da;
-        transition: border-color 0.2s;
-    }
-
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-
-    .btn {
-        border-radius: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-
-    .btn-warning {
-        background-color: #ffc107;
-        border: none;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: none;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-    .d-flex {
-        gap: 1rem; /* space between buttons */
-    }
-</style>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <form asp-action="Edit" asp-controller="Order" method="post" class="needs-validation shadow p-4 rounded bg-light" novalidate>
 
-                <input type="hidden" asp-for="Id" />
-
+           
                 <div class="form-group mb-3">
                     <label asp-for="TotalAmount" class="form-label">Total Amount<span class="text-danger fw-bold">*</span></label>
                     <input asp-for="TotalAmount" id="totalAmount" class="form-control" type="number" step="0.01" placeholder="Enter the total amount" />
@@ -75,6 +22,8 @@
                 <input asp-for="GarageId" hidden />
                 <input asp-for="UserId" hidden />
                 <input asp-for="ServiceDetails" hidden />
+                <input type="hidden" asp-for="Id" />
+
 
                 <div class="form-group mb-4">
                     <label asp-for="Status" class="form-label">Order Status<span class="text-danger fw-bold">*</span></label>

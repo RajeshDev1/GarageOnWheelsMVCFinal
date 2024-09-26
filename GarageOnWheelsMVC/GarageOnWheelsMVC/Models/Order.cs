@@ -7,9 +7,9 @@ namespace GarageOnWheelsMVC.Models
         public Guid Id { get; set; }
         [Required]
         public Guid UserId { get; set; }
-        [Required]
+        [Required(ErrorMessage ="Garage is required")]
         public Guid GarageId { get; set; }
-        [Required]
+        [Required(ErrorMessage ="Write the required services")]
         public string ServiceDetails { get; set; }
         [Required]
         public DateTime OrderDate { get; set; }
