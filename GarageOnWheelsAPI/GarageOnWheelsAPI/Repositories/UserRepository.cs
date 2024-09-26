@@ -72,9 +72,13 @@ namespace GarageOnWheelsAPI.Repositories
 
         public async Task<IEnumerable<User>> GetAllGarageOwnersAsync()
         {
-            return await _context.Users
-                .Where(u => (int)u.Role == (int)UserRole.GarageOwner && u.IsDelete == false && u.IsEmailVerified).ToListAsync();
-        }
+           var query = _context.Users
+                .Where(u => (int)u.Role == (int)UserRole.GarageOwner
+                && !u.IsDelete
+                && u.IsEmailVerified
+                && !_context.Garages.Any(g => g.UserId == u.Id));
+              return await query.ToListAsync();
+        }   
 
 
 

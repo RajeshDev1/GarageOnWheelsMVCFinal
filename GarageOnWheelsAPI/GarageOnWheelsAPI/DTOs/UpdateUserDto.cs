@@ -9,22 +9,24 @@ namespace GarageOnWheelsAPI.DTOs
 
         public Guid Id { get; set; }
         [Required]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 50 characters.")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters.")]
+        [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "First Name must contain only alphabets.")]
         public string FirstName { get; set; }
         [Required]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 50 characters.")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters.")]
+        [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "Last Name must contain only alphabets.")]
         public string LastName { get; set; }
         [Required]
         [EmailAddress]
         [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}" + @"\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\" + @".)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Invalid Email Format")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Select a Role")]
+        [Required]
         public UserRole Role { get; set; }
         [Required]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNo { get; set; }
-        [Required(ErrorMessage = "Select a Gender")]
+        [Required(ErrorMessage = "Gender is required")]
         public Gender Gender { get; set; } = Gender.Male;
         [Required]
         public string Address { get; set; }
@@ -52,7 +54,7 @@ namespace GarageOnWheelsAPI.DTOs
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
                 Email = userDto.Email, 
-                Role = userDto.Role,
+                Role = userDto.Role,  //(UserRole)userDto.Role
                 Address = userDto.Address,
                 PhoneNo = userDto.PhoneNo,
                 IsEmailVerified = userDto.IsEmailVerified,               

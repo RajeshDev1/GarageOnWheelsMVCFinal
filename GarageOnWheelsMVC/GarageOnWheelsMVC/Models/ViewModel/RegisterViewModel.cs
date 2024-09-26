@@ -9,13 +9,13 @@ namespace GarageOnWheelsMVC.Models.ViewModel
 
         public Guid Id { get; set; }
         [Required(ErrorMessage = "First name is required.")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 50 characters.")]
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "First name must contain only letters (a-z, A-Z).")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters.")]
+        [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "First Name must contain only alphabets.")]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Last name is required.")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 50 characters.")]
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Last name must contain only letters (a-z, A-Z).")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters.")]
+        [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "Last Name must contain only alphabets.")]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
@@ -30,8 +30,8 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters.")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Please select a role.")]
-        public UserRole Role { get; set; }
+        [Required]
+        public UserRole Role { get; set; } = UserRole.Customer;
 
         [Required(ErrorMessage = "Phone number is required.")]
         [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid phone number format.")]
@@ -111,6 +111,11 @@ namespace GarageOnWheelsMVC.Models.ViewModel
                 IsDelete = user.IsDelete,
                 CreatedDate = user.CreatedDate,
             };
+        }
+
+        public RegisterViewModel()
+        {
+            Gender = Enum.GetValues(typeof(Gender)).Cast<Gender>().First();
         }
     }
 }

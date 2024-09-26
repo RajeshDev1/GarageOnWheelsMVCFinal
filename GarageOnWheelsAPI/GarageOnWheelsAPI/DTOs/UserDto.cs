@@ -30,7 +30,7 @@ namespace GarageOnWheelsAPI.DTOs
                     public string PhoneNo { get; set; }
 
                     [Required(ErrorMessage ="Select a Gender")]
-                    public Gender Gender { get; set; } = Gender.Male;
+                    public Gender Gender { get; set; } 
                     [Required]
                     public string Address { get; set; }
                     public bool IsEmailVerified { get; set; }=false;

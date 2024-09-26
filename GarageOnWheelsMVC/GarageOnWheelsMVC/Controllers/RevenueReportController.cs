@@ -24,6 +24,35 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<IActionResult> ByDateRange(Guid garageId, DateTime startDate, DateTime endDate)
         {
+            var errors = new Dictionary<string, string>();
+
+            // Validate the inputs
+            if (garageId == Guid.Empty)
+            {
+                errors.Add("GarageId", "Please select a valid garage.");
+            }
+
+            if (startDate == default)
+            {
+                errors.Add("StartDate", "Start date is required.");
+            }
+
+            if (endDate == default)
+            {
+                errors.Add("EndDate", "End date is required.");
+            }
+
+            if (startDate != default && endDate != default && startDate > endDate)
+            {
+                errors.Add("EndDate", "End date cannot be earlier than start date.");
+            }
+
+            // If there are validation errors, return them
+            if (errors.Count > 0)
+            {
+                return Json(new { success = false, errors });
+            }
+
             try
             {
                 // Use ApiHelper to fetch the revenue reports by date range
@@ -36,16 +65,16 @@ namespace GarageOnWheelsMVC.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error fetching revenue reports.");
-                    return View();
+                    return Json(new { success = false, errors = new { General = "Error fetching revenue reports." } });
                 }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
-                return View();
+                return Json(new { success = false, errors = new { General = $"Error: {ex.Message}" } });
             }
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetGarages()

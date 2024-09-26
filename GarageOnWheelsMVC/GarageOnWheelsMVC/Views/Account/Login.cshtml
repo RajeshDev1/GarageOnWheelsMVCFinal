@@ -29,7 +29,7 @@
                         <div class="col-md-6 col-lg-7 d-flex align-items-center">
                             <div class="card-body p-4 p-lg-5 text-black">
 
-                                <form asp-action="Login" asp-controller="Account" method="post">
+                                <form asp-action="Login" method="post" id="loginForm">
                                     @Html.AntiForgeryToken()
                                     <div class="d-flex align-items-center mb-4 pb-1">
                                         <span class="h3 fw-bold mb-0">Login to Your Account</span>
@@ -60,8 +60,6 @@
 
                                     <p class="mb-5 pb-lg-2">Don't have an account? <a href="@Url.Action("Registration", "Account")" style="color: #393f81;"><strong>Register Here</strong></a></p>
 
-                                    <a href="#" class="small text-muted">Terms of use.</a>
-                                    <a href="#" class="small text-muted">Privacy policy</a>
                                 </form>
 
                             </div>
@@ -73,36 +71,68 @@
     </div>
 </section>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            var message = '@TempData["Success"]';
-            if (message) {
-                toastr.success(message);
-                console.log(message);
-            }
-            else 
-            // Handle field validation messages
-            $('input[required]').on('blur', function () {
-                if ($(this).val().trim() === '') {
-                    $(this).next('.text-danger').text('This field is required.');
-                } else {
-                    $(this).next('.text-danger').text('');
+    $(document).ready(function () {
+
+        var message = '@TempData["Successful"]';
+        if (message) {
+            toastr.success(message);
+        }
+        $('#loginForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Login", "Account")',
+                data: formData,
+                contentType: false, 
+                processData: false, 
+                beforeSend: function () {
+                    $('#loginForm button[type="submit"]').prop('disabled', true); 
+                },
+                success: function (response) {
+                    // Re-enable the button after response
+                    $('#loginForm button[type="submit"]').prop('disabled', false);
+
+                    // Check if the login was successful
+                    if (response.success) {
+                        // Redirect to the Dashboard page
+                        window.location.href = response.redirectUrl;
+                    } else {
+                        // Handle validation errors or login failure
+                        $('#Password').val(''); // Clear the password field
+                        if (response.errors) {
+                            $.each(response.errors, function (key, value) {
+                                var validationSpan = $('[data-valmsg-for="' + key + '"]');
+                                validationSpan.text(value); // Display validation errors
+                            });
+                        } else {
+                            $('#form-error-message').text(response.message).show(); 
+                        }
+                    }
+                },
+                error: function () {
+                 
+                    $('#form-error-message').text('An error occurred. Please try again.').show();
+                    $('#loginForm button[type="submit"]').prop('disabled', false);
                 }
             });
         });
+    });
+
+
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-}
+ *@
 
 
 

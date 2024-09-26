@@ -29,7 +29,7 @@ namespace GarageOnWheelsMVC.Models
         public string PhoneNo { get; set; }
 
         [Required]
-        public Gender Gender { get; set; } = Gender.Male;
+        public Gender Gender { get; set; }
         [Required(ErrorMessage ="Address must be Required")]
         public string Address { get; set; }
         public bool IsEmailVerified { get; set; } = false;

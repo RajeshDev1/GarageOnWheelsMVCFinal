@@ -124,7 +124,14 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-center mt-3">
-                            <a class="btn btn-warning me-2" href="@Url.Action("GetAllUsers", "User")">CANCLE</a>
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <a class="btn btn-warning me-2" href="@Url.Action("GetAllUsers", "User")">CANCLE</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-warning me-2" href="@Url.Action("GetAllCustomers", "User")">CANCLE</a>
+                            }
                             <button type="submit" class="btn btn-primary">SAVE</button>
                         </div>
                     </div>

@@ -78,10 +78,15 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
 
+
         [HttpGet]
         public async Task<IActionResult> Registration()
         {
-            return View();
+            var model = new RegisterViewModel
+            {
+                Gender = Gender.Male
+            };
+            return View(model);
         }
 
 
@@ -108,7 +113,8 @@ namespace GarageOnWheelsMVC.Controllers
             return View(model);
         }
 
-   
+
+
         private async Task<HttpResponseMessage> SendPostRequest<T>(string endpoint, T model)
         {
             var jsonModel = JsonSerializer.Serialize(model);
@@ -123,14 +129,20 @@ namespace GarageOnWheelsMVC.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                var errors = ModelState.ToDictionary(
+                    key => key.Key,
+                    val => val.Value.Errors.Select(error => error.ErrorMessage).FirstOrDefault()
+                );
+                return Json(new { success = false, errors });
             }
+
             var response = await SendPostRequest<LoginViewModel>("auth/login", model);
 
             if (response.IsSuccessStatusCode)
@@ -141,17 +153,20 @@ namespace GarageOnWheelsMVC.Controllers
                 HttpContext.Session.SetString("Name", name);
 
                 var role = SessionHelper.GetRoleFromToken(token);
-                var id = SessionHelper.GetUserIdFromToken(HttpContext);  
+                var id = SessionHelper.GetUserIdFromToken(HttpContext);
                 await SignInUser(role, id, name);
+
                 TempData["Successful"] = "Login Successfully";
-                return RedirectToAction("Dashboard", "Account");
+                return Json(new { success = true, redirectUrl = Url.Action("Dashboard", "Account") });
             }
-            
+           
                 TempData["Message"] = "Invalid login credentials. Please check your email and password.";
-                TempData["MessageType"] = "error";  
-            
-            return View(model);
+                TempData["MessageType"] = "error";
+
+                return Json(new { success = false, message = TempData["Message"] });
         }
+
+
 
 
 
@@ -189,7 +204,7 @@ namespace GarageOnWheelsMVC.Controllers
             HttpContext.Session.Clear();
 
             // Add a success message to TempData
-            TempData["LogoutSuccess"] = "You have been successfully logged out.";
+            TempData["ucccessful"] = "You have been successfully logged out.";
 
             return RedirectToAction("Login");
         }
