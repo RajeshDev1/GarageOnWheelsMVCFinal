@@ -64,16 +64,16 @@
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <label asp-for="CountryId" class="form-label">Country<span class="text-danger fw-bold">*</span></label>
-                        <select id="country" asp-for="CountryId" class="form-select form-select-lg" required>
-                            <option value="">Select Country</option>
+                        <select id="country" asp-for="CountryId" data-countryid="@Model.CountryId" class="form-select form-select-lg" required>
+                            
                         </select>
                         <span asp-validation-for="CountryId" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-4">
                         <label asp-for="StateId" class="form-label">State<span class="text-danger fw-bold">*</span></label>
-                        <select id="state" asp-for="StateId" class="form-select form-select-lg" required>
-                            <option value="">Select State</option>
+                        <select id="state" asp-for="StateId" data-stateid="@Model.StateId" class="form-select form-select-lg" required>
+                            
                         </select>
                         <span asp-validation-for="StateId" class="text-danger"></span>
                     </div>
@@ -82,16 +82,16 @@
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <label asp-for="CityId" class="form-label">City<span class="text-danger fw-bold">*</span></label>
-                        <select id="city" asp-for="CityId" class="form-select form-select-lg" required>
-                            <option value="">Select City</option>
+                        <select id="city" asp-for="CityId" data-cityid="@Model.CityId" class="form-select form-select-lg" required>
+                            
                         </select>
                         <span asp-validation-for="CityId" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-4">
                         <label asp-for="AreaId" class="form-label">Area<span class="text-danger fw-bold">*</span></label>
-                        <select id="area" asp-for="AreaId" class="form-select form-select-lg" required>
-                            <option value="">Select Area</option>
+                        <select id="area" asp-for="AreaId" data-areaid="@Model.AreaId" class="form-select form-select-lg" required>
+                            
                         </select>
                         <span asp-validation-for="AreaId" class="text-danger"></span>
                     </div>
@@ -131,7 +131,7 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
+        $(document).ready(function () {  
             var $userIdSelect = $('#userid');
 
             // Function to populate the garage owners dropdown

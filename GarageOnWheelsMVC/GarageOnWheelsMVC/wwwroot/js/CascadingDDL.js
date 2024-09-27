@@ -1,33 +1,24 @@
 ﻿$(document).ready(function () {
 
-    LoadCountries();
-
+    var countryid = $('#country').data('countryid');
+    var stateid = $('#state').data('stateid');
+    var cityid = $('#city').data('cityid');
+    var areaid = $('#area').data('areaid');
+    LoadCountries(countryid);
+   
     $('#country').change(function () {
         var countryId = $(this).val();
         if (countryId > 0) {
-            LoadStates(countryId);
+            LoadStates(countryId, stateid);
         }
-        else {
-            alert("Select Country");
-            $('#state').empty();
-            $('#city').empty();
-            $('#area').empty();
-            $('#state').append('<option value="">Select State</option>');
-            $('#city').append('<option value="">Select City</option>');
-            $('#area').append('<option value="">Select Area</option>');
-        }
+      
     });
 
 
     $('#state').change(function () {
         var stateId = $(this).val();
         if (stateId > 0) {
-            LoadCities(stateId);
-        }
-        else {
-            alert("Select State");
-            $('#city').append('<option value="">Select City</option>');
-            $('#area').append('<option value="">Select Area</option>');
+            LoadCities(stateId, cityid);
         }
     });
 
@@ -35,19 +26,14 @@
     $('#city').change(function () {
         var cityId = $(this).val();
         if (cityId > 0) {
-            LoadAreas(cityId);
+            LoadAreas(cityId,areaid);
         }
-        else {
-            alert("Select City");
-            $('#area').append('<option value="">Select Area</option>');
-        }
+      
     });
 
 });
 
-function LoadCountries() {
-    $('#country').empty();
-
+function LoadCountries(countryid) {
     $.ajax({
         url: '/Location/GetCountries',
         success: function (response) {
@@ -57,16 +43,26 @@ function LoadCountries() {
                 $('#state').append('<option value="">Select State</option>');
                 $('#city').append('<option value="">Select City</option>');
                 $('#area').append('<option value="">Select Area</option>');
+
+                var countryExists = false;
                 $.each(response, function (i, data) {
                     $('#country').append('<option value=' + data.Id + '>' + data.Name + '</option>');
+                    if (data.Id == countryid) {
+                        countryExists = true;
+                    }
                 });
-            }
-            else {
+
+                if (countryExists) {
+                    $('#country').val(countryid).trigger('change');
+                } else {
+                    $('#country').val(''); // Default to "Select Country"
+                }
+
+            } else {
                 $('#country').attr('disabled', true);
                 $('#state').attr('disabled', true);
                 $('#city').attr('disabled', true);
                 $('#area').attr('disabled', true);
-
             }
         },
         error: function (error) {
@@ -76,11 +72,11 @@ function LoadCountries() {
 }
 
 
-function LoadStates(countryId) {
+
+function LoadStates(countryId, stateid) {
     $('#state').empty();
     $('#city').empty();
     $('#area').empty();
-
 
     $.ajax({
         url: '/Location/GetStates?Id=' + countryId,
@@ -90,15 +86,24 @@ function LoadStates(countryId) {
                 $('#state').append('<option value="">Select State</option>');
                 $('#city').append('<option value="">Select City</option>');
                 $('#area').append('<option value="">Select Area</option>');
+
+                var stateExists = false;
                 $.each(response, function (i, data) {
                     $('#state').append('<option value=' + data.Id + '>' + data.Name + '</option>');
+                    if (data.Id == stateid) {
+                        stateExists = true;
+                    }
                 });
-            }
-            else {
+
+                if (stateExists) {
+                    $('#state').val(stateid).trigger('change');
+                } else {
+                    $('#state').val(''); // Default to "Select State"
+                }
+            } else {
                 $('#state').attr('disabled', true);
                 $('#city').attr('disabled', true);
                 $('#area').attr('disabled', true);
-
             }
         },
         error: function (error) {
@@ -108,11 +113,9 @@ function LoadStates(countryId) {
 }
 
 
-function LoadCities(stateId) {
+function LoadCities(stateId, cityid) {
     $('#city').empty();
     $('#area').empty();
-
-
 
     $.ajax({
         url: '/Location/GetCities?Id=' + stateId,
@@ -121,14 +124,23 @@ function LoadCities(stateId) {
                 $('#city').attr('disabled', false);
                 $('#city').append('<option value="">Select City</option>');
                 $('#area').append('<option value="">Select Area</option>');
+
+                var cityExists = false;
                 $.each(response, function (i, data) {
                     $('#city').append('<option value=' + data.Id + '>' + data.Name + '</option>');
+                    if (data.Id == cityid) {
+                        cityExists = true;
+                    }
                 });
-            }
-            else {
+
+                if (cityExists) {
+                    $('#city').val(cityid).trigger('change');
+                } else {
+                    $('#city').val(''); // Default to "Select City"
+                }
+            } else {
                 $('#city').attr('disabled', true);
                 $('#area').attr('disabled', true);
-
             }
         },
         error: function (error) {
@@ -139,7 +151,7 @@ function LoadCities(stateId) {
 
 
 
-function LoadAreas(cityId) {
+function LoadAreas(cityId, areaid) {
     $('#area').empty();
 
     $.ajax({
@@ -148,18 +160,26 @@ function LoadAreas(cityId) {
             if (response != null && response != undefined && response.length > 0) {
                 $('#area').attr('disabled', false);
                 $('#area').append('<option value="">Select Area</option>');
+
+                var areaExists = false;
                 $.each(response, function (i, data) {
                     $('#area').append('<option value=' + data.Id + '>' + data.Name + '</option>');
+                    if (data.Id == areaid) {
+                        areaExists = true;
+                    }
                 });
-            }
-            else {
-                $('#area').attr('disabled', true);
 
+                if (areaExists) {
+                    $('#area').val(areaid);
+                } else {
+                    $('#area').val(''); // Default to "Select Area"
+                }
+            } else {
+                $('#area').attr('disabled', true);
             }
         },
         error: function (error) {
             alert("Error Comes here ", error.statusText);
         }
     });
-
 }

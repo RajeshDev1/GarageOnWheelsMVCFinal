@@ -165,6 +165,7 @@ namespace GarageOnWheelsMVC.Controllers
             }
 
             var userViewModel = UpdateUserViewModel.mapping(user);
+
             return View(userViewModel);
         }
 
