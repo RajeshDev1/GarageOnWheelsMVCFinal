@@ -1,18 +1,121 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Dashboard";
-
 }
 
- @section Scripts {
-     <script>
-         $(document).ready(function(){
-             var message = '@TempData["Successful"]';  
-             if(message)
-             {
-                 console.log(message);
+<div class="container mt-4">
+ 
+
+    <div class="row justify-content-center">
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <div class="mb-4">
+                <h2>Super Admin Dashboard</h2>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-primary mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-users-cog"></i> </h5>
+                        <p class="card-text">View and manage all users in the system.</p>
+                        <a href="/User/GetAllUsers" class="btn btn-light">Manage Users</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-car"></i></h5>
+                        <p class="card-text">CRUD operations for managing garages.</p>
+                        <a href="/Garage/GetAllGarages" class="btn btn-light">Manage Garages</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-file-alt"></i></h5>
+                        <p class="card-text">View revenue generation reports.</p>
+                        <a href="/RevenueReport/GenerateRevenue" class="btn btn-light">View Reports</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (User.IsInRole("GarageOwner"))
+        {
+            <div class="mb-4">
+                <h2>Garage Owner Dashboard</h2>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-car"></i></h5>
+                        <p class="card-text">Manage your garages efficiently.</p>
+                        <a href="/Garage/GetGaragesByUserId" class="btn btn-light">View Garages</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-users"></i></h5>
+                        <p class="card-text">View and manage your customers.</p>
+                        <a href="/User/GetAllCustomers" class="btn btn-light">Manage Customers</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tasks"></i></h5>
+                        <p class="card-text">View and manage customer orders.</p>
+                        <a href="/Order/GetOrdersByGarage" class="btn btn-light">Manage Orders</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-file-alt"></i> </h5>
+                        <p class="card-text">View your revenue report.</p>
+                        <a href="/RevenueReport/GenerateRevenue" class="btn btn-light">View Report</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (User.IsInRole("Customer"))
+        {
+            <div class="mb-4">
+                <h2>Customer Dashboard</h2>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-primary mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-redo"></i></h5>
+                        <p class="card-text">Place a request for a new order.</p>
+                        <a href="/Order/Create" class="btn btn-light">Request Order</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tasks"></i></h5>
+                        <p class="card-text">View your past orders and status.</p>
+                        <a href="/Order/OrderHistory" class="btn btn-light">View History</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var message = '@TempData["Successful"]';
+            if (message) {
+                console.log(message);
                 toastr.success(message);
-             }
-         });
-     </script>
- }
+            }
+        });
+    </script>
+}

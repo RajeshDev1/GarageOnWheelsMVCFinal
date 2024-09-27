@@ -159,11 +159,11 @@ namespace GarageOnWheelsMVC.Controllers
                 TempData["Successful"] = "Login Successfully";
                 return Json(new { success = true, redirectUrl = Url.Action("Dashboard", "Account") });
             }
-           
-                TempData["Message"] = "Invalid login credentials. Please check your email and password.";
-                TempData["MessageType"] = "error";
 
-                return Json(new { success = false, message = TempData["Message"] });
+            TempData["Message"] = "Invalid login credentials. Please check your email and password.";
+            TempData["MessageType"] = "error";
+
+            return Json(new { success = false, message = TempData["Message"] });
         }
 
 

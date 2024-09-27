@@ -2,7 +2,7 @@
 
 @{
 
-    ViewData["Title"] = "EDIT USER";
+    ViewData["Title"] = "Edit User";
 }
 
 <section class="row justify-content-center">
@@ -13,12 +13,12 @@
                 <form asp-action="Edit" asp-controller="User" method="post">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="FirstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <label asp-for="FirstName" class="form-label">First Name<span class="text-danger">*</span></label>
                             <input type="text" asp-for="FirstName" class="form-control" />
                             <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="LastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <label asp-for="LastName" class="form-label">Last Name<span class="text-danger">*</span></label>
                             <input type="text" asp-for="LastName" class="form-control" required />
                             <span asp-validation-for="LastName" class="text-danger"></span>
                         </div>
@@ -30,7 +30,7 @@
                     </div>                
                             
                     <div class="mb-3">
-                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                        <label class="form-label">Gender<span class="text-danger">*</span></label>
                         <div class="d-flex gap-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" asp-for="Gender" value="Female" required />
@@ -47,92 +47,92 @@
                         </div>
                         <span asp-validation-for="Gender" class="text-danger"></span>
                     </div>
-                    @if (User.IsInRole("SuperAdmin"))
+
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label">Role<span class="text-danger fw-bold">*</span></label>
+                        <input type="text" asp-for="Role" class="form-control" required readonly />
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+                  @*   @if (User.IsInRole("SuperAdmin"))
                     {
                         <div class="mb-3">
-                            <label asp-for="Role" class="form-label">Select User Type <span class="text-danger fw-bold">*</span></label>
-                        <select asp-for="Role" class="form-select" required>
-                            <option selected disabled value="">Select Type</option>
-                            <option value="GarageOwner">GarageOwner</option>
-                            <option value="Customer">Customer</option>
-                        </select>
+                            <label asp-for="Role" class="form-label">Role <span class="text-danger fw-bold">*</span></label>               
+                            <input type="text" asp-for="Role" class="form-control" required readonly />
                         <span asp-validation-for="Role" class="text-danger"></span>
                         </div>
                     }
                     else
                     {
                         <div class="mb-3">
-                            <label asp-for="Role" class="form-label">Select User Type <span class="text-danger fw-bold">*</span></label>
+                            <label asp-for="Role" class="form-label">Role<span class="text-danger fw-bold">*</span></label>
                             <select asp-for="Role" class="form-select" required>
                                 <option selected disabled value="">Select Type</option>                         
                                 <option value="Customer">Customer</option>
                             </select>
                             <span asp-validation-for="Role" class="text-danger"></span>
                         </div>
-                    }
+                    } *@
                     <div class="mb-3">
-                        <label asp-for="PhoneNo" class="form-label">Phone No <span class="text-danger">*</span></label>
+                        <label asp-for="PhoneNo" class="form-label">Phone No<span class="text-danger">*</span></label>
                         <input type="tel" asp-for="PhoneNo" class="form-control" required pattern="\d+" title="Phone number should contain only digits." />
                         <span asp-validation-for="PhoneNo" class="text-danger"></span>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-4">
                             <label asp-for="CountryId" class="form-label">Country<span class="text-danger">*</span></label>
-                            <select id="country" asp-for="CountryId" class="form-select" required>
-                                <option value="">Select Country</option>
+                            <select id="country" asp-for="CountryId" data-countryid="@Model.CountryId" class="form-select form-select-lg" required>
                             </select>
                             <span asp-validation-for="CountryId" class="text-danger"></span>
                         </div>
-                        <div class="col-md-6 mb-3">
+
+                        <div class="col-md-6 mb-4">
                             <label asp-for="StateId" class="form-label">State<span class="text-danger">*</span></label>
-                            <select id="state" asp-for="StateId" class="form-select" required>
-                                <option value="">Select State</option>
+                            <select id="state" asp-for="StateId" data-stateid="@Model.StateId" class="form-select form-select-lg" required>
                             </select>
                             <span asp-validation-for="StateId" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-4">
                             <label asp-for="CityId" class="form-label">City<span class="text-danger">*</span></label>
-                            <select id="city" asp-for="CityId" class="form-select" required>
-                                <option value="">Select City</option>
+                            <select id="city" asp-for="CityId" data-cityid="@Model.CityId" class="form-select form-select-lg" required>
                             </select>
                             <span asp-validation-for="CityId" class="text-danger"></span>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="AreaId" class="form-label">Area<span class="text-danger">*</span></label>
-                            <select id="area" asp-for="AreaId" class="form-select" required>
-                                <option value="">Select Area</option>
 
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="AreaId" class="form-label">Area<span class="text-danger">*</span></label>
+                            <select id="area" asp-for="AreaId" data-areaid="@Model.AreaId" class="form-select form-select-lg" required>
                             </select>
                             <span asp-validation-for="AreaId" class="text-danger"></span>
                         </div>
-                    </div>
+                    </div> 
 
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">Address<span class="text-danger">*</span></label>
+                            <input type="text" asp-for="Address" class="form-control" required />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
                     <div class="container">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Address" class="form-label">Address <span class="text-danger">*</span></label>
-                                    <input type="text" asp-for="Address" class="form-control" required />
-                                    <span asp-validation-for="Address" class="text-danger"></span>
-                                </div>
-                            </div>
+                            
                             <div class="col-md-6">
                             </div>
                         </div>
                         <div class="d-flex justify-content-center mt-3">
                             @if (User.IsInRole("SuperAdmin"))
                             {
-                                <a class="btn btn-warning me-2" href="@Url.Action("GetAllUsers", "User")">CANCLE</a>
+                                <a class="btn btn-warning me-2" href="@Url.Action("GetAllUsers", "User")">Cancel</a>
                             }
                             else
                             {
-                                <a class="btn btn-warning me-2" href="@Url.Action("GetAllCustomers", "User")">CANCLE</a>
+                                <a class="btn btn-warning me-2" href="@Url.Action("GetAllCustomers", "User")">Cancel</a>
                             }
-                            <button type="submit" class="btn btn-primary">SAVE</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
                         </div>
                     </div>
 

@@ -7,11 +7,11 @@ namespace GarageOnWheelsMVC.Models.ViewModel
     {
         public Guid Id { get; set; }
         [Required]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 50 characters.")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters.")]
         [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "First Name must contain only alphabets.")]
         public string FirstName { get; set; }
         [Required]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 50 characters.")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters.")]
         [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "Last Name must contain only alphabets.")]
         public string LastName { get; set; }
         [Required]
@@ -22,9 +22,9 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         [Required]
         public UserRole Role { get; set; }
 
-        [Required(ErrorMessage = "Phone number is required.")]
-        [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid phone number format.")]
-        [RegularExpression(@"^(\+91[\-\s]?)?[6-9]\d{9}$", ErrorMessage = "Please enter a valid Phone number.")]
+        [Required(ErrorMessage = "Phone No is required.")]
+        [DataType(DataType.PhoneNumber, ErrorMessage = "Invalid Phone No format.")]
+        [RegularExpression(@"^(\+91[\-\s]?)?[6-9]\d{9}$", ErrorMessage = "Please enter a valid Phone No.")]
         public string PhoneNo { get; set; }
 
         [Required(ErrorMessage = "Gender is required")]

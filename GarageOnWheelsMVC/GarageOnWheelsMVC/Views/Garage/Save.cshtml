@@ -79,7 +79,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row mb-4">
                     <div class="col-md-6 mb-4">
                         <label asp-for="CityId" class="form-label">City<span class="text-danger fw-bold">*</span></label>
                         <select id="city" asp-for="CityId" data-cityid="@Model.CityId" class="form-select form-select-lg" required>
@@ -98,32 +98,30 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="d-flex justify-content-between">
-                            <div class="col-md-6 p-0">
-                                @if (User.IsInRole("GarageOwner"))
+                        <div class="d-flex justify-content-center">
+                            @if (User.IsInRole("GarageOwner"))
+                            {
+                                <a asp-action="GetGaragesByUserId" class="btn btn-warning me-2">Cancel</a>
+                            }
+                            else
+                            {
+                                <a asp-action="GetAllGarages" class="btn btn-warning me-2">Cancel</a>
+                            }
+
+                            <button type="submit" class="btn btn-primary">
+                                @if (isEdit)
                                 {
-                                    <a asp-action="GetGaragesByUserId" class="btn btn-warning w-100">Cancel</a>
+                                    <text>Update</text>
                                 }
                                 else
                                 {
-                                    <a asp-action="GetAllGarages" class="btn btn-warning w-100">Cancel</a>
+                                    <text>Create</text>
                                 }
-                            </div>
-                            <div class="col-md-6 p-0">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    @if (isEdit)
-                                    {
-                                        <text>Update Garage</text>
-                                    }
-                                    else
-                                    {
-                                        <text>Create Garage</text>
-                                    }
-                                </button>
-                            </div>
+                            </button>
                         </div>
                     </div>
                 </div>
+
             </form>
         </div>
     </div>

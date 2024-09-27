@@ -8,12 +8,12 @@ namespace GarageOnWheelsMVC.Models.ViewModel
     {
 
         public Guid Id { get; set; }
-        [Required(ErrorMessage = "First name is required.")]
+        [Required(ErrorMessage = "First Name is required.")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters.")]
         [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "First Name must contain only alphabets.")]
         public string FirstName { get; set; }
 
-        [Required(ErrorMessage = "Last name is required.")]
+        [Required(ErrorMessage = "Last Name is required.")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters.")]
         [RegularExpression(@"^[a-zA-Z\s\(\)]+$", ErrorMessage = "Last Name must contain only alphabets.")]
         public string LastName { get; set; }

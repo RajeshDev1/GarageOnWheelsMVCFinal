@@ -46,13 +46,8 @@
                                         <input asp-for="Password" class="form-control form-control-lg" placeholder="Enter your Password" />
                                         <span asp-validation-for="Password" class="text-danger"></span>
                                     </div>
-
-                                    <div class="form-outline mb-4">
-                                        @if (TempData["Message"] != null)
-                                        {
-                                            <span class="text-danger form-outline mb-2">@TempData["Message"] </span>
-                                        }
-                                    </div>
+                                     <span id="form-error-message" class="text-danger"></span>
+                                 
 
                                     <div class="pt-1 mb-3">
                                         <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
@@ -71,16 +66,15 @@
     </div>
 </section>
 
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
     $(document).ready(function () {
 
         var message = '@TempData["Successful"]';
         if (message) {
             toastr.success(message);
         }
+
         $('#loginForm').on('submit', function (e) {
             e.preventDefault();
 
@@ -90,50 +84,51 @@
                 type: 'POST',
                 url: '@Url.Action("Login", "Account")',
                 data: formData,
-                contentType: false, 
-                processData: false, 
+                contentType: false,
+                processData: false,
                 beforeSend: function () {
-                    $('#loginForm button[type="submit"]').prop('disabled', true); 
+                    $('#loginForm button[type="submit"]').prop('disabled', true);
                 },
                 success: function (response) {
-                    // Re-enable the button after response
+                    $('#form-error-message').hide();
                     $('#loginForm button[type="submit"]').prop('disabled', false);
-
-                    // Check if the login was successful
+                    
                     if (response.success) {
-                        // Redirect to the Dashboard page
                         window.location.href = response.redirectUrl;
                     } else {
-                        // Handle validation errors or login failure
+                      
                         $('#Password').val(''); // Clear the password field
+
                         if (response.errors) {
                             $.each(response.errors, function (key, value) {
                                 var validationSpan = $('[data-valmsg-for="' + key + '"]');
                                 validationSpan.text(value); // Display validation errors
                             });
                         } else {
-                            $('#form-error-message').text(response.message).show(); 
+                            console.log(response);                         
+                            var errorMessageSpan = $('#form-error-message');                       
+                            errorMessageSpan.text(response.message).show();
                         }
                     }
                 },
                 error: function () {
-                 
-                    $('#form-error-message').text('An error occurred. Please try again.').show();
+                    var errorMessageSpan = $('#form-error-message');
+                    if (errorMessageSpan.length === 0) {
+                        errorMessageSpan = $('<span id="form-error-message" class="text-danger"></span>');
+                        $('#loginForm').append(errorMessageSpan); // Append the span to the form
+                    }
+                    errorMessageSpan.text('An error occurred. Please try again.').show();
                     $('#loginForm button[type="submit"]').prop('disabled', false);
                 }
             });
         });
     });
-
-
-    </script>
-
-
-    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
- *@
+</script>
 
 
 
-
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script> 

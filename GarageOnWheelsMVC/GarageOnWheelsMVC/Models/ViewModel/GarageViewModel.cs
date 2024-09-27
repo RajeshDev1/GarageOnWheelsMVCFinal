@@ -5,11 +5,11 @@ namespace GarageOnWheelsMVC.Models.ViewModel
     public class GarageViewModel
     {
         public Guid Id { get; set; }
-        [Required(ErrorMessage ="Name is Required")]
+        [Required(ErrorMessage ="Name is required")]
         public string Name { get; set; }
-        [Required(ErrorMessage ="Select a garage Owner")]
+        [Required(ErrorMessage ="Select a Garage Owner")]
         public Guid UserId { get; set; }
-        [Required(ErrorMessage ="Address is Required")]
+        [Required(ErrorMessage ="Address is required")]
         public string Address { get; set; }
         [Required]
         public DateTime CreatedDate { get; set; }

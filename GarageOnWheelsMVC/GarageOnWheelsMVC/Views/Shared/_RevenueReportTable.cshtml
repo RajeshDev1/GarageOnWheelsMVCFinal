@@ -5,7 +5,7 @@
 <style>
 
     table.dataTable thead th {
-        background-color: blue;
+        background-color: #95c544;
         color: white;
     }
 
@@ -14,7 +14,7 @@
     }
 </style>
 
-<table class="table table-bordered table-striped" id="revenueeTable">
+<table class="table table-bordered table-striped" id="revenueDataTable">
         <thead>
             <tr>
                 <th>Garage Name</th>
@@ -49,10 +49,13 @@
 <script>
     $(document).ready(function () {
         // Initialize DataTable with 5 entries per page
-        $('#revenueeTable').DataTable({
+        $('#revenueDataTable').DataTable({
             "pageLength": 5, 
             "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
-            "dom": '<"top"f>rt<"bottom"lp><"clear">'
+            "dom": '<"top"f>rt<"bottom"lp><"clear">',
+            "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]
         });
     });
 </script>
