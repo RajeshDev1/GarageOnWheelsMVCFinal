@@ -181,6 +181,21 @@
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
         });
+        $('.deleteLink').on('click', function (e) {
+            e.preventDefault();
+            var userId = $(this).data('id');
+            var userName = $(this).data('name');
+
+            // Set the modal's data
+            $('#deleteUserName').text(userName);
+            $('#userIdToDelete').val(userId);
+
+            // Show the modal
+            $('#deleteModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            }).modal('show');
+        });
 
     });
 </script>

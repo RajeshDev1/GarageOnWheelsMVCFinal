@@ -77,20 +77,20 @@ namespace GarageOnWheelsMVC.Controllers
 
             var response = await _apiHelper.SendPostRequest("order/CreateOrder", model, HttpContext);
 
-            if (response.StatusCode == HttpStatusCode.Created)
-            {
-                TempData["Successful"] = "Order created successfully!";
-
+                
                 // Redirect based on user role
+                TempData["Successful"] = "Order created.";
                 if (User.IsInRole("GarageOwner"))
                 {
-                    return RedirectToAction("GetOrdersByGarage", "Order");
+                    return Json(new { success = true, redirectUrl = Url.Action("GetOrdersByGarage", "Order") });
+                  
                 }
                 else if (User.IsInRole("Customer"))
                 {
-                    return RedirectToAction("OrderHistory", "Order");
+                    return Json(new { success = true, redirectUrl = Url.Action("OrderHistory", "Order") });
+                  
                 }
-            }
+            
 
             var message = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError("", message);
@@ -130,6 +130,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                TempData["Successful"] = "Order Updated.";
                 return RedirectToAction("GetOrdersByGarage", "Order");
             }
 

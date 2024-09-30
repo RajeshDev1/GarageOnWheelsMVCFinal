@@ -1,24 +1,4 @@
-﻿@*  @model GarageOnWheelsMVC.Models.ViewModel.OtpVerification
-@{
-    ViewData["Title"] = "VerifyOtp";
-}
-
-
-<form asp-action="VerifyOtp">
-    <div>
-        <label>Email</label>
-        <input asp-for="Email" readonly value="@TempData["Email"]" />
-    </div>
-    <div>
-        <label>Enter OTP:</label>
-        <input asp-for="OTP" required />
-    </div>
-    <button type="submit">Verify</button>
-</form>
- *@
-
-
- @model GarageOnWheelsMVC.Models.ViewModel.OtpVerificationViewModel
+﻿ @model GarageOnWheelsMVC.Models.ViewModel.OtpVerificationViewModel
 @{
     ViewData["Title"] = "VerifyOtp";
 }
@@ -49,6 +29,3 @@
         </div>
     </div>
 </div>
-
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>                           

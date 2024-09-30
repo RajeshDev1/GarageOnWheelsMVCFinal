@@ -53,28 +53,12 @@
                         <input type="text" asp-for="Role" class="form-control" required readonly />
                         <span asp-validation-for="Role" class="text-danger"></span>
                     </div>
-                  @*   @if (User.IsInRole("SuperAdmin"))
-                    {
-                        <div class="mb-3">
-                            <label asp-for="Role" class="form-label">Role <span class="text-danger fw-bold">*</span></label>               
-                            <input type="text" asp-for="Role" class="form-control" required readonly />
-                        <span asp-validation-for="Role" class="text-danger"></span>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="mb-3">
-                            <label asp-for="Role" class="form-label">Role<span class="text-danger fw-bold">*</span></label>
-                            <select asp-for="Role" class="form-select" required>
-                                <option selected disabled value="">Select Type</option>                         
-                                <option value="Customer">Customer</option>
-                            </select>
-                            <span asp-validation-for="Role" class="text-danger"></span>
-                        </div>
-                    } *@
+
+                    <input asp-for="IsEmailVerified" hidden>
+
                     <div class="mb-3">
                         <label asp-for="PhoneNo" class="form-label">Phone No<span class="text-danger">*</span></label>
-                        <input type="tel" asp-for="PhoneNo" class="form-control" required pattern="\d+" title="Phone number should contain only digits." />
+                        <input type="tel" asp-for="PhoneNo" class="form-control" required pattern="\d+" title="Phone No should contain only digits." />
                         <span asp-validation-for="PhoneNo" class="text-danger"></span>
                     </div>
 

@@ -119,7 +119,7 @@ namespace GarageOnWheelsMVC.Controllers
             {
                 await _apiHelper.SendOtp(model.Email,HttpContext);
                 TempData["Email"] = model.Email;
-                return RedirectToAction("VerifyOtp");
+                return RedirectToAction("VerifyOtp","Account");
             }
             ModelState.AddModelError("", "An error occurred while creating the user.");
             return View(model);
@@ -225,7 +225,8 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                return RedirectToAction("Dashboard", "Account");
+                TempData["Successful"] = "Profile Update Successfully";
+                return RedirectToAction("EditProfile","User");
             }
 
             return View(model);
