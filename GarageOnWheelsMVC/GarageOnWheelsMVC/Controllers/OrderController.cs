@@ -79,7 +79,7 @@ namespace GarageOnWheelsMVC.Controllers
 
                 
                 // Redirect based on user role
-                TempData["Successful"] = "Order created.";
+                TempData["Successful"] = "Order Created Successfully.";
                 if (User.IsInRole("GarageOwner"))
                 {
                     return Json(new { success = true, redirectUrl = Url.Action("GetOrdersByGarage", "Order") });
@@ -118,9 +118,7 @@ namespace GarageOnWheelsMVC.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
-            }
-
-            // Set the updated order status to 'Success' if applicable
+            }        
             model.Status = OrderStatus.Completed;
 
             var userId = SessionHelper.GetUserIdFromToken(HttpContext);
@@ -130,7 +128,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Successful"] = "Order Updated.";
+                TempData["Successful"] = "Order Updated Successfully.";
                 return RedirectToAction("GetOrdersByGarage", "Order");
             }
 

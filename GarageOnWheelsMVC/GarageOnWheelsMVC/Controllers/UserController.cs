@@ -139,7 +139,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Successful"] = "A User has been Created Successfully!";
+                TempData["Successful"] = "User Created Successfully.";
                 if (User.IsInRole("SuperAdmin"))
                 {
                     return RedirectToAction("GetAllUsers"); 
@@ -183,7 +183,7 @@ namespace GarageOnWheelsMVC.Controllers
             var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                TempData["Successful"] = "User successfully updated!";
+                TempData["Successful"] = "User Updated Successfully.";
                 if (User.IsInRole("SuperAdmin"))
                 {
                     return RedirectToAction("GetAllUsers");
@@ -225,7 +225,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                TempData["Successful"] = "Profile Update Successfully";
+                TempData["Successful"] = "Profile Updated Successfully";
                 return RedirectToAction("EditProfile","User");
             }
 
@@ -240,7 +240,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                TempData["Successful"] = "User successfully deleted!";
+                TempData["Successful"] = "User Deleted Successfully.";
                 return RedirectToAction("GetAllUsers");
             }
             return BadRequest($"Failed to delete the user. Status Code: {response.StatusCode}, Reason: {response.ReasonPhrase}");

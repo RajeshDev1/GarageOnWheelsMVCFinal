@@ -202,7 +202,7 @@ namespace GarageOnWheelsMVC.Controllers
             HttpContext.Session.Clear();
 
             // Add a success message to TempData
-            TempData["ucccessful"] = "You have been successfully logged out.";
+            TempData["Successful"] = "Logout Successfully";
 
             return RedirectToAction("Login");
         }
@@ -219,16 +219,14 @@ namespace GarageOnWheelsMVC.Controllers
 
 
         private async Task SignInUser(string role, Guid id, string unique_name)
-        {
-            // Create a list of claims including the unique_name
+        {   
             var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Role, role),
         new Claim(ClaimTypes.NameIdentifier, id.ToString()),
         new Claim(ClaimTypes.Name, unique_name)
     };
-
-            // Create a ClaimsIdentity and ClaimsPrincipal
+      
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
@@ -236,7 +234,7 @@ namespace GarageOnWheelsMVC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
-        // Remote validation action for checking if email is already taken
+        // Remote validation
         [AcceptVerbs("Get", "Post")]
         public async Task<IActionResult> IsEmailAvailable(string email)
         {
@@ -244,7 +242,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (emailExists)
             {
-                return Json($"{email} is already in use.");
+                return Json($"{email} is already taken.");
             }
 
             return Json(true);

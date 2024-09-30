@@ -45,7 +45,7 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
 
-        // get all garage in order controller
+        // get all garage   
         [Authorize]
         public async Task<IActionResult> GetAllGarageNames()
         {
@@ -142,9 +142,8 @@ namespace GarageOnWheelsMVC.Controllers
                 var response = await _apiHelper.SendPostRequest("garage/create", model, HttpContext);
 
                 if (response.StatusCode == HttpStatusCode.Created)
-                {
-                    // Store a success message in TempData for the next request
-                    TempData["Successful"] = "Garage successfully Created.";
+                {                  
+                    TempData["Successful"] = "Garage Successfully Created.";
                     return User.IsInRole("SuperAdmin")
                         ? RedirectToAction("GetAllGarages", "Garage")
                         : RedirectToAction("GetGaragesByUserId", "Garage");

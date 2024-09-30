@@ -28,7 +28,7 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
         [HttpGet("all")]
-
+     
         public async Task<IActionResult> GetAllGarages()    
         {
             try

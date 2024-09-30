@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
           .AddCookie(options =>
           {
               options.LoginPath = "/Account/Login";
-              options.AccessDeniedPath = "/";
+              options.AccessDeniedPath = "/Error/AccessDenied";
           });
             
             builder.Services.AddSession(options =>

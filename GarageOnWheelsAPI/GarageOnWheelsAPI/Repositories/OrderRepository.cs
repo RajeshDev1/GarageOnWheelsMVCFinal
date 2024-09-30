@@ -50,7 +50,7 @@ namespace GarageOnWheelsAPI.Repositories
         {
             return await _context.Orders
                 .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.CreatedDate).ToListAsync();
+                .OrderByDescending(o => o.UpdatedDate).ToListAsync();
         }
 
 
@@ -58,7 +58,7 @@ namespace GarageOnWheelsAPI.Repositories
         // Retrieves all orders associated with a specific garage.
         public async Task<IEnumerable<Orders>> GetOrdersByGarageIdAsync(Guid garageId)
         {
-            return await _context.Orders.Where(o => o.GarageId == garageId && !o.IsDelete).ToListAsync();
+            return await _context.Orders.Where(o => o.GarageId == garageId && !o.IsDelete).OrderByDescending(o => o.CreatedDate).ToListAsync();
         }
 
         // Updates an existing order.

@@ -161,6 +161,8 @@
         if (message && message !== 'null' && message !== '') {
             toastr.success(message);
         }
+
+        // Edit link event listener
         $(document).on('click', '.editLink', function (e) {
             e.preventDefault();
 
@@ -181,7 +183,9 @@
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
         });
-        $('.deleteLink').on('click', function (e) {
+
+        // Use event delegation for delete links
+        $('#orderTable').on('click', '.deleteLink', function (e) {
             e.preventDefault();
             var userId = $(this).data('id');
             var userName = $(this).data('name');
@@ -196,6 +200,6 @@
                 keyboard: false
             }).modal('show');
         });
-
     });
+
 </script>

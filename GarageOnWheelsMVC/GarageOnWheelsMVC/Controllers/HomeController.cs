@@ -17,18 +17,5 @@ namespace GarageOnWheelsMVC.Controllers
         {
             return View();
         }
-
-        public IActionResult Index1()
-        {
-            return View();
-        }
-
-
-        public IActionResult Index2()
-        {
-            return View();
-        }
-
-
     }
 }
