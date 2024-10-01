@@ -48,7 +48,7 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (orders == null)
             {
-                return BadRequest("Error fetching orders data from the API.");
+                return View(new List<Order>());
             }
           
             // Return the paginated orders to the view

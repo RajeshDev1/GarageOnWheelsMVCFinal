@@ -61,9 +61,9 @@ namespace GarageOnWheelsAPI.Services
             return userDtos;
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllCustomersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllCustomersAsync(Guid garageOwnerId)
         {
-            var users = await _userRepository.GetAllCustomersAsync();
+            var users = await _userRepository.GetAllCustomersAsync(garageOwnerId);
             var userDtos = UserDto.mapping(users);
             return userDtos;
         }
@@ -88,6 +88,7 @@ namespace GarageOnWheelsAPI.Services
             existingUser.CountryId = userDto.CountryId;
             existingUser.IsDelete = userDto.IsDelete;
             existingUser.IsEmailVerified = userDto.IsEmailVerified;
+            existingUser.ProfileImage = userDto.ProfileImage;
             
 
             await _userRepository.UpdateUserAsync(existingUser);

@@ -14,7 +14,7 @@ namespace GarageOnWheelsAPI.Interfaces.IServices
         Task<UserDto> GetUserByIdAsync(Guid id);
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
 
-        Task<IEnumerable<UserDto>> GetAllCustomersAsync();
+        Task<IEnumerable<UserDto>> GetAllCustomersAsync(Guid garageOwnerId);
 
         Task<IEnumerable<UserDto>> GetAllGarageOwnersAsync();
 

@@ -89,7 +89,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
                 IsDelete = model.IsDelete,
                 UpdatedDate = model.UpdatedDate,
                 UpdatedBy = model.UpdatedBy,             
-                ProfileImage = model.image
+               
 
             };
         }

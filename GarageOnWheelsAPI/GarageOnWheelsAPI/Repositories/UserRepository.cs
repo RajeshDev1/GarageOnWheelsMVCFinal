@@ -62,10 +62,21 @@ namespace GarageOnWheelsAPI.Repositories
                 .Where(u => (int)u.Role != (int)UserRole.SuperAdmin && u.IsDelete == false && u.IsEmailVerified).ToListAsync();
         }
 
-        public async Task<IEnumerable<User>> GetAllCustomersAsync()
+        // Get all customers based on the provided garage owner (user) ID
+        public async Task<IEnumerable<User>> GetAllCustomersAsync(Guid garageOwnerId)
         {
-            return await _context.Users
-                .Where(u => (int)u.Role == (int)UserRole.Customer && u.IsDelete == false && u.IsEmailVerified).ToListAsync();
+            // Find customers created by the garage owner or those who requested an order in any garage
+            var customers = await _context.Users
+                .Where(u =>
+                    (int)u.Role == (int)UserRole.Customer &&
+                    !u.IsDelete &&
+                    u.IsEmailVerified &&
+                    (u.CreatedBy == garageOwnerId || // Created by the logged-in GarageOwner
+                     _context.Orders.Any(o => o.UserId == u.Id && o.GarageId == _context.Garages
+                        .Where(g => g.UserId == garageOwnerId).Select(g => g.Id).FirstOrDefault()))) // Order requested in garage owned by garageOwner
+                .ToListAsync();
+
+            return customers;
         }
 
 

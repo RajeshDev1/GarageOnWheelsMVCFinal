@@ -17,6 +17,9 @@
 <table class="table table-bordered table-striped" id="userTable">
     <thead>
         <tr>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.ProfileImage)
+            </th>
             <th class="text-center">Name</th>
             <th class="text-center">
                 @Html.DisplayNameFor(model => model.Gender)
@@ -35,6 +38,9 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td class="text-center">                
+                    <img src="~/Images/item.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
+                </td>
                 <td class="text-center">
                     @($"{item.FirstName} {item.LastName}")
                 </td>

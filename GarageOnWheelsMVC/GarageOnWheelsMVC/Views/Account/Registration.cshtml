@@ -19,7 +19,7 @@
                                  style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem;height:auto" />
                         </div>
                         <div class="col-xl-6">
-                            <form asp-action="Registration" method="post">
+                            <form asp-action="Registration" method="post" enctype="multipart/form-data">
                                 <div class="card-body p-md-5 text-black">
                                     <h3 class="mb-5">@ViewData["Title"]</h3>
 
@@ -69,6 +69,7 @@
                                     <div class="form-outline mb-2">
                                         <label class="form-label" asp-for="Role">Role<span class="text-danger fw-bold">*</span></label>
                                         <select asp-for="Role" class="form-select form-control-lg">
+                                            <option value="SuperAdmin">SuperAdmin</option>
                                             <option value="Customer">Customer</option>
                                             <option value="GarageOwner">Garage Owner</option>
                                         </select>
@@ -85,7 +86,7 @@
                                         <div class="col-md-6 mb-4">
                                             <label asp-for="CountryId" class="form-label">Country<span class="text-danger fw-bold">*</span></label>
                                             <select id="country" asp-for="CountryId" class="form-select form-select-lg">
-                                                <option value="">Select Country</option>
+                                         
                                             </select>
                                             <span asp-validation-for="CountryId" class="text-danger"></span>
                                         </div>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GarageOnWheelsAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241001022116_firstDb")]
-    partial class firstDb
+    [Migration("20241001061430_InitialDb")]
+    partial class InitialDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -50,8 +50,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         [Required]
         public bool IsDelete { get; set; } = false;
         [AllowedFileExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif" }, ErrorMessage = "Please upload a valid image file (jpg, jpeg, png, gif).")]
-        public IFormFile? ProfileImage { get; set; }
-        public string? image { get; set; }
+        public string? ProfileImage { get; set; }   
         public static User mapping(UpdateUserViewModel userDto)
         {
             return new User()
@@ -72,7 +71,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
                 Gender = userDto.Gender,
                 IsDelete = userDto.IsDelete,
                 UpdatedBy = userDto.UpdatedBy,
-                ProfileImage = userDto.image
+                ProfileImage = userDto.ProfileImage
             };
 
         }
@@ -97,7 +96,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
                 CityId = user.CityId,
                 IsDelete = user.IsDelete,
                 UpdatedBy = user.UpdatedBy,
-                image = user.ProfileImage
+                ProfileImage = user.ProfileImage
             };
 
         }

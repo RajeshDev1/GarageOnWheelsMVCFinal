@@ -9,6 +9,8 @@ using GarageOnWheelsAPI.Interfaces.IServices;
 using GarageOnWheelsAPI.Enums;
 using System.Security.Claims;
 using GarageOnWheelsAPI.DTOs;
+using Microsoft.EntityFrameworkCore;
+using GarageOnWheelsAPI.Data;
 
 namespace GarageOnWheelsAPI.Controllers
 {
@@ -20,15 +22,19 @@ namespace GarageOnWheelsAPI.Controllers
         private readonly IUserService _userService;
         private readonly IRevenueService _revenueService;
         private readonly ILogger<UserController> _logger;
+        private readonly ApplicationDbContext _context;
 
         public UserController(
             IUserService userService,
             IRevenueService revenueService,
-            ILogger<UserController> logger)
+            ILogger<UserController> logger,
+            ApplicationDbContext context
+            )
         {
             _userService = userService;
             _revenueService = revenueService;
             _logger = logger;
+            _context = context;
         }
 
         [HttpGet("all")]
@@ -48,23 +54,22 @@ namespace GarageOnWheelsAPI.Controllers
             }
         }
 
-        [HttpGet("allcustomer")]
+   
+        [HttpGet("allCustomer")]
         [Authorize(Roles = "GarageOwner")]
-        public async Task<IActionResult> GetAllCustomers()
+        public async Task<IActionResult> GetAllCustomer([FromQuery] Guid garageOwnerId)
         {
-            try
-            {
-                var users = await _userService.GetAllCustomersAsync();
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while trying to retrieve all Customers.");
+           
+            var customers = await _userService.GetAllCustomersAsync(garageOwnerId);
 
-                return StatusCode(500, "An error occurred while processing your request.");
+            if (customers == null || !customers.Any())
+            {
+                return NotFound("No customers found.");
             }
+
+            return Ok(customers);
         }
-       
+
         [HttpGet("allgarageowner")]
         public async Task<IActionResult> GetAllGarageOwners()
         {
@@ -232,5 +237,25 @@ namespace GarageOnWheelsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
+
+   /*     //This delete api is use for check is associated with order or not
+        [HttpGet("exist-order/{id}")]
+        public async Task<IActionResult> CheckExistOrder(Guid id)
+        {
+            var Item = await _context.Orders.FindAsync(id);
+            if (Item == null)
+            {
+                return NotFound("User not found.");
+            }
+            var hasActiveOrders = await _context.Orders
+        .AnyAsync(o => o.UserId == id && o.Status == Pending);
+
+
+            if (hasActiveOrders)
+            {
+                return BadRequest("This Item is associated with active orders and cannot be deleted.");
+            }
+            return Ok("true");
+        }*/
     }
 }

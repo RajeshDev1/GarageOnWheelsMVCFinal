@@ -51,8 +51,9 @@ namespace GarageOnWheelsAPI.DTOs
 
                     [Required]
                     public bool IsDelete { get; set; } = false;
+                   
 
-
+         
 
         public static User mapping(UserDto userDto)
         {

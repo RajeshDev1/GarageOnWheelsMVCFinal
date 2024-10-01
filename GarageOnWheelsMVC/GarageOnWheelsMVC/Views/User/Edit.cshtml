@@ -101,6 +101,27 @@
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="profileImage" class="form-label">Profile Image</label>
+                        <div id="profileImage">
+                            @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                            {
+                                <input asp-for="ProfileImage" type="hidden" />
+                                <img src="~/Images/@Model.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
+                            }
+                            else
+                            {
+                                <img src="~/Images/default-placeholder.png" id="profileImagePreview" alt="Default Image" style="max-width: 200px;" />
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ProfileImage" class="form-label">Upload Profile Image</label>
+                        <input asp-for="ProfileImage" type="file" class="form-control" id="profileImageInput" name="UpdateImage" />
+                        <span asp-validation-for="ProfileImage" class="text-danger"></span>
+                    </div>
+
                     <div class="container">
                         <div class="row">
                             

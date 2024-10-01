@@ -35,6 +35,7 @@ namespace GarageOnWheelsAPI.Models.DatabaseModels
 
         [ForeignKey("CityId")]
         public virtual City City {  get; set; }       
+        public string? ProfileImage { get; set; }
 
         [ForeignKey("AreaId")]
         public virtual Area Area { get; set; }
@@ -42,7 +43,6 @@ namespace GarageOnWheelsAPI.Models.DatabaseModels
         public virtual ICollection<Garage> Garages { get; set; }
 
         public virtual ICollection<Orders> Orders { get; set; }
-        public string? ProfileImage { get; set; }
 
     }
 

@@ -12,7 +12,7 @@ namespace GarageOnWheelsAPI.Interfaces.Repositories
     {
 
      
-        Task<IEnumerable<User>> GetAllCustomersAsync();
+        Task<IEnumerable<User>> GetAllCustomersAsync(Guid garageOwnerId);
         Task<IEnumerable<User>> GetAllGarageOwnersAsync();
         Task<User> GetUserByIdAsync(Guid id);
         Task AddUserAsync(User user);

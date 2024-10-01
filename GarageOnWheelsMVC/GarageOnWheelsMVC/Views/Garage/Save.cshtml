@@ -138,7 +138,7 @@
                     .done(function (users) {
                         $.each(users, function (index, user) {
                             $userIdSelect.append(
-                                $('<option>', { value: user.Id, text: user.FirstName + ' ' + user.LastName })
+                                $('<option>', { value: user.Id, text: user.FirstName + ' ' + user.LastName + ' (' + user.Email + ')'})
                             );
                         });
 

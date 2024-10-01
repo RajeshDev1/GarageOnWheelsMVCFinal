@@ -44,7 +44,7 @@ namespace GarageOnWheelsAPI.DTOs
         public int AreaId { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
-
+        public string? ProfileImage { get; set; }
 
         public static UserDto mapping(UpdateUserDto userDto)
         {
@@ -54,7 +54,7 @@ namespace GarageOnWheelsAPI.DTOs
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
                 Email = userDto.Email, 
-                Role = userDto.Role,  //(UserRole)userDto.Role
+                Role = userDto.Role,
                 Address = userDto.Address,
                 PhoneNo = userDto.PhoneNo,
                 IsEmailVerified = userDto.IsEmailVerified,               
@@ -66,6 +66,8 @@ namespace GarageOnWheelsAPI.DTOs
                 Gender = userDto.Gender,
                 IsDelete = userDto.IsDelete,
                 UpdatedBy = userDto.UpdatedBy,
+                ProfileImage = userDto.ProfileImage,
+
             };
 
         }
@@ -90,6 +92,7 @@ namespace GarageOnWheelsAPI.DTOs
                 CityId = user.CityId,
                 IsDelete = user.IsDelete,            
                 UpdatedBy = user.UpdatedBy,
+                ProfileImage = user.ProfileImage
             };
 
         }

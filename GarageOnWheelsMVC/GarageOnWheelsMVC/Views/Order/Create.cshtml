@@ -61,7 +61,7 @@
                             $garageSelect.append(
                                 $('<option>', {
                                     value: garage.Id,
-                                    text: garage.Name
+                                    text: garage.Name + ' (' + user.Email + ')'
                                 })
                             );
                         });

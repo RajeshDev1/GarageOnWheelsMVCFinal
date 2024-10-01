@@ -59,13 +59,21 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var users = await _apiHelper.GetAsync<List<User>>("user/allCustomer", HttpContext);
+            var garageOwnerId = SessionHelper.GetUserIdFromToken(HttpContext);
+          
+            var users = await _apiHelper.GetAsync<List<User>>($"user/allCustomer?garageOwnerId={garageOwnerId}", HttpContext);
+
             if (users == null)
             {
-                return BadRequest("Error occurs during fetch Customers ");
+                /* return View(new List<User>());*/
+                return BadRequest("Error occurs during fetch Customer ");
             }
+
             return View(users);
+
         }
+
+
         //Ge all GarageOwner
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<JsonResult> GetAllGarageOwners()
@@ -167,9 +175,8 @@ namespace GarageOnWheelsMVC.Controllers
 
 
         [Authorize]
-        public async Task<IActionResult> Edit(Guid id, bool isProfile)
-        {
-            ViewBag.isProfile = isProfile;
+        public async Task<IActionResult> Edit(Guid id)
+        {           
             var user = await _apiHelper.GetAsync<User>($"user/{id}", HttpContext);
             if (user == null)
             {
@@ -184,7 +191,7 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(UpdateUserViewModel model)
+        public async Task<IActionResult> Edit(UpdateUserViewModel model , IFormFile UpdateImage)
         {
             if (!ModelState.IsValid)
             {
@@ -195,15 +202,15 @@ namespace GarageOnWheelsMVC.Controllers
 
             var userModel = UpdateUserViewModel.mapping(model);
 
-            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            if (UpdateImage != null && UpdateImage.Length > 0)
             {
-                if (model.image == null)
+                if (model.ProfileImage == null)
                 {
-                    userModel.ProfileImage = await SaveFileAsync(model.ProfileImage);
+                    userModel.ProfileImage = await SaveFileAsync(UpdateImage);
                 }
                 else
                 {
-                    userModel.ProfileImage = await SaveUpdatedFileAsync(model.image, model.ProfileImage);
+                    userModel.ProfileImage = await SaveUpdatedFileAsync(model.ProfileImage, UpdateImage);
                 }
             }
 
@@ -226,9 +233,9 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> EditProfile(Guid id,bool isProfile)
+        public async Task<IActionResult> EditProfile(Guid id)
         {
-            ViewBag.isProfile = isProfile;
+            
             var user = await _apiHelper.GetAsync<User>($"user/{id}", HttpContext);
             if (user == null)
             {
@@ -241,24 +248,24 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> EditProfile(UpdateUserViewModel model)
+        public async Task<IActionResult> EditProfile(UpdateUserViewModel model, IFormFile ? UpdateImage)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-            var userModel = UpdateUserViewModel.mapping(model);
+       
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
 
-            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            if (UpdateImage != null && UpdateImage.Length > 0)
             {
-                if (model.image == null)
+                if (model.ProfileImage == null)
                 {
-                    userModel.ProfileImage = await SaveFileAsync(model.ProfileImage);
+                    model.ProfileImage = await SaveFileAsync(UpdateImage);
                 }
                 else
                 {
-                    userModel.ProfileImage = await SaveUpdatedFileAsync(model.image, model.ProfileImage);
+                    model.ProfileImage = await SaveUpdatedFileAsync(model.ProfileImage, UpdateImage);
                 }
             }
 
