@@ -33,7 +33,7 @@ namespace GarageOnWheelsMVC.Controllers
 
 
         public UserController(ApiHelper apiHelper, IConfiguration configuration)
-        {       
+        {
             _apiHelper = apiHelper;
             baseUrl = configuration["AppSettings:BaseUrl"];
         }
@@ -47,11 +47,11 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _apiHelper.GetAsync<List<User>>("user/all",HttpContext);
+            var users = await _apiHelper.GetAsync<List<User>>("user/all", HttpContext);
             if (users == null)
             {
                 return BadRequest("Error occurs during fetch user ");
-            }          
+            }
             return View(users);
         }
 
@@ -82,8 +82,8 @@ namespace GarageOnWheelsMVC.Controllers
             return new JsonResult(users ?? new List<User>());
         }
 
-       
-   
+
+
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public IActionResult Create()
         {
@@ -93,7 +93,6 @@ namespace GarageOnWheelsMVC.Controllers
             };
             return View(model);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -112,18 +111,29 @@ namespace GarageOnWheelsMVC.Controllers
             }
 
             var userModel = RegisterViewModel.Mapping(model);
+
+            // Handle profile image upload
+            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            {
+                userModel.ProfileImage = await SaveFileAsync(model.ProfileImage);
+            }
+
+            // Set CreatedBy to the current user
             userModel.CreatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
-            var response = await _apiHelper.SendPostRequest("user/create", userModel,HttpContext);
+
+            // Send the create user request
+            var response = await _apiHelper.SendPostRequest("user/create", userModel, HttpContext);
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                await _apiHelper.SendOtp(model.Email,HttpContext);
+                await _apiHelper.SendOtp(model.Email, HttpContext);
                 TempData["Email"] = model.Email;
-                return RedirectToAction("VerifyOtp","Account");
+                return RedirectToAction("VerifyOtp", "Account");
             }
             ModelState.AddModelError("", "An error occurred while creating the user.");
             return View(model);
         }
+
 
         public IActionResult VerifyOtp()
         {
@@ -135,18 +145,18 @@ namespace GarageOnWheelsMVC.Controllers
         public async Task<IActionResult> VerifyOtp(OtpVerificationViewModel model)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"auth/verify-email?email={model.Email}&otp={model.OTP}");
-            var response = await _apiHelper.SendJsonAsync(request.RequestUri.ToString(), model, HttpMethod.Post,HttpContext);
+            var response = await _apiHelper.SendJsonAsync(request.RequestUri.ToString(), model, HttpMethod.Post, HttpContext);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["Successful"] = "User Created Successfully.";
                 if (User.IsInRole("SuperAdmin"))
                 {
-                    return RedirectToAction("GetAllUsers"); 
+                    return RedirectToAction("GetAllUsers");
                 }
                 else if (User.IsInRole("GarageOwner"))
                 {
-                    return RedirectToAction("GetAllCustomers"); 
+                    return RedirectToAction("GetAllCustomers");
                 }
             }
 
@@ -154,10 +164,12 @@ namespace GarageOnWheelsMVC.Controllers
             TempData.Keep("Email");
             return View(model);
         }
-        // Edit the User
+
+
         [Authorize]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id, bool isProfile)
         {
+            ViewBag.isProfile = isProfile;
             var user = await _apiHelper.GetAsync<User>($"user/{id}", HttpContext);
             if (user == null)
             {
@@ -180,6 +192,21 @@ namespace GarageOnWheelsMVC.Controllers
             }
 
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
+
+            var userModel = UpdateUserViewModel.mapping(model);
+
+            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            {
+                if (model.image == null)
+                {
+                    userModel.ProfileImage = await SaveFileAsync(model.ProfileImage);
+                }
+                else
+                {
+                    userModel.ProfileImage = await SaveUpdatedFileAsync(model.image, model.ProfileImage);
+                }
+            }
+
             var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
@@ -199,8 +226,9 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> EditProfile(Guid id)
+        public async Task<IActionResult> EditProfile(Guid id,bool isProfile)
         {
+            ViewBag.isProfile = isProfile;
             var user = await _apiHelper.GetAsync<User>($"user/{id}", HttpContext);
             if (user == null)
             {
@@ -219,14 +247,27 @@ namespace GarageOnWheelsMVC.Controllers
             {
                 return View(model);
             }
-
+            var userModel = UpdateUserViewModel.mapping(model);
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
+
+            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            {
+                if (model.image == null)
+                {
+                    userModel.ProfileImage = await SaveFileAsync(model.ProfileImage);
+                }
+                else
+                {
+                    userModel.ProfileImage = await SaveUpdatedFileAsync(model.image, model.ProfileImage);
+                }
+            }
+
             var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 TempData["Successful"] = "Profile Updated Successfully";
-                return RedirectToAction("EditProfile","User");
+                return RedirectToAction("EditProfile", "User");
             }
 
             return View(model);
@@ -235,8 +276,8 @@ namespace GarageOnWheelsMVC.Controllers
 
         public async Task<IActionResult> Delete(Guid id)
         {
-            var endpoint = $"user/delete/{id}"; 
-            var response = await _apiHelper.DeleteAsync(endpoint, HttpContext); 
+            var endpoint = $"user/delete/{id}";
+            var response = await _apiHelper.DeleteAsync(endpoint, HttpContext);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
@@ -277,8 +318,8 @@ namespace GarageOnWheelsMVC.Controllers
             var response = await _apiHelper.SendRequestAsync(request, HttpContext);
             if (response.IsSuccessStatusCode)
             {
-                TempData["Successful"] = "Password Changed Successfully."; 
-                return RedirectToAction("ChangePassword", new { id = id });   
+                TempData["Successful"] = "Password Changed Successfully.";
+                return RedirectToAction("ChangePassword", new { id = id });
             }
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -290,5 +331,58 @@ namespace GarageOnWheelsMVC.Controllers
             ViewBag.id = id;
             return View(model);
         }
+
+        //Save file
+        private async Task<string> SaveFileAsync(IFormFile file)
+        {
+            var uniqueId = Guid.NewGuid().ToString();
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = $"{uniqueId}{fileExtension}";
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fileName;
+        }
+        //update File and save
+        private async Task<string> SaveUpdatedFileAsync(string existingFileName, IFormFile updateImg)
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images");
+            if (!string.IsNullOrEmpty(existingFileName))
+            {
+                var existingFilePath = Path.Combine(path, existingFileName);
+                if (System.IO.File.Exists(existingFilePath))
+                {
+                    System.IO.File.Delete(existingFilePath);
+                }
+            }
+
+            return await SaveFileAsync(updateImg);
+        }
+        private async Task UpdateSignInUser(string role, Guid id, string name, string img)
+        {
+
+            var existingClaims = HttpContext.User.Claims.ToList();
+
+            // Remove any existing claims that you want to replace
+            existingClaims.RemoveAll(c => c.Type == ClaimTypes.Role);
+            existingClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier);
+            existingClaims.RemoveAll(c => c.Type == ClaimTypes.Name);
+            existingClaims.RemoveAll(c => c.Type == "profileImg");
+
+            // Add new claims
+            existingClaims.Add(new Claim(ClaimTypes.Role, role));
+            existingClaims.Add(new Claim(ClaimTypes.NameIdentifier, id.ToString()));
+            existingClaims.Add(new Claim(ClaimTypes.Name, name));
+            existingClaims.Add(new Claim("profileImg", img != null ? img : string.Empty));
+
+            var identity = new ClaimsIdentity(existingClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+           await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
+
     }
 }

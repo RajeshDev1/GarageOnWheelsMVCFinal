@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GarageOnWheelsMVC.Helper;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 
@@ -63,8 +64,11 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         public int AreaId { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
-        public bool? IsProfileEdit { get; set; }
+        /*public bool? IsProfileEdit { get; set; }*/
 
+        [AllowedFileExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif" }, ErrorMessage = "Please upload a valid image file (jpg, jpeg, png, gif).")]
+        public IFormFile? ProfileImage { get; set; }
+        public string? image { get; set; }
         public static User Mapping(RegisterViewModel model)
         {
             return new User
@@ -84,8 +88,8 @@ namespace GarageOnWheelsMVC.Models.ViewModel
                 CreatedBy = model.CreatedBy,
                 IsDelete = model.IsDelete,
                 UpdatedDate = model.UpdatedDate,
-                UpdatedBy = model.UpdatedBy
-
+                UpdatedBy = model.UpdatedBy,             
+                ProfileImage = model.image
 
             };
         }
@@ -110,6 +114,7 @@ namespace GarageOnWheelsMVC.Models.ViewModel
                 CreatedBy = user.CreatedBy,
                 IsDelete = user.IsDelete,
                 CreatedDate = user.CreatedDate,
+                image = user.ProfileImage
             };
         }
 

@@ -103,6 +103,15 @@ namespace GarageOnWheelsMVC.Controllers
             }
             var userModel = RegisterViewModel.Mapping(model);
 
+
+            // Handle profile image upload
+            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            {
+                userModel.ProfileImage = await SaveFileAsync(model.ProfileImage);
+            }
+
+            // Set CreatedBy to the current user
+            userModel.CreatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
             var response = await SendPostRequest<User>("auth/register", userModel);
             if (response.StatusCode == HttpStatusCode.Created)
             {
@@ -112,8 +121,6 @@ namespace GarageOnWheelsMVC.Controllers
             }
             return View(model);
         }
-
-
 
         private async Task<HttpResponseMessage> SendPostRequest<T>(string endpoint, T model)
         {
@@ -154,7 +161,12 @@ namespace GarageOnWheelsMVC.Controllers
 
                 var role = SessionHelper.GetRoleFromToken(token);
                 var id = SessionHelper.GetUserIdFromToken(HttpContext);
-                await SignInUser(role, id, name);
+                var img = SessionHelper.GetImageNameFromToken(token);
+                if (img == string.Empty)
+                {
+                    img = "Unknown.png";
+                }
+                await SignInUser(role, id, name,img);
 
                 TempData["Successful"] = "Login Successfully";
                 return Json(new { success = true, redirectUrl = Url.Action("Dashboard", "Account") });
@@ -164,6 +176,7 @@ namespace GarageOnWheelsMVC.Controllers
             TempData["MessageType"] = "error";
 
             return Json(new { success = false, message = TempData["Message"] });
+            // return Json(new { success = false, message = "Invalid Username or Password." });
         }
 
 
@@ -218,13 +231,36 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
 
-        private async Task SignInUser(string role, Guid id, string unique_name)
+        // Process profile image and return mapped User model
+        private User ProcessProfileImage(RegisterViewModel model)
+        {
+            var user = RegisterViewModel.Mapping(model);
+            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            {
+                var uniqueId = Guid.NewGuid().ToString();
+                var fileExtension = Path.GetExtension(model.ProfileImage.FileName);
+                var fileName = $"{model.FirstName}_{uniqueId}{fileExtension}";
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.ProfileImage.CopyTo(fileStream);
+                }
+
+                user.ProfileImage = fileName;
+            }
+
+            return user;
+        }
+
+
+        private async Task SignInUser(string role, Guid id, string unique_name,string img)
         {   
             var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Role, role),
         new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-        new Claim(ClaimTypes.Name, unique_name)
+        new Claim(ClaimTypes.Name, unique_name),
+        new Claim("profileImg",img)
     };
       
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -248,6 +284,35 @@ namespace GarageOnWheelsMVC.Controllers
             return Json(true);
         }
 
+        //Save file
+        private async Task<string> SaveFileAsync(IFormFile file)
+        {
+            var uniqueId = Guid.NewGuid().ToString();
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = $"{uniqueId}{fileExtension}";
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
 
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fileName;
+        }
+        //update File and save
+        private async Task<string> SaveUpdatedFileAsync(string existingFileName, IFormFile updateImg)
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images");
+            if (!string.IsNullOrEmpty(existingFileName))
+            {
+                var existingFilePath = Path.Combine(path, existingFileName);
+                if (System.IO.File.Exists(existingFilePath))
+                {
+                    System.IO.File.Delete(existingFilePath);
+                }
+            }
+
+            return await SaveFileAsync(updateImg);
+        }
     }
 }

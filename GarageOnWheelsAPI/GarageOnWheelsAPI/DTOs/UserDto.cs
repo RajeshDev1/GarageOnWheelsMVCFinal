@@ -34,6 +34,7 @@ namespace GarageOnWheelsAPI.DTOs
                     [Required]
                     public string Address { get; set; }
                     public bool IsEmailVerified { get; set; }=false;
+                    public string? ProfileImage { get; set; }
                     public DateTime CreatedDate { get; set; }
                     [Required]
                     public Guid CreatedBy { get; set; }
@@ -76,6 +77,7 @@ namespace GarageOnWheelsAPI.DTOs
                 IsDelete = userDto.IsDelete,
                 CreatedBy = userDto.CreatedBy,
                 UpdatedBy = userDto.UpdatedBy,
+                ProfileImage = userDto.ProfileImage
             };
 
         }
@@ -103,6 +105,7 @@ namespace GarageOnWheelsAPI.DTOs
                 IsDelete = user.IsDelete,
                 CreatedBy = user.CreatedBy,
                 UpdatedBy = user.UpdatedBy,
+                ProfileImage = user.ProfileImage
             };
 
         }

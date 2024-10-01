@@ -40,5 +40,13 @@ namespace GarageOnWheelsMVC.Helper
             return username?.Value ?? string.Empty;
         }
 
+        public static string GetImageNameFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var img = jwtToken.Claims.FirstOrDefault(c => c.Type == "profileimg");
+            return img?.Value;
+        }
+
     }
 }

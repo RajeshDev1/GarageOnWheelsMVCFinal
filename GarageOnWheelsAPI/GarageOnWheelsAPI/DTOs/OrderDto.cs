@@ -30,6 +30,7 @@ namespace GarageOnWheelsAPI.DTOs
         public Guid UpdatedBy { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
+        public string? ImageUploadByCustomer { get; set; }
 
 
         public static Orders Mapping(OrderDto orderDto)
@@ -47,7 +48,8 @@ namespace GarageOnWheelsAPI.DTOs
                 UpdatedDate = orderDto.UpdatedDate,
                 CreatedBy = orderDto.CreatedBy,
                 UpdatedBy = orderDto.UpdatedBy,
-                IsDelete = orderDto.IsDelete
+                IsDelete = orderDto.IsDelete,
+                ImageUploadByCustomer = orderDto.ImageUploadByCustomer,
 
             };
         }
@@ -78,7 +80,8 @@ namespace GarageOnWheelsAPI.DTOs
                 UpdatedDate = order.UpdatedDate,
                 CreatedBy = order.CreatedBy,
                 UpdatedBy = order.UpdatedBy,
-                IsDelete = order.IsDelete
+                IsDelete = order.IsDelete,
+                ImageUploadByCustomer= order.ImageUploadByCustomer
             };
         }
 

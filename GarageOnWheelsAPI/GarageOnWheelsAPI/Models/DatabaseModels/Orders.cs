@@ -22,7 +22,8 @@ namespace GarageOnWheelsAPI.Models.DatabaseModels
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
         [ForeignKey("GarageId")]
-        public virtual Garage Garage { get; set; } 
+        public virtual Garage Garage { get; set; }
+        public string? ImageUploadByCustomer { get; set; }
     }
 
 }

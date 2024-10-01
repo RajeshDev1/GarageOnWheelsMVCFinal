@@ -185,6 +185,9 @@ namespace GarageOnWheelsAPI.Migrations
                     b.Property<Guid>("GarageId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ImageUploadByCustomer")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
@@ -315,6 +318,9 @@ namespace GarageOnWheelsAPI.Migrations
 
                     b.Property<string>("PhoneNo")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")

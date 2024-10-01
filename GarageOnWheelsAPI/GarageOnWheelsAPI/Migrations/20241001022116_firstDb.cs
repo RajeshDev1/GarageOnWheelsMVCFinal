@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GarageOnWheelsAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstDB : Migration
+    public partial class firstDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -137,7 +137,8 @@ namespace GarageOnWheelsAPI.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    IsDelete = table.Column<bool>(type: "bit", nullable: false),
+                    ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -236,7 +237,8 @@ namespace GarageOnWheelsAPI.Migrations
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    IsDelete = table.Column<bool>(type: "bit", nullable: false),
+                    ImageUploadByCustomer = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

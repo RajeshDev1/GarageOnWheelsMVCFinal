@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GarageOnWheelsAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240923055427_FirstDB")]
-    partial class FirstDB
+    [Migration("20241001022116_firstDb")]
+    partial class firstDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -188,6 +188,9 @@ namespace GarageOnWheelsAPI.Migrations
                     b.Property<Guid>("GarageId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ImageUploadByCustomer")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
@@ -318,6 +321,9 @@ namespace GarageOnWheelsAPI.Migrations
 
                     b.Property<string>("PhoneNo")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")

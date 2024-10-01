@@ -53,6 +53,7 @@ namespace GarageOnWheelsMVC.Models
         [Required]
         public bool IsDelete { get; set; } = false;
 
+        public string? ProfileImage { get; set; }
 
     }
 
