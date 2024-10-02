@@ -76,6 +76,7 @@
                            data-totalamount="@order.TotalAmount"
                            data-garageid="@order.GarageId"
                            data-userid="@order.UserId"
+                           data-imageUploadByCustomer="@order.ImageUploadByCustomer"
                            data-servicedetails="@order.ServiceDetails.Replace("'", "\\'")"
                            class="editLink"
                            title="Edit">
@@ -136,6 +137,7 @@
                     <input type="hidden" id="orderIdToEdit" name="Id" value="" />
                     <input type="hidden" id="garageId" name="GarageId" value="" />
                     <input type="hidden" id="userId" name="UserId" value="" />
+                    <input type="hidden" id="imageUploadByCustomer" name="ImageUploadByCustomer" value="" />
                     <input type="hidden" id="serviceDetails" name="ServiceDetails" value="" />
                     <div class="mb-3">
                         <label for="totalAmount" class="form-label">Total Amount</label>

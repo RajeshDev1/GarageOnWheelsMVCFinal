@@ -76,6 +76,9 @@ namespace GarageOnWheelsMVC.Controllers
                 var userId = SessionHelper.GetUserIdFromToken(HttpContext);
                 order.UserId = userId;
                 order.CreatedBy = userId;
+                order.CreatedDate = DateTime.Now;
+                order.OrderDate = DateTime.Now;
+           
 
                 if (model.ImageUploadByCustomer != null && model.ImageUploadByCustomer.Count > 0)
                 {
