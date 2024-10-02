@@ -16,7 +16,7 @@ namespace GarageOnWheelsAPI.Interfaces.IServices
         Task<OrderDto> GetOrderByIdAsync(Guid orderId);
 
         // Create a new order
-        Task CreateOrderAsync(OrderDto orderDto);
+        Task<Order>CreateOrderAsync(OrderDto orderDto);
 
         // Update an existing order
         Task UpdateOrderAsync(OrderDto orderDto);
@@ -35,5 +35,6 @@ namespace GarageOnWheelsAPI.Interfaces.IServices
 
         // Get orders by date range
         Task<IEnumerable<OrderDto>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate);
+        Task<IEnumerable<OrderDto>> GetOrderByGarageIdAsync(Guid garageId);
     }
 }

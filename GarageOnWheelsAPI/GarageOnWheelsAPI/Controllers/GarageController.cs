@@ -28,8 +28,8 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
         [HttpGet("all")]
-     
-        public async Task<IActionResult> GetAllGarages()    
+
+        public async Task<IActionResult> GetAllGarages()
         {
             try
             {
@@ -65,7 +65,7 @@ namespace GarageOnWheelsAPI.Controllers
             }
         }
 
-       [HttpGet("by-userid/{id:guid}")]
+        [HttpGet("by-userid/{id:guid}")]
         public async Task<IActionResult> GetGarageByUserIdAsync(Guid id)
         {
             try
@@ -113,26 +113,26 @@ namespace GarageOnWheelsAPI.Controllers
         [HttpPost("create")]
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
         public async Task<IActionResult> CreateGarage([FromBody] GarageDto garage)
+        {
+
+
+            if (!ModelState.IsValid)
             {
-                
-           
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }  
-                try
-                {
-               
+                return BadRequest(ModelState);
+            }
+            try
+            {
+
                 await _garageService.CreateGarageAsync(garage);
 
-                    return CreatedAtAction(nameof(GetGarageById), new { id = garage.Id }, garage);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An error occurred while creating a new garage.");
-                    return StatusCode(500, "An error occurred while processing your request.");
-                }
+                return CreatedAtAction(nameof(GetGarageById), new { id = garage.Id }, garage);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating a new garage.");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
 
 
         [HttpPut("update/{id:guid}")]
@@ -166,7 +166,7 @@ namespace GarageOnWheelsAPI.Controllers
             try
             {
                 await _garageService.DeleteGarageAsync(id);
- 
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -182,7 +182,7 @@ namespace GarageOnWheelsAPI.Controllers
             try
             {
                 // Fetch the garage by owner ID using the service
-                var garage = await _garageService.GarageExistsByUserIdAsync(ownerId);             
+                var garage = await _garageService.GarageExistsByUserIdAsync(ownerId);
                 return Ok(garage);
             }
             catch (Exception ex)
@@ -190,8 +190,6 @@ namespace GarageOnWheelsAPI.Controllers
                 _logger.LogError(ex, "An error occurred while fetching the garage.");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
-        }
-
-
+        }    
     }
 }

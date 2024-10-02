@@ -1,4 +1,5 @@
-﻿using GarageOnWheelsAPI.DTOs;
+﻿using GarageOnWheelsAPI.Data;
+using GarageOnWheelsAPI.DTOs;
 using GarageOnWheelsAPI.Interfaces.IServices;
 using GarageOnWheelsAPI.Models.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
@@ -14,15 +15,19 @@ namespace GarageOnWheelsAPI.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
         private readonly IOrderService _orderService;
         private readonly ILogger<UserController> _logger;
 
         public OrderController(
             IOrderService orderService,      
-            ILogger<UserController> logger)
+            ILogger<UserController> logger,
+            ApplicationDbContext context
+            )
         {
             _orderService = orderService;        
             _logger = logger;
+            _context = context;
         }
 
 
@@ -87,63 +92,18 @@ namespace GarageOnWheelsAPI.Controllers
                 return StatusCode(500, new { Message = "An error occurred while fetching orders." });
             }
         }
-
-
         [HttpPost("CreateOrder")]
-        [Authorize(Roles = "GarageOwner,Customer")]
-        public async Task<IActionResult> CreateOrder([FromForm] OrderDto orderDto, [FromForm] List<IFormFile> imageFiles)
+        [Authorize(Roles = "GarageOwner,Customer")]       
+        public async Task<IActionResult> CreateOrder(OrderDto orderDto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            try
-            {
-                // Initialize order properties
-                orderDto.Id = Guid.NewGuid();
-                orderDto.OrderDate = DateTime.Now;
-                orderDto.CreatedDate = DateTime.Now;
-                orderDto.CreatedBy = orderDto.UserId;
-                orderDto.UpdatedBy = orderDto.CreatedBy;
-                orderDto.UpdatedDate = orderDto.CreatedDate;
+            var createdOrder = await _orderService.CreateOrderAsync(orderDto);
 
-                var fileNames = new List<string>();
-
-                // Process uploaded files
-                foreach (var formFile in imageFiles)
-                {
-                    if (formFile.Length > 0)
-                    {
-                        var fileName = Path.GetFileNameWithoutExtension(formFile.FileName) + "_" + Guid.NewGuid() + Path.GetExtension(formFile.FileName);
-                        var filePath = Path.Combine("wwwroot/Images", fileName);
-
-                        // Ensure the directory exists
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await formFile.CopyToAsync(stream);
-                        }
-
-                        fileNames.Add(fileName); // Store file name
-                    }
-                }
-
-                // Store the file names as a comma-separated string in the database
-                orderDto.ImageUploadByCustomer = string.Join(",", fileNames); // This should work if the type is string
-
-                // Call the service to save the order details in the database
-                await _orderService.CreateOrderAsync(orderDto);
-
-                return Ok(orderDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while creating the order.");
-                return StatusCode(500, "Internal server error");
-            }
+            return Ok(new { message = "Order created successfully", orderId = createdOrder.Id });
         }
+
 
 
         [HttpPut("UpdateOrder/{id}")]
@@ -207,5 +167,41 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
 
+        [HttpGet("GetOrderImages/{orderId}")]
+        public async Task<IActionResult> GetOrderImages(Guid orderId)
+        {
+            var orderFiles = await _context.OrderFiles
+                .Where(of => of.OrderId == orderId)
+                .Select(of => new
+                {
+                    of.FileName,
+                    of.UploadDate
+                })
+                .ToListAsync();
+
+            if (orderFiles == null || !orderFiles.Any())
+            {
+                return NotFound("No images found for this order.");
+            }
+
+            return Ok(orderFiles);
+        }
+
+
+        [HttpGet("by-garageid/{id:guid}")]
+        public async Task<IActionResult> GetOrderByGarageId(Guid id)
+        {
+            try
+            {
+                var orders = await _orderService.GetOrderByGarageIdAsync(id);
+                return Ok(orders);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while retrieving Orders for GarageId : {id}.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+
+            }
+        }
     }
 }

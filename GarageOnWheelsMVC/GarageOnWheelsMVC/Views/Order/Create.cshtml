@@ -1,4 +1,4 @@
-﻿@model GarageOnWheelsMVC.Models.Order
+﻿@model GarageOnWheelsMVC.Models.ViewModel.CreateOrderViewModel
 
 @{
     ViewData["Title"] = "Create Order";
@@ -35,7 +35,7 @@
 
                 <div class="row">
                     <div class="col-6">
-                        <a href="@Url.Action("Index", "Order")" class="btn btn-warning w-100">Cancel</a>
+                        <a href="@Url.Action("Dashboard", "Account")" class="btn btn-warning w-100">Cancel</a>
                     </div>
                     <div class="col-6">
                         <button type="submit" class="btn btn-primary w-100">Create</button>
@@ -50,25 +50,24 @@
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script> 
+@*     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>  *@
 
     <script>
         $(document).ready(function () {
-
-                var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
-                var $garageSelect = $('#garage');
-                if (role === "Customer") {
-                    $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
-                        .done(function (garages) {
-                            garages.forEach(function (garage) {
-                                $garageSelect.append(
-                                    $('<option>', {
-                                        value: garage.Id,
-                                        text: garage.Name
-                                    })
-                                );
-                            });
-                        })
+            var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
+            var $garageSelect = $('#garage');
+            if (role === "Customer") {
+                $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
+                    .done(function (garages) {
+                        garages.forEach(function (garage) {
+                            $garageSelect.append(
+                                $('<option>', {
+                                    value: garage.Id,
+                                    text: garage.Name
+                                })
+                            );
+                        });
+                    })
                     .fail(function () {
                         alert("An error occurred while fetching garages. Please try again later.");
                     });
@@ -81,7 +80,7 @@
                                     value: garage.Id,
                                     text: garage.Name
                                 })
-                            );  
+                            );
                         });
                     })
                     .fail(function () {
@@ -89,43 +88,39 @@
                     });
             }
 
-         
-
             $('#createOrderForm').submit(function (event) {
-                if (this.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                } else {
-                    event.preventDefault(); 
-                    $.ajax({
-                        type: 'POST',
-                        url: '@Url.Action("Create", "Order")',
-                        data: $(this).serialize(),
-                        success: function (response) {
-                          
-                            window.location.href = response.redirectUrl;
-                           
-                        },
-                        error: function (xhr) {
-                            // Handle errors
-                            var errorMessage = xhr.responseText || "An error occurred. Please try again.";
-                            alert(errorMessage);
-                        }
-                    });
-                }            
+                event.preventDefault(); // Prevent the default form submission
+
+                var form = $('#createOrderForm')[0];
+                var formData = new FormData(form); // Use FormData to capture all form data, including files
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Create", "Order")',
+                    data: formData,
+                    contentType: false, 
+                    processData: false,
+                    success: function (response) {
+                        window.location.href = response.redirectUrl;
+                    },
+                    error: function (xhr) {
+                        var errorMessage = xhr.responseText || "An error occurred. Please try again.";
+                        alert(errorMessage);
+                    }
+                });
             });
-           
         });
+
     </script>
 
-    <script>
+@*     <script>
         ClassicEditor
             .create(document.querySelector('#ServiceDetails'))
             .catch(error => {
                 console.error(error);
             });
 
-    </script> 
+    </script>  *@
 
 
     <partial name="_ValidationScriptsPartial" />

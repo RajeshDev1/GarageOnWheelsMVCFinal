@@ -23,6 +23,7 @@
     <thead>
         <tr>
             <th class="text-center">Service Details</th>
+            <th class="text-center">Issue Part</th>
             <th class="text-center">Order Date</th>
             <th class="text-center">Total Amount</th>
             <th class="text-center">Status</th>
@@ -37,9 +38,16 @@
                     @Html.DisplayFor(modelItem => order.ServiceDetails)
                 </td>
                 <td class="text-center">
+                    <a asp-action="ViewImages" asp-controller="Order" asp-route-orderId="@order.Id" class="btn btn-info">
+                        View Images
+                    </a>
+
+                </td>
+
+                <td class="text-center">
                     @order.OrderDate.ToString("dd-MM-yyyy")
                 </td>
-                <td class="text-center">
+                <td class="text-center">    
                     @order.TotalAmount.ToString("C")
                 </td>
                 <td class="text-center">

@@ -42,7 +42,7 @@ namespace GarageOnWheelsAPI.Models.DatabaseModels
 
         public virtual ICollection<Garage> Garages { get; set; }
 
-        public virtual ICollection<Orders> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
 
     }
 

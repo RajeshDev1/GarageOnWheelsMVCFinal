@@ -191,7 +191,7 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(UpdateUserViewModel model , IFormFile UpdateImage)
+        public async Task<IActionResult> Edit(UpdateUserViewModel model , IFormFile? UpdateImage)
         {
             if (!ModelState.IsValid)
             {

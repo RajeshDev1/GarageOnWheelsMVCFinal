@@ -13,12 +13,14 @@ namespace GarageOnWheelsAPI.Data
 
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Garage> Garages { get; set; }
-        public virtual DbSet<Orders> Orders { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<State> States { get; set; }
         public virtual DbSet<City> Cities { get; set; }
         public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<LoggerEntry> Loggers { get; set; }
+
+        public virtual DbSet<OrderFiles> OrderFiles { get; set; }
 
         public virtual DbSet<Otp> Otps { get; set; }
 
@@ -27,7 +29,7 @@ namespace GarageOnWheelsAPI.Data
             base.OnModelCreating(modelBuilder);
 
             // Configure Order entity
-            modelBuilder.Entity<Orders>()
+            modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
                 .HasColumnType("decimal(18,2)");
 
@@ -87,6 +89,7 @@ namespace GarageOnWheelsAPI.Data
                 .WithMany(u => u.Garages)
                 .HasForeignKey(g => g.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
         }
 
         // Enable lazy loading

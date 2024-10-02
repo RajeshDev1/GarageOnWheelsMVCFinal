@@ -2,6 +2,7 @@
 using GarageOnWheelsMVC.Models;
 using GarageOnWheelsMVC.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.MSIdentity.Shared;
@@ -25,7 +26,7 @@ namespace GarageOnWheelsMVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-    
+
         public IActionResult Index()
         {
             return View();
@@ -35,7 +36,7 @@ namespace GarageOnWheelsMVC.Controllers
         public async Task<IActionResult> GetOrdersByGarage()
         {
             // Fetch the user ID from the session
-            var userId = SessionHelper.GetUserIdFromToken(HttpContext); 
+            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
 
             // Get the garage associated with the user
             var garage = await _apiHelper.GetAsync<GarageViewModel>($"garage/by-specificUserId/{userId}", HttpContext);
@@ -46,13 +47,13 @@ namespace GarageOnWheelsMVC.Controllers
             }
 
             // Fetch the orders for the garage
-            var orders = await _apiHelper.GetAsync<List<Order>>($"Order/GetOrdersByGarage/{garage.Id}",HttpContext);
+            var orders = await _apiHelper.GetAsync<List<Order>>($"Order/GetOrdersByGarage/{garage.Id}", HttpContext);
 
             if (orders == null)
             {
                 return View(new List<Order>());
             }
-          
+
             // Return the paginated orders to the view
             return View(orders);
         }
@@ -64,91 +65,51 @@ namespace GarageOnWheelsMVC.Controllers
             return View();
         }
 
-        /*      [HttpPost]
-              [ValidateAntiForgeryToken]
-              public async Task<IActionResult> Create(Order model)
-              {
-                  if (!ModelState.IsValid)
-                  {
-                      return View(model); // Returns the same view with validation messages
-                  }
-
-                  var userId = SessionHelper.GetUserIdFromToken(HttpContext);
-                  model.UserId = userId;
-                  model.CreatedBy = userId;
-
-                  var response = await _apiHelper.SendPostRequest("order/CreateOrder", model, HttpContext);
-
-
-                      // Redirect based on user role
-                      TempData["Successful"] = "Order Created Successfully.";
-                      if (User.IsInRole("GarageOwner"))
-                      {
-                          return Json(new { success = true, redirectUrl = Url.Action("GetOrdersByGarage", "Order") });
-
-                      }
-                      else if (User.IsInRole("Customer"))
-                      {
-                          return Json(new { success = true, redirectUrl = Url.Action("OrderHistory", "Order") });
-
-                      }
-
-
-                  var message = await response.Content.ReadAsStringAsync();
-                  ModelState.AddModelError("", message);
-
-                  return View(model); // Return the same view with error message
-              }
-      */
-
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Order model, List<IFormFile> ImageUploadByCustomer)
+        public async Task<IActionResult> Create(CreateOrderViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(model); // Returns the same view with validation messages
-            }
+                var order = CreateOrderViewModel.Mapping(model);
 
-            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
-            model.UserId = userId;
-            model.CreatedBy = userId;
+                var userId = SessionHelper.GetUserIdFromToken(HttpContext);
+                order.UserId = userId;
+                order.CreatedBy = userId;
 
-            // Process uploaded files
-            if (ImageUploadByCustomer != null && ImageUploadByCustomer.Count > 0)
-            {
-                foreach (var file in ImageUploadByCustomer)
+                if (model.ImageUploadByCustomer != null && model.ImageUploadByCustomer.Count > 0)
                 {
-                    if (file.Length > 0)
+                    var imageFileNames = new List<string>();
+
+                    foreach (var file in model.ImageUploadByCustomer)
                     {
-                        var filePath = Path.Combine("uploads", Guid.NewGuid() + Path.GetExtension(file.FileName));
-                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        if (file.Length > 0)
                         {
-                            await file.CopyToAsync(stream); // Save the file locally
+
+                            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+                            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                            var filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(fileStream);
+                            }
+
+                            imageFileNames.Add(uniqueFileName);
                         }
-                        model.ImageUploadByCustomer.Add(filePath); // Add the file path to the list
                     }
+
+                    order.ImageUploadByCustomer.AddRange(imageFileNames);
                 }
+
+                var response = await _apiHelper.SendPostRequest("order/CreateOrder", order, HttpContext);
+
+                return Json(new { redirectUrl = Url.Action("OrderHistory", "Order") });
             }
 
-            // Use SendJsonAsync to send the model to the API
-            var response = await _apiHelper.SendJsonAsync("order/CreateOrder", model, HttpMethod.Post, HttpContext);
-
-            // Handle API response and redirect
-            if (response.IsSuccessStatusCode)
-            {
-                TempData["Successful"] = "Order Created Successfully.";
-                return RedirectToAction("OrderHistory"); // Adjust as necessary
-            }
-
-            var message = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError("", message);
-            return View(model); // Return the same view with error message
+            return View(model);
         }
-
-
 
 
 
@@ -172,7 +133,7 @@ namespace GarageOnWheelsMVC.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
-            }        
+            }
             model.Status = OrderStatus.Completed;
 
             var userId = SessionHelper.GetUserIdFromToken(HttpContext);
@@ -209,18 +170,67 @@ namespace GarageOnWheelsMVC.Controllers
             return View(orders);
         }
 
+
+/*        public async Task<IActionResult> Delete(Guid id)
+        {
+
+            var order = await _apiHelper.GetAsync<List<Assignment>>($"{_baseUrl}assignment/by-siteid/{id}", HttpContext);
+
+            var inspectionfinding = await _httphelper.GetAsync<List<InspectionFinding>>($"{_baseUrl}inspectionfinding/by-site/{id}", HttpContext);
+
+            var existinspectionFinding = inspectionfinding.Where(i => i.ResolutionStatus != ResolutionStatus.Resolved).ToList();
+
+            if (assignment.Count != 0 || existinspectionFinding.Count != 0)
+
+            {
+
+                TempData["Warning"] = "This site has assignments and cannot be deleted.";
+
+                return RedirectToAction("GetOrdersByGarage");
+
+            }
+
+
+
+            return RedirectToAction("DeleteConfirmed", new { id = id });
+        }
+
+*/
+
+
         [Authorize(Roles = "GarageOwner")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var response = await _apiHelper.DeleteAsync($"Order/DeleteOrder/{id}", HttpContext);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
+                TempData["Successful"] = "Garage successfully deleted!";
                 return RedirectToAction("GetOrdersByGarage", "Order");
             }
 
             return BadRequest("Error deleting the order.");
         }
+
+
+
+        [Authorize(Roles = "GarageOwner")]
+        public async Task<IActionResult> ViewImages(Guid orderId)
+        {
+            var viewModel = new ViewImagesViewModel();
+            viewModel.OrderId = orderId;
+
+            // Call API to fetch OrderFiles
+            var apiResponse = await _apiHelper.GetAsync<List<OrderFilesDto>>($"order/GetOrderImages/{orderId}", HttpContext);
+
+            if (apiResponse != null)
+            {
+                viewModel.OrderFiles = apiResponse;
+            }
+
+            return View(viewModel);
+        }
+
 
     }
 }

@@ -10,13 +10,13 @@ namespace GarageOnWheelsAPI.DTOs
         public Guid Id { get; set; }
         [Required]
         public Guid UserId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Garage is required")]
         public Guid GarageId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Write the required services")]
         public string ServiceDetails { get; set; }
-        [Required]
+        [Required]  
         public DateTime OrderDate { get; set; }
-      
+
         public decimal TotalAmount { get; set; }
         [Required]
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
@@ -30,13 +30,13 @@ namespace GarageOnWheelsAPI.DTOs
         public Guid UpdatedBy { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
-        public IList<string> ImageUploadByCustomer { get; set; } = new List<string>();
+        public List<string> ImageUploadByCustomer { get; set; }
 
 
 
-        public static Orders Mapping(OrderDto orderDto)
+        public static Models.DatabaseModels.Order Mapping(OrderDto orderDto)
         {
-            return new Orders
+            return new Models.DatabaseModels.Order
             {
                 Id = orderDto.Id,
                 UserId = orderDto.UserId,
@@ -53,9 +53,9 @@ namespace GarageOnWheelsAPI.DTOs
         }
 
 
-        public static IEnumerable<Orders> Mapping(IEnumerable<OrderDto> orderDto)
+        public static IEnumerable<Models.DatabaseModels.Order> Mapping(IEnumerable<OrderDto> orderDto)
         { 
-            var orders = new List<Orders>();
+            var orders = new List<Models.DatabaseModels.Order>();
             foreach (var order in orderDto) 
             { 
                 orders.Add(Mapping(order));
@@ -63,7 +63,7 @@ namespace GarageOnWheelsAPI.DTOs
             return orders;
         }
 
-        public static OrderDto Mapping(Orders order)
+        public static OrderDto Mapping(Models.DatabaseModels.Order order)
         {
             return new OrderDto
             {
@@ -78,13 +78,12 @@ namespace GarageOnWheelsAPI.DTOs
                 UpdatedDate = order.UpdatedDate,
                 CreatedBy = order.CreatedBy,
                 UpdatedBy = order.UpdatedBy,
-                IsDelete = order.IsDelete,
-                
+                IsDelete = order.IsDelete,              
             };
         }
 
 
-        public static IEnumerable<OrderDto> Mapping(IEnumerable<Orders> order)
+        public static IEnumerable<OrderDto> Mapping(IEnumerable<Models.DatabaseModels.Order> order)
         {
             var orders = new List<OrderDto>();
             foreach (var ord in order)

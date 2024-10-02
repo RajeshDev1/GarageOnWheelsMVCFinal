@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GarageOnWheelsAPI.DTOs;
+using GarageOnWheelsAPI.Enums;
 using GarageOnWheelsAPI.Interfaces.IServices;
 using GarageOnWheelsAPI.Interfaces.Repositories;
 using GarageOnWheelsAPI.Models.DatabaseModels;
@@ -33,12 +34,36 @@ namespace GarageOnWheelsAPI.Services
             var orderDto = OrderDto.Mapping(order);
             return orderDto;
         }
-
-        // Create a new order
-        public async Task CreateOrderAsync(OrderDto orderDto)
+      
+        public async Task<Order> CreateOrderAsync(OrderDto orderDto)   
         {
+          
             var order = OrderDto.Mapping(orderDto);
-            await _orderRepository.CreateOrderAsync(order);
+
+            var createdOrder = await _orderRepository.AddOrderAsync(order);
+
+
+            if (orderDto.ImageUploadByCustomer != null && orderDto.ImageUploadByCustomer.Count > 0)
+            {
+                var orderFiles = new List<OrderFiles>();
+
+                foreach (var file in orderDto.ImageUploadByCustomer)
+                {
+                    var orderFile = new OrderFiles
+                    {
+                        OrderId = createdOrder.Id,
+                        FileName = file,
+                        UploadDate = DateTime.Now
+                    };
+
+                    orderFiles.Add(orderFile);
+                }
+
+                // Add all order files to the repository
+                await _orderRepository.AddOrderFilesAsync(orderFiles);
+            }
+
+            return createdOrder;
         }
 
         // Update an existing order
@@ -87,6 +112,15 @@ namespace GarageOnWheelsAPI.Services
             return orderDtos;
         }
 
+
+        public async Task<IEnumerable<OrderDto>> GetOrderByGarageIdAsync(Guid garageId)
+        {            
+            var order = await _orderRepository.GetOrdersByGarageIdAsync(garageId);
+            var secelctedOrders = order.Where(o => o.Status == (int)OrderStatus.Pending);
+            var orderDtos = OrderDto.Mapping(secelctedOrders);
+            return orderDtos;
+        }
+
         // Get orders on a specific date
         public async Task<IEnumerable<OrderDto>> GetOrdersBySpecificDateAsync(DateTime date)
         {
@@ -102,5 +136,7 @@ namespace GarageOnWheelsAPI.Services
             var orders = OrderDto.Mapping(order);
             return orders;
         }
+
+
     }
 }

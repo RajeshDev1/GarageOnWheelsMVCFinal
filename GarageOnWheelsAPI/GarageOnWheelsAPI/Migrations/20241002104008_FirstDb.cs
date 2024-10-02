@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GarageOnWheelsAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class initialdb : Migration
+    public partial class FirstDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -263,15 +263,14 @@ namespace GarageOnWheelsAPI.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OrdersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderFiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderFiles_Orders_OrdersId",
-                        column: x => x.OrdersId,
+                        name: "FK_OrderFiles_Orders_OrderId",
+                        column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -313,9 +312,9 @@ namespace GarageOnWheelsAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderFiles_OrdersId",
+                name: "IX_OrderFiles_OrderId",
                 table: "OrderFiles",
-                column: "OrdersId");
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_GarageId",

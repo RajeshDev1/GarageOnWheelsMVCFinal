@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GarageOnWheelsAPI.Models.DatabaseModels
 {
-    public class Orders
+    public class Order
     {
         [Key]
         public Guid Id { get; set; }

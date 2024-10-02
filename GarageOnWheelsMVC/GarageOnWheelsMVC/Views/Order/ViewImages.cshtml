@@ -1,0 +1,14 @@
+﻿@model GarageOnWheelsMVC.Models.ViewModel.ViewImagesViewModel
+
+<a href="javascript:history.back()" class="btn btn-secondary mt-4">Back</a>
+
+<div>
+    @foreach (var file in Model.OrderFiles)
+    {
+        <div>
+            <img src="~/uploads/@file.FileName" alt="Order Image" style="width: 200px; height: 200px;" />
+            <p>Uploaded on: @file.UploadDate.ToString("dd-MM-yyyy")</p>
+        </div>
+    }
+</div>
+    

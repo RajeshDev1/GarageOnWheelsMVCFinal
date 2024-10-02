@@ -31,7 +31,7 @@ namespace GarageOnWheelsAPI.Models.DatabaseModels
         [ForeignKey("AreaId")]
         public virtual Area Area { get; set; }
 
-        public virtual ICollection<Orders> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
 
 
     }

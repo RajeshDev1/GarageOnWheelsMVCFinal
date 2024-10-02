@@ -19,23 +19,22 @@ namespace GarageOnWheelsAPI.Repositories
             _context = context;
         }
 
-        // Adds a new order to the database.
-        public async Task CreateOrderAsync(Orders order)
+        public async Task<Order> AddOrderAsync(Order order)
         {
-            if (order == null) throw new ArgumentNullException(nameof(order));
-
-             _context.Orders.AddAsync(order);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+            return order;
         }
 
+
         // Retrieves an order by its ID.
-        public async Task<Orders> GetOrderByIdAsync(Guid id)
+        public async Task<Order> GetOrderByIdAsync(Guid id)
         {
             return await _context.Orders.FindAsync(id);
         }
 
         // Retrieves all orders from the database.
-        public async Task<IEnumerable<Orders>> GetAllOrdersAsync()
+        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
             var query = _context.Orders
                  .Include(o => o.Garage)
@@ -46,7 +45,7 @@ namespace GarageOnWheelsAPI.Repositories
 
 
         // Retrieves all orders associated with a specific user, sorted by the most recent order.
-        public async Task<IEnumerable<Orders>> GetOrdersByUserIdAsync(Guid userId)
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(Guid userId)
         {
             return await _context.Orders
                 .Where(o => o.UserId == userId)
@@ -56,14 +55,14 @@ namespace GarageOnWheelsAPI.Repositories
 
 
         // Retrieves all orders associated with a specific garage.
-        public async Task<IEnumerable<Orders>> GetOrdersByGarageIdAsync(Guid garageId)
+        public async Task<IEnumerable<Order>> GetOrdersByGarageIdAsync(Guid garageId)
         {
             return await _context.Orders.Where(o => o.GarageId == garageId && !o.IsDelete).OrderByDescending(o => o.CreatedDate).ToListAsync();
         }
 
         // Updates an existing order.
 
-        public async Task UpdateOrderAsync(Orders order)
+        public async Task UpdateOrderAsync(Order order)
         {
             if (order == null) throw new ArgumentNullException(nameof(order));
 
@@ -84,7 +83,7 @@ namespace GarageOnWheelsAPI.Repositories
         }   
 
         // Retrieves all orders placed on a specific date.
-        public async Task<IEnumerable<Orders>> GetOrdersBySpecificDateAsync(DateTime date)
+        public async Task<IEnumerable<Order>> GetOrdersBySpecificDateAsync(DateTime date)
         {
             return await _context.Orders
                 .Where(o => o.OrderDate.Date == date.Date) 
@@ -92,11 +91,18 @@ namespace GarageOnWheelsAPI.Repositories
         }
 
         // Retrieves all orders within a specific date range.
-        public async Task<IEnumerable<Orders>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<Order>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             return await _context.Orders
                 .Where(o => o.OrderDate.Date >= startDate.Date && o.OrderDate.Date <= endDate.Date)
                 .ToListAsync();
         }
+        // Add Images 
+        public async Task AddOrderFilesAsync(List<OrderFiles> orderFiles)
+        {
+            await _context.OrderFiles.AddRangeAsync(orderFiles);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

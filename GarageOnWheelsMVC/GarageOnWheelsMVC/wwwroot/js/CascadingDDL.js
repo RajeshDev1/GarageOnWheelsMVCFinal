@@ -5,13 +5,13 @@
     var cityid = $('#city').data('cityid');
     var areaid = $('#area').data('areaid');
     LoadCountries(countryid);
+    console.log(countryid);
    
     $('#country').change(function () {
         var countryId = $(this).val();
         if (countryId > 0) {
             LoadStates(countryId, stateid);
-        }
-      
+        }      
     });
 
 
