@@ -38,8 +38,12 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td class="text-center">                
-                    <img src="~/Images/item.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
+                <td class="text-center">
+                    @if (!string.IsNullOrEmpty(item.ProfileImage))
+                    {
+                        
+                        <img src="~/Images/@item.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
+                    }
                 </td>
                 <td class="text-center">
                     @($"{item.FirstName} {item.LastName}")

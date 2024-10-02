@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GarageOnWheelsAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDb : Migration
+    public partial class initialdb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -237,8 +237,7 @@ namespace GarageOnWheelsAPI.Migrations
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false),
-                    ImageUploadByCustomer = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -253,6 +252,27 @@ namespace GarageOnWheelsAPI.Migrations
                         name: "FK_Orders_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderFiles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrdersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderFiles_Orders_OrdersId",
+                        column: x => x.OrdersId,
+                        principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -291,6 +311,11 @@ namespace GarageOnWheelsAPI.Migrations
                 name: "IX_Garages_UserId",
                 table: "Garages",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderFiles_OrdersId",
+                table: "OrderFiles",
+                column: "OrdersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_GarageId",
@@ -335,10 +360,13 @@ namespace GarageOnWheelsAPI.Migrations
                 name: "Loggers");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "OrderFiles");
 
             migrationBuilder.DropTable(
                 name: "Otps");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "Garages");

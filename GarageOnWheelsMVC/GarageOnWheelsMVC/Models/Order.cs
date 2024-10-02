@@ -27,7 +27,7 @@ namespace GarageOnWheelsMVC.Models
         public Guid UpdatedBy { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
-        public string? ImageUploadByCustomer { get; set; }
+        public IEnumerable<IFormFile> ImageUploadByCustomer { get; set; }
 
     }
 

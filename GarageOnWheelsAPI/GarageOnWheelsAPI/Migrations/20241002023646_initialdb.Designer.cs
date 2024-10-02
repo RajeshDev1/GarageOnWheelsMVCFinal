@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GarageOnWheelsAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241001061430_InitialDb")]
-    partial class InitialDb
+    [Migration("20241002023646_initialdb")]
+    partial class initialdb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -173,6 +173,31 @@ namespace GarageOnWheelsAPI.Migrations
                     b.ToTable("Loggers");
                 });
 
+            modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.OrderFiles", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrdersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UploadDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrdersId");
+
+                    b.ToTable("OrderFiles");
+                });
+
             modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.Orders", b =>
                 {
                     b.Property<Guid>("Id")
@@ -187,9 +212,6 @@ namespace GarageOnWheelsAPI.Migrations
 
                     b.Property<Guid>("GarageId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ImageUploadByCustomer")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
@@ -419,6 +441,17 @@ namespace GarageOnWheelsAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.OrderFiles", b =>
+                {
+                    b.HasOne("GarageOnWheelsAPI.Models.DatabaseModels.Orders", "Orders")
+                        .WithMany("OrderFiles")
+                        .HasForeignKey("OrdersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.Orders", b =>
                 {
                     b.HasOne("GarageOnWheelsAPI.Models.DatabaseModels.Garage", "Garage")
@@ -497,6 +530,11 @@ namespace GarageOnWheelsAPI.Migrations
             modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.Garage", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.Orders", b =>
+                {
+                    b.Navigation("OrderFiles");
                 });
 
             modelBuilder.Entity("GarageOnWheelsAPI.Models.DatabaseModels.State", b =>

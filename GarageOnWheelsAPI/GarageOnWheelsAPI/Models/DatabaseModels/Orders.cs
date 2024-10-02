@@ -17,13 +17,13 @@ namespace GarageOnWheelsAPI.Models.DatabaseModels
         public Guid UpdatedBy { get; set; }
         public DateTime UpdatedDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public int Status { get; set; }
+        public int Status { get; set; }    
         public bool IsDelete { get; set; } = false;
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
         [ForeignKey("GarageId")]
         public virtual Garage Garage { get; set; }
-        public string? ImageUploadByCustomer { get; set; }
+        public virtual ICollection<OrderFiles> OrderFiles { get; set; }
     }
 
 }

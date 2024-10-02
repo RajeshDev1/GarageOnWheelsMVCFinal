@@ -50,7 +50,7 @@ namespace GarageOnWheelsMVC.Controllers
             var users = await _apiHelper.GetAsync<List<User>>("user/all", HttpContext);
             if (users == null)
             {
-                return BadRequest("Error occurs during fetch user ");
+                return View(new List<User>());  
             }
             return View(users);
         }
@@ -65,8 +65,8 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (users == null)
             {
-                /* return View(new List<User>());*/
-                return BadRequest("Error occurs during fetch Customer ");
+                return View(new List<User>());
+               
             }
 
             return View(users);

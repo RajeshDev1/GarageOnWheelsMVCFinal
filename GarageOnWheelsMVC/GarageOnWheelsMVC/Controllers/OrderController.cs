@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.MSIdentity.Shared;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -17,10 +18,11 @@ namespace GarageOnWheelsMVC.Controllers
     {
 
         private readonly ApiHelper _apiHelper;
-
-        public OrderController(ApiHelper apiHelper)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public OrderController(ApiHelper apiHelper, IHttpClientFactory httpClientFactory)
         {
             _apiHelper = apiHelper;
+            _httpClientFactory = httpClientFactory;
         }
 
     
@@ -62,9 +64,48 @@ namespace GarageOnWheelsMVC.Controllers
             return View();
         }
 
+        /*      [HttpPost]
+              [ValidateAntiForgeryToken]
+              public async Task<IActionResult> Create(Order model)
+              {
+                  if (!ModelState.IsValid)
+                  {
+                      return View(model); // Returns the same view with validation messages
+                  }
+
+                  var userId = SessionHelper.GetUserIdFromToken(HttpContext);
+                  model.UserId = userId;
+                  model.CreatedBy = userId;
+
+                  var response = await _apiHelper.SendPostRequest("order/CreateOrder", model, HttpContext);
+
+
+                      // Redirect based on user role
+                      TempData["Successful"] = "Order Created Successfully.";
+                      if (User.IsInRole("GarageOwner"))
+                      {
+                          return Json(new { success = true, redirectUrl = Url.Action("GetOrdersByGarage", "Order") });
+
+                      }
+                      else if (User.IsInRole("Customer"))
+                      {
+                          return Json(new { success = true, redirectUrl = Url.Action("OrderHistory", "Order") });
+
+                      }
+
+
+                  var message = await response.Content.ReadAsStringAsync();
+                  ModelState.AddModelError("", message);
+
+                  return View(model); // Return the same view with error message
+              }
+      */
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Order model)
+        public async Task<IActionResult> Create(Order model, List<IFormFile> ImageUploadByCustomer)
         {
             if (!ModelState.IsValid)
             {
@@ -75,28 +116,41 @@ namespace GarageOnWheelsMVC.Controllers
             model.UserId = userId;
             model.CreatedBy = userId;
 
-            var response = await _apiHelper.SendPostRequest("order/CreateOrder", model, HttpContext);
+            // Process uploaded files
+            if (ImageUploadByCustomer != null && ImageUploadByCustomer.Count > 0)
+            {
+                foreach (var file in ImageUploadByCustomer)
+                {
+                    if (file.Length > 0)
+                    {
+                        var filePath = Path.Combine("uploads", Guid.NewGuid() + Path.GetExtension(file.FileName));
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream); // Save the file locally
+                        }
+                        model.ImageUploadByCustomer.Add(filePath); // Add the file path to the list
+                    }
+                }
+            }
 
-                
-                // Redirect based on user role
+            // Use SendJsonAsync to send the model to the API
+            var response = await _apiHelper.SendJsonAsync("order/CreateOrder", model, HttpMethod.Post, HttpContext);
+
+            // Handle API response and redirect
+            if (response.IsSuccessStatusCode)
+            {
                 TempData["Successful"] = "Order Created Successfully.";
-                if (User.IsInRole("GarageOwner"))
-                {
-                    return Json(new { success = true, redirectUrl = Url.Action("GetOrdersByGarage", "Order") });
-                  
-                }
-                else if (User.IsInRole("Customer"))
-                {
-                    return Json(new { success = true, redirectUrl = Url.Action("OrderHistory", "Order") });
-                  
-                }
-            
+                return RedirectToAction("OrderHistory"); // Adjust as necessary
+            }
 
             var message = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError("", message);
-
             return View(model); // Return the same view with error message
         }
+
+
+
+
 
 
         [Authorize(Roles = "GarageOwner")]

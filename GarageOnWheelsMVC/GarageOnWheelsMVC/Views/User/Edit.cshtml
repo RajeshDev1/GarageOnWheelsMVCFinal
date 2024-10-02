@@ -10,7 +10,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <h3 class="mb-4 text-center">@ViewData["Title"]</h3>
-                <form asp-action="Edit" asp-controller="User" method="post">
+                <form asp-action="Edit" asp-controller="User" method="post" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="FirstName" class="form-label">First Name<span class="text-danger">*</span></label>

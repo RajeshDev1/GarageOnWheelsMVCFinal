@@ -9,6 +9,7 @@ namespace GarageOnWheelsMVC.Helper
     public class ApiHelper
     {
         private readonly HttpClient _httpClient;
+
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string baseUrl;
         private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions

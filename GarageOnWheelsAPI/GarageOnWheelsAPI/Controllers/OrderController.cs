@@ -89,34 +89,62 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
 
-
         [HttpPost("CreateOrder")]
         [Authorize(Roles = "GarageOwner,Customer")]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderDto order)
-        {          
+        public async Task<IActionResult> CreateOrder([FromForm] OrderDto orderDto, [FromForm] List<IFormFile> imageFiles)
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
             try
             {
-                order.Id = Guid.NewGuid();
-                order.OrderDate = DateTime.Now;
-                order.CreatedDate = DateTime.Now;
-                order.CreatedBy = order.UserId;
-                order.UpdatedBy = order.CreatedBy;
-                order.UpdatedDate = order.CreatedDate;
+                // Initialize order properties
+                orderDto.Id = Guid.NewGuid();
+                orderDto.OrderDate = DateTime.Now;
+                orderDto.CreatedDate = DateTime.Now;
+                orderDto.CreatedBy = orderDto.UserId;
+                orderDto.UpdatedBy = orderDto.CreatedBy;
+                orderDto.UpdatedDate = orderDto.CreatedDate;
 
-                await _orderService.CreateOrderAsync(order);
-                return Ok(order);
-    
+                var fileNames = new List<string>();
+
+                // Process uploaded files
+                foreach (var formFile in imageFiles)
+                {
+                    if (formFile.Length > 0)
+                    {
+                        var fileName = Path.GetFileNameWithoutExtension(formFile.FileName) + "_" + Guid.NewGuid() + Path.GetExtension(formFile.FileName);
+                        var filePath = Path.Combine("wwwroot/Images", fileName);
+
+                        // Ensure the directory exists
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await formFile.CopyToAsync(stream);
+                        }
+
+                        fileNames.Add(fileName); // Store file name
+                    }
+                }
+
+                // Store the file names as a comma-separated string in the database
+                orderDto.ImageUploadByCustomer = string.Join(",", fileNames); // This should work if the type is string
+
+                // Call the service to save the order details in the database
+                await _orderService.CreateOrderAsync(orderDto);
+
+                return Ok(orderDto);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating a new order.");
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, "An error occurred while creating the order.");
+                return StatusCode(500, "Internal server error");
             }
         }
+
 
         [HttpPut("UpdateOrder/{id}")]
         [Authorize(Roles = "GarageOwner")]

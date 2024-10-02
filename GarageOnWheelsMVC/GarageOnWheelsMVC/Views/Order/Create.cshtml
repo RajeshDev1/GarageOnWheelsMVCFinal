@@ -9,7 +9,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form id="createOrderForm" method="post">
+            <form id="createOrderForm" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
 
                 <div class="mb-3">
@@ -26,22 +26,23 @@
                     <span asp-validation-for="ServiceDetails" class="text-danger"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="ImageUploadByCustomer" class="form-label">Add Attachments<span class="text-danger fw-bold">*</span></label>
+                    <input type="file" id="imageUpload" name="ImageUploadByCustomer" class="form-control" multiple accept=".jpg,.png,.gif" required />
+                    <span asp-validation-for="ImageUploadByCustomer" class="text-danger"></span>
+                </div>
+
+
                 <div class="row">
                     <div class="col-6">
-                        @if (User.IsInRole("GarageOwner"))
-                        {
-                            <a href="@Url.Action("GetOrdersByGarage", "Order")" class="btn btn-warning w-100">Cancel</a>
-                        }
-                        else
-                        {
-                            <a href="@Url.Action("OrderHistory", "Order")" class="btn btn-warning w-100">Cancel</a>
-                        }
+                        <a href="@Url.Action("Index", "Order")" class="btn btn-warning w-100">Cancel</a>
                     </div>
                     <div class="col-6">
                         <button type="submit" class="btn btn-primary w-100">Create</button>
                     </div>
                 </div>
             </form>
+
         </div>
     </div>
 </div>
@@ -49,23 +50,25 @@
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script> 
+
     <script>
         $(document).ready(function () {
 
-            var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
-            var $garageSelect = $('#garage');
-            if (role === "Customer") {
-                $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
-                    .done(function (garages) {
-                        garages.forEach(function (garage) {
-                            $garageSelect.append(
-                                $('<option>', {
-                                    value: garage.Id,
-                                    text: garage.Name + ' (' + user.Email + ')'
-                                })
-                            );
-                        });
-                    })
+                var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
+                var $garageSelect = $('#garage');
+                if (role === "Customer") {
+                    $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
+                        .done(function (garages) {
+                            garages.forEach(function (garage) {
+                                $garageSelect.append(
+                                    $('<option>', {
+                                        value: garage.Id,
+                                        text: garage.Name
+                                    })
+                                );
+                            });
+                        })
                     .fail(function () {
                         alert("An error occurred while fetching garages. Please try again later.");
                     });
@@ -78,7 +81,7 @@
                                     value: garage.Id,
                                     text: garage.Name
                                 })
-                            );
+                            );  
                         });
                     })
                     .fail(function () {
@@ -111,8 +114,19 @@
                     });
                 }            
             });
+           
         });
     </script>
+
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#ServiceDetails'))
+            .catch(error => {
+                console.error(error);
+            });
+
+    </script> 
+
 
     <partial name="_ValidationScriptsPartial" />
 }
