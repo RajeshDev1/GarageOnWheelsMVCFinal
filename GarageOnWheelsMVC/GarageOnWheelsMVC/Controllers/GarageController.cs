@@ -44,6 +44,16 @@ namespace GarageOnWheelsMVC.Controllers
             return View(garages);
         }
 
+        [Authorize]
+public async Task<IActionResult> GetGaragesByCityId(int cityId)
+{
+    var garages = await _apiHelper.GetAsync<List<GarageViewModel>>($"Garage/ByCity/{cityId}", HttpContext);
+    if (garages == null)
+    {
+        return BadRequest("Error retrieving garage names.");
+    }
+    return new JsonResult(garages);
+}
 
         // get all garage   
         [Authorize]
@@ -80,17 +90,57 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
 
+        /*
+                [Authorize(Roles = "SuperAdmin,GarageOwner")]
+                public async Task<IActionResult> Delete(Guid id)
+                {
+                    var response = await _apiHelper.DeleteAsync($"garage/delete/{id}", HttpContext);
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        return RedirectToAction("GetAllGarages", "Garage");
+                    }
+                    return BadRequest();
+                }*/
 
-        [Authorize(Roles = "SuperAdmin,GarageOwner")]
+
+
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var response = await _apiHelper.DeleteAsync($"garage/delete/{id}", HttpContext);
+            // Check if there are any pending orders for the garage using the API helper
+            var orders = await _apiHelper.GetAsync<List<Order>>($"order/by-garageid/{id}", HttpContext);
+            var pendingOrders = orders.Where(o => o.Status == OrderStatus.Pending).ToList();
+
+            // If there are pending orders, show a warning and don't delete the garage
+            if (pendingOrders.Count > 0)
+            {
+                TempData["Warning"] = "This garage has pending orders and cannot be deleted.";
+                return RedirectToAction("GetAllGarages");
+            }
+
+            // If no pending orders, proceed with the deletion confirmation
+            return RedirectToAction("DeleteConfirmed", new { id = id });
+        }
+
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            // Perform the deletion of the garage using the API helper
+            var response = await _apiHelper.DeleteAsync($"garage/delete-garage/{id}", HttpContext);
+
+            // Check the response status code to confirm deletion
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                return RedirectToAction("GetAllGarages", "Garage");
+                TempData["Success"] = "Garage successfully deleted!";
+                return RedirectToAction("GetAllGarages");
             }
-            return BadRequest();
+
+            // Handle failure cases (e.g., if the deletion was unsuccessful)
+            TempData["Error"] = "An error occurred while deleting the garage.";
+            return RedirectToAction("GetAllGarages");
         }
+
+
+
 
         [HttpGet]
         [Authorize(Roles = "SuperAdmin,GarageOwner")]
@@ -143,7 +193,7 @@ namespace GarageOnWheelsMVC.Controllers
 
                 if (response.StatusCode == HttpStatusCode.Created)
                 {                  
-                    TempData["Successful"] = "Garage Successfully Created.";
+                    TempData["Successful"] = "Garage Successfully Created.";        
                     return User.IsInRole("SuperAdmin")
                         ? RedirectToAction("GetAllGarages", "Garage")
                         : RedirectToAction("GetGaragesByUserId", "Garage");

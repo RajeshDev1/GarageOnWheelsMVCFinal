@@ -36,5 +36,6 @@ namespace GarageOnWheelsAPI.Interfaces.IServices
         // Get orders by date range
         Task<IEnumerable<OrderDto>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<IEnumerable<OrderDto>> GetOrderByGarageIdAsync(Guid garageId);
+       
     }
 }

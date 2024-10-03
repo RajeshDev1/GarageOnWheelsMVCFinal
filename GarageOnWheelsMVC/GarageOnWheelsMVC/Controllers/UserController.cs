@@ -157,21 +157,24 @@ namespace GarageOnWheelsMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Successful"] = "User Created Successfully.";
-                if (User.IsInRole("SuperAdmin"))
+                TempData["Successful"] = "OTP Verified Successfully!";
+                string redirectUrl = Url.Action("GetAllUsers", "User"); // Default to SuperAdmin
+
+                if (User.IsInRole("GarageOwner"))
                 {
-                    return RedirectToAction("GetAllUsers");
+                    redirectUrl = Url.Action("GetAllCustomers", "User");
                 }
-                else if (User.IsInRole("GarageOwner"))
-                {
-                    return RedirectToAction("GetAllCustomers");
-                }
+
+                // Return JSON response with redirect URL
+                return Json(new { success = true, redirectUrl });
             }
 
             ModelState.AddModelError("", "Invalid OTP. Please try again.");
             TempData.Keep("Email");
-            return View(model);
+            return Json(new { success = false, errorMessage = "Invalid OTP. Please try again." });
         }
+
+
 
 
         [Authorize]

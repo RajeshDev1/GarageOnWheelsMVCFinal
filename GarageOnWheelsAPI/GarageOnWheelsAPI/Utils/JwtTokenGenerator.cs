@@ -29,7 +29,8 @@ namespace GarageOnWheelsAPI.Utils
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName +" "+ user.LastName),
                 new Claim(ClaimTypes.Role, ((UserRole)user.Role).ToString()),
-                new Claim("profileimg",user.ProfileImage != null ? user.ProfileImage : string.Empty)
+                new Claim("profileimg",user.ProfileImage != null ? user.ProfileImage : string.Empty),
+                new Claim("cityId", user.CityId.ToString())
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

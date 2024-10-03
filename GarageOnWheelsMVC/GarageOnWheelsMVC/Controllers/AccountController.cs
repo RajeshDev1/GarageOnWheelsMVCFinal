@@ -159,6 +159,7 @@ namespace GarageOnWheelsMVC.Controllers
                 HttpContext.Session.SetString("Token", token);
                 HttpContext.Session.SetString("Name", name);
 
+                var cityId = SessionHelper.GetCityFromtoken(token);
                 var role = SessionHelper.GetRoleFromToken(token);
                 var id = SessionHelper.GetUserIdFromToken(HttpContext);
                 var img = SessionHelper.GetImageNameFromToken(token);
@@ -166,7 +167,7 @@ namespace GarageOnWheelsMVC.Controllers
                 {
                     img = "Unknown.png";
                 }
-                await SignInUser(role, id, name,img);
+                await SignInUser(role, id, name,img,cityId);
 
                 TempData["Successful"] = "Login Successfully";
                 return Json(new { success = true, redirectUrl = Url.Action("Dashboard", "Account") });
@@ -193,17 +194,24 @@ namespace GarageOnWheelsMVC.Controllers
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"{baseurl}auth/verify-email?email={model.Email}&otp={model.OTP}");
             var response = await _httpClient.SendAsync(request);
+
             if (response.IsSuccessStatusCode)
             {
+   
+                TempData["Successful"] = "OTP verified successfully.";
+
                 return RedirectToAction("Login", "Account");
             }
             else
             {
                 ModelState.AddModelError("", "Invalid OTP. Please try again.");
             }
+
             TempData.Keep("Email");
             return View(model);
         }
+
+
 
         public async Task<IActionResult> Logout()
         {
@@ -253,14 +261,15 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
 
-        private async Task SignInUser(string role, Guid id, string unique_name,string img)
+        private async Task SignInUser(string role, Guid id, string unique_name,string img,string cityId)
         {   
             var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Role, role),
         new Claim(ClaimTypes.NameIdentifier, id.ToString()),
         new Claim(ClaimTypes.Name, unique_name),
-        new Claim("profileImg",img)
+        new Claim("profileImg",img),
+        new Claim("cityId", cityId)
     };
       
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

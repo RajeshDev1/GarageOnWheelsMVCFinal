@@ -57,6 +57,9 @@ namespace GarageOnWheelsAPI.Services
             return garagedto;
         }
 
+
+
+
         // Update an existing garage
         public async Task UpdateGarageAsync(GarageDto garagedto)
         {
@@ -116,6 +119,13 @@ namespace GarageOnWheelsAPI.Services
             }
             var garageDto = GarageDto.Mapping(garage);
             return garageDto;
+        }
+
+        public async Task<IEnumerable<GarageDto>> GetGaragesByCityIdAsync(int cityId)
+        {
+            var garages = await _garageRepository.GetGaragesByCityIdAsync(cityId);
+            var garageDtos = GarageDto.Mapping(garages);
+            return garageDtos;
         }
 
     }

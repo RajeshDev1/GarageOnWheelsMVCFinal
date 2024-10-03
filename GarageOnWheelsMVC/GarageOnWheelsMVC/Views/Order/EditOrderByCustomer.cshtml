@@ -15,7 +15,7 @@
                 <span asp-validation-for="Order.GarageId" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3">  
                 <label asp-for="Order.ServiceDetails" class="form-label">Service Details<span class="text-danger fw-bold">*</span></label>
                 <textarea asp-for="Order.ServiceDetails" id="serviceDetailsEditor" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
                 <span asp-validation-for="Order.ServiceDetails" class="text-danger"></span>
@@ -53,7 +53,9 @@
 
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
             </div>
+
         </form>
     </div>
 </div>

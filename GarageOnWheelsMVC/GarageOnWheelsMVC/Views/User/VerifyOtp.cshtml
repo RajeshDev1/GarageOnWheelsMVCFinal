@@ -1,7 +1,11 @@
-﻿ @model GarageOnWheelsMVC.Models.ViewModel.OtpVerificationViewModel
+﻿@model GarageOnWheelsMVC.Models.ViewModel.OtpVerificationViewModel
 @{
     ViewData["Title"] = "VerifyOtp";
 }
+
+<!-- Include Toastr CSS and JS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -11,7 +15,10 @@
                     <h4>Verify OTP</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="VerifyOtp">
+                    <!-- Validation summary for model-level errors -->
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <form id="otpForm" method="post">
                         <div class="mb-3">
                             <label class="form-label">Email</label>
                             <input asp-for="Email" class="form-control" readonly value="@TempData["Email"]" />
@@ -19,6 +26,8 @@
                         <div class="mb-3">
                             <label class="form-label">Enter OTP:</label>
                             <input asp-for="OTP" class="form-control" required />
+                            <!-- Validation message for the OTP field -->
+                            <span asp-validation-for="OTP" class="text-danger"></span>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Verify</button>
@@ -29,3 +38,37 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // Handle form submission via jQuery
+            $('#otpForm').submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                $.ajax({
+                    url: '@Url.Action("VerifyOtp", "Account")', // Adjust to your correct action and controller
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Display success message and redirect
+                            toastr.success('OTP Verified Successfully!');
+                            setTimeout(function () {
+                                window.location.href = response.redirectUrl;
+                            }, 2000); // Redirect after a delay
+                        } else {
+                            // Display error message
+                            toastr.error(response.errorMessage);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Something went wrong. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

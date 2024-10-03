@@ -120,47 +120,6 @@ namespace GarageOnWheelsMVC.Controllers
         }
 
 
-/*
-        [Authorize(Roles = "GarageOwner")]
-        public async Task<IActionResult> Edit(Guid id)
-        {
-            var order = await _apiHelper.GetAsync<Order>($"order/GetOrderById/{id}", HttpContext);
-
-            if (order == null)
-            {
-                return BadRequest("Order not found.");
-            }
-
-            return View(order);
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Order model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            model.Status = OrderStatus.Completed;
-
-            var userId = SessionHelper.GetUserIdFromToken(HttpContext);
-            model.UpdatedBy = userId;
-
-            var response = await _apiHelper.SendJsonAsync($"Order/UpdateOrder/{model.Id}", model, HttpMethod.Put, HttpContext);
-
-            if (response.IsSuccessStatusCode)
-            {
-                TempData["Successful"] = "Order Updated Successfully.";
-                return RedirectToAction("GetOrdersByGarage", "Order");
-            }
-
-            var errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError("", string.IsNullOrWhiteSpace(errorMessage) ? "An error occurred while updating the order." : errorMessage);
-
-            return View(model);
-        }*/
-
-
 
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> OrderHistory()
@@ -313,10 +272,33 @@ namespace GarageOnWheelsMVC.Controllers
 
                 var response = await _apiHelper.SendJsonAsync($"order/UpdateOrder/{model.Order.Id}", order, HttpMethod.Put, HttpContext);
 
-                return RedirectToAction("OrderHistory", "Order");
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                {
+                    TempData["Successful"] = "Order successfully Created.";
+
+                    if (User.IsInRole("GarageOwner"))
+                    {
+                        return RedirectToAction("GetOrdersByGarage", "Order");
+                    }
+                    else if (User.IsInRole("Customer"))
+                    {
+                        return RedirectToAction("OrderHistory", "Order");
+                    }
+
+                }
             }
 
             return View(model);
+        }
+
+        public async Task<IActionResult> ViewOrderDetails(Guid id)
+        {
+            var order = await _apiHelper.GetAsync<OrderViewModel>($"order/GetOrderById/{id}",HttpContext);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
         }
 
 

@@ -29,6 +29,8 @@ namespace GarageOnWheelsAPI.Interfaces.Repositories
         Task<bool> GarageExistsByUserIdAsync(Guid ownerId);
 
         Task<Garage> GetGarageByOwnerIdAsync(Guid ownerId);
+
+        Task<IEnumerable<Garage>> GetGaragesByCityIdAsync(int cityId);
     }
 
 }

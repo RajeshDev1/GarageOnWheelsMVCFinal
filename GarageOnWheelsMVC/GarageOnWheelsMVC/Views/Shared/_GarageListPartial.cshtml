@@ -105,6 +105,12 @@
         if (message && message !== 'null' && message !== '') {
             toastr.success('@TempData["Successful"]'); 
         }
+
+        var warningMessage = '@TempData["Warning"]';
+        if (warningMessage && warningMessage !== 'null' && warningMessage !== '') {
+            toastr.warning(warningMessage);
+        }
+
     });
 
     $('.deleteLink').on('click', function (e) {

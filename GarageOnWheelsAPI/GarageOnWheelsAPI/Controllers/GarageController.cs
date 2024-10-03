@@ -1,4 +1,5 @@
 ﻿using GarageOnWheelsAPI.DTOs;
+using GarageOnWheelsAPI.Enums;
 using GarageOnWheelsAPI.Interfaces.IServices;
 using GarageOnWheelsAPI.Models.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
@@ -27,8 +28,25 @@ namespace GarageOnWheelsAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet("all")]
 
+
+        [HttpGet("ByCity/{cityId}")]
+        public async Task<IActionResult> GetGaragesByCityId(int cityId)
+        {
+            try
+            {
+                var garages = await _garageService.GetGaragesByCityIdAsync(cityId);
+                return Ok(garages);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving garages.");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllGarages()
         {
             try
@@ -159,23 +177,6 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
 
-        [HttpDelete("delete/{id:guid}")]
-        [Authorize(Roles = "SuperAdmin,GarageOwner")]
-        public async Task<IActionResult> DeleteGarage(Guid id)
-        {
-            try
-            {
-                await _garageService.DeleteGarageAsync(id);
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while deleting the garage with ID {GarageId}.", id);
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
-        }
-
         [HttpGet("getbyownerid")]
         public async Task<IActionResult> GetGarageByOwnerId(Guid ownerId)
         {
@@ -190,6 +191,51 @@ namespace GarageOnWheelsAPI.Controllers
                 _logger.LogError(ex, "An error occurred while fetching the garage.");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
-        }    
+        }
+
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpDelete("delete-garage/{garageId}")]
+        public async Task<IActionResult> DeleteGarage(Guid Id)
+        {
+            try
+            {
+                // Check if there are any pending orders for the garage
+                var orders = await _orderService.GetOrdersByGarageIdAsync(Id);
+                var pendingOrders = orders.Where(o => o.Status == OrderStatus.Pending).ToList();
+
+                if (pendingOrders.Count > 0)
+                {
+                    return BadRequest("This garage has pending orders and cannot be deleted.");
+                }
+                 await _garageService.DeleteGarageAsync(Id);            
+                    return NoContent();
+                
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the garage.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while deleting garage ID: {Id}.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
+        }
+
+
+       /* [HttpDelete("delete/{id:guid}")]
+        [Authorize(Roles = "SuperAdmin,GarageOwner")]
+        public async Task<IActionResult> DeleteGarage(Guid id)
+        {
+            try
+            {
+                await _garageService.DeleteGarageAsync(id);
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the garage with ID {GarageId}.", id);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }*/
     }
 }

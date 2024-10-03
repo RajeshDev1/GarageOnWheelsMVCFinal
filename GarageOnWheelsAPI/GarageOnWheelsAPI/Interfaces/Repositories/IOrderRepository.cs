@@ -38,6 +38,7 @@ namespace GarageOnWheelsAPI.Interfaces.Repositories
         Task<IEnumerable<Order>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate);
 
         Task AddOrderFilesAsync(List<OrderFiles> orderFiles);
+      
 
     }
 }

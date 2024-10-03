@@ -30,6 +30,7 @@ namespace GarageOnWheelsAPI.Interfaces.IServices
 
         // Get garages by user ID
         Task<IEnumerable<GarageDto>> GetGaragesByUserIdAsync(Guid userId);
+        Task<IEnumerable<GarageDto>> GetGaragesByCityIdAsync(int cityId);
 
 
     }

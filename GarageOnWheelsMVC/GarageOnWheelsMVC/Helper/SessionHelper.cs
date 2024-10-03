@@ -18,6 +18,14 @@ namespace GarageOnWheelsMVC.Helper
             return new Guid(jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value ?? Guid.Empty.ToString());
         }
 
+        public static string GetCityFromtoken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var cityId = jwtToken.Claims.FirstOrDefault(c => c.Type == "cityId");
+            return cityId?.Value ?? string.Empty;
+        }
+
         public static string GetRoleFromToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();

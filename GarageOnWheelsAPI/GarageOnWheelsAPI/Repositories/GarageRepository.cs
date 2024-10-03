@@ -32,6 +32,14 @@ namespace GarageOnWheelsAPI.Repositories
 
         }
 
+
+        public async Task<IEnumerable<Garage>> GetGaragesByCityIdAsync(int cityId)
+        {
+            return await _context.Garages
+                .Where(g => g.CityId == cityId && !g.IsDelete)
+                .ToListAsync();
+        }
+
         // Get a garage by ID
         public async Task<Garage?> GetGarageByIdAsync(Guid garageId)
         {

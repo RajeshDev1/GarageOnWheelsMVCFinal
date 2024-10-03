@@ -32,7 +32,6 @@
                     <span asp-validation-for="ImageUploadByCustomer" class="text-danger"></span>
                 </div>
 
-
                 <div class="row">
                     <div class="col-6">
                         <a href="@Url.Action("Dashboard", "Account")" class="btn btn-warning w-100">Cancel</a>
@@ -42,7 +41,6 @@
                     </div>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
@@ -50,28 +48,34 @@
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>  
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
     <script>
         $(document).ready(function () {
             var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
             var $garageSelect = $('#garage');
+            var userCityId = '@User.FindFirst("cityId")?.Value';
+
             if (role === "Customer") {
-                $.getJSON('@Url.Action("GetAllGarageNames", "Garage")')
+                console.log(userCityId);
+                $.getJSON('@Url.Action("GetGaragesByCityId", "Garage")', { cityId: userCityId })
                     .done(function (garages) {
                         garages.forEach(function (garage) {
+                            console.log(garage);
                             $garageSelect.append(
                                 $('<option>', {
                                     value: garage.Id,
-                                    text: `${garage.Name} (${garage.Email})`
+                                    text: `${garage.Name} (${garage.Email})`        
                                 })
-                             );
+                            );
                         });
                     })
-                    .fail(function () { 
+                    .fail(function () {
                         alert("An error occurred while fetching garages. Please try again later.");
                     });
-            } else {
+            }
+            else
+            {            
                 $.getJSON('@Url.Action("GetGaragesBySpecificUserId", "Garage")')
                     .done(function (garages) {
                         garages.forEach(function (garage) {
@@ -88,17 +92,18 @@
                     });
             }
 
+
             $('#createOrderForm').submit(function (event) {
-                event.preventDefault(); // Prevent the default form submission
+                event.preventDefault(); 
 
                 var form = $('#createOrderForm')[0];
-                var formData = new FormData(form); // Use FormData to capture all form data, including files
+                var formData = new FormData(form); 
 
                 $.ajax({
                     type: 'POST',
                     url: '@Url.Action("Create", "Order")',
                     data: formData,
-                    contentType: false, 
+                    contentType: false,
                     processData: false,
                     success: function (response) {
                         window.location.href = response.redirectUrl;
@@ -110,110 +115,15 @@
                 });
             });
         });
-
     </script>
 
-     <script>
+    <script>
         ClassicEditor
             .create(document.querySelector('#ServiceDetails'))
             .catch(error => {
                 console.error(error);
             });
-
-    </script>  
-
+    </script>
 
     <partial name="_ValidationScriptsPartial" />
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@* 
-
-
-
-                        To achieve the functionality where the garages displayed in the dropdown are filtered based on the user's city ID, you will need to make a few modifications to your existing JavaScript code. Here’s a step-by-step guide to implementing this:
-
-Add a Hidden Field for City ID: Include a hidden field in your form to hold the user's city ID.
-
-Modify the AJAX Call: Update the AJAX request to include the city ID when fetching garages.
-
-Update the Controller Action: Ensure your controller action can handle the city ID and return the relevant garages.
-
-Here's how you can implement these changes:
-
-Step 1: Update the Form
-Add a hidden input field to store the city ID. If you have the city ID available in your model or view, set it directly.
-
-html
-Copy code
-<input type="hidden" id="cityId" name="CityId" value="@Model.CityId" />
-Step 2: Modify the AJAX Call
-Update the AJAX request to send the city ID to the server and filter the garages based on it.
-
-javascript
-Copy code
-$(document).ready(function () {
-    var role = '@(User.IsInRole("Customer") ? "Customer" : "GarageOwner")';
-    var $garageSelect = $('#garage');
-    var cityId = $('#cityId').val(); // Get the city ID
-
-    if (role === "Customer") {
-        $.getJSON('@Url.Action("GetGaragesByCityId", "Garage")', { cityId: cityId }) // Pass the cityId as a parameter
-            .done(function (garages) {
-                garages.forEach(function (garage) {
-                    $garageSelect.append(
-                        $('<option>', {
-                            value: garage.Id,
-                            text: `${garage.Name} (${garage.Email})`
-                        })
-                    );
-                });
-            })
-            .fail(function () { 
-                alert("An error occurred while fetching garages. Please try again later.");
-            });
-    } else {
-        $.getJSON('@Url.Action("GetGaragesBySpecificUserId", "Garage")')
-            .done(function (garages) {
-                garages.forEach(function (garage) {
-                    $garageSelect.append(
-                        $('<option>', {
-                            value: garage.Id,
-                            text: `${garage.Name} (${garage.Email})`
-                        })
-                    );
-                });
-            })
-            .fail(function () {
-                alert("An error occurred while fetching garages. Please try again later.");
-            });
-    }
-});
-Step 3: Update the Controller Action
-You need to ensure that your controller action that fetches garages can accept the city ID as a parameter. Here’s an example action method:
-
-csharp
-Copy code
-public IActionResult GetGaragesByCityId(int cityId)
-{
-    var garages = _garageService.GetGaragesByCityId(cityId); // Assuming you have a service to get garages
-    return Json(garages);
-}
-Summary
-With these modifications, when a user visits the "Create Order" page, the AJAX call will fetch garages based on the user's city ID, and populate the dropdown accordingly. Ensure that the GetGaragesByCityId method in your Garage controller returns a list of garages filtered by city ID. *@
