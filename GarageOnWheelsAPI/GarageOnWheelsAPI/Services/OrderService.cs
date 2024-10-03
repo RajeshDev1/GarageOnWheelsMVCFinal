@@ -79,7 +79,7 @@ namespace GarageOnWheelsAPI.Services
             }
 
             // Update the order details
-            existingOrder.UserId = order.UserId;
+           
             existingOrder.TotalAmount = order.TotalAmount;
             existingOrder.Status = (int)order.Status;
             existingOrder.UpdatedBy = order.UpdatedBy;
@@ -88,9 +88,27 @@ namespace GarageOnWheelsAPI.Services
             existingOrder.IsDelete = order.IsDelete;
 
             await _orderRepository.UpdateOrderAsync(existingOrder);
+
+            if (order.ImageUploadByCustomer != null && order.ImageUploadByCustomer.Count > 0)
+            {
+                var orderFiles = new List<OrderFiles>();
+
+                foreach (var file in order.ImageUploadByCustomer)
+                {
+                    var orderFile = new OrderFiles
+                    {
+                        OrderId = order.Id,
+                        FileName = file,
+                        UploadDate = DateTime.Now
+                    };
+
+                    orderFiles.Add(orderFile);
+                }
+
+                await _orderRepository.AddOrderFilesAsync(orderFiles);
+            }          
         }
 
-        // Delete an order (soft delete)
         public async Task DeleteOrderAsync(Guid orderId)
         {
             await _orderRepository.DeleteOrderAsync(orderId);

@@ -1,40 +1,56 @@
 ﻿@model GarageOnWheelsMVC.Models.ViewModel.UpdateOrderViewModel
 
-@{
-    ViewData["Title"] = "EditOrderByCustomer";
-}
-
-<h1>EditOrderByCustomer</h1>
-
-<h4>UpdateOrderViewModel</h4>
+<h4>Edit Service</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="EditOrderByCustomer">
+        <form asp-action="EditOrderByCustomer" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="mb-3">
-                <label asp-for="Order.GarageId" class="form-label">Garage<span class="text-danger fw-bold">*</span></label>
-                <select id="garage" asp-for="Order.GarageId" class="form-select" required>
-                    <option value="">Select Garage</option>
-                </select>
+                <input type="hidden" asp-for="Order.GarageId" />
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Order.Id" />
+                </div>
                 <span asp-validation-for="Order.GarageId" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Order.ServiceDetails" class="form-label">Service Details<span class="text-danger fw-bold">*</span></label>
-                <textarea asp-for="Order.ServiceDetails" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
+                <textarea asp-for="Order.ServiceDetails" id="serviceDetailsEditor" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
                 <span asp-validation-for="Order.ServiceDetails" class="text-danger"></span>
             </div>
 
-           
             <div class="mb-3">
                 <label class="form-label">Attachments<span class="text-danger fw-bold">*</span></label>
-                @foreach (var image in Model.OrderFiles)
+                @if (Model.OrderFiles != null)
                 {
-                    <img src="~/Images/@image.FileName" alt="Image" style="max-width: 200px;" />
+                    @foreach (var image in Model.OrderFiles)
+                    {
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="@Url.Content("~/uploads/" + image.FileName)" alt="Image" style="max-width: 200px;" class="me-3" />
+                            <button type="button" class="btn btn-danger btn-sm delete-image" data-file-name="@image.FileName" data-order-id="@Model.Order.Id">Delete</button>
+                        </div>
+                    }
                 }
-                <input type="file" id="imageUpload" name="ImageUploadByCustomer" class="form-control" multiple accept=".jpg,.png,.gif" required />
+                <input type="file" id="imageUpload" name="ImageUploadByCustomer" class="form-control" multiple accept=".jpg,.png,.gif" />
             </div>
+
+            @if (User.IsInRole("GarageOwner"))
+            {
+                <div class="mb-3">
+                    <label asp-for="Order.TotalAmount" class="form-label">Total Amount<span class="text-danger fw-bold">*</span></label>
+                    <input type="number" asp-for="Order.TotalAmount" class="form-control" required />
+                    <span asp-validation-for="Order.TotalAmount" class="text-danger"></span>
+                </div>
+
+                <input type="hidden" asp-for="Order.Status" value="Completed" />
+            }
+            else
+            {
+                <input type="hidden" asp-for="Order.Status" value="Pending" />
+            }
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -42,10 +58,68 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="modal fade" id="deleteImageModal" tabindex="-1" aria-labelledby="deleteImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteImageModalLabel">Delete Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this image?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteImageBtn">Delete</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        $(document).ready(function () {
+            var fileNameToDelete = "";
+            var orderIdToDelete = 0;
+
+            // Capture delete button click for images
+            $(document).on('click', '.delete-image', function () {
+                fileNameToDelete = $(this).data('file-name');
+                orderIdToDelete = $(this).data('order-id');
+
+                // Show the delete confirmation modal
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteImageModal'));
+                deleteModal.show();
+            });
+
+            // Confirm delete button in the modal
+            $('#confirmDeleteImageBtn').click(function () {
+                if (fileNameToDelete && orderIdToDelete) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteOrderImage", "Order")',
+                        type: 'POST',
+                        data: {
+                            orderId: orderIdToDelete,
+                            fileName: fileNameToDelete
+                        },
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert('Error deleting the image.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#serviceDetailsEditor'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
 }

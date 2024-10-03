@@ -49,6 +49,7 @@ namespace GarageOnWheelsAPI.Repositories
         {
             return await _context.Orders
                 .Where(o => o.UserId == userId)
+                 .Where(o => !o.IsDelete)
                 .OrderByDescending(o => o.UpdatedDate).ToListAsync();
         }
 

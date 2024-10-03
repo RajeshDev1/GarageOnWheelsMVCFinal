@@ -27,7 +27,7 @@ namespace GarageOnWheelsMVC.Models
         public Guid UpdatedBy { get; set; }
         [Required]
         public bool IsDelete { get; set; } = false;
-        public List<string> ImageUploadByCustomer { get; set; }
+        public List<string>? ImageUploadByCustomer { get; set; }
 
     }
 

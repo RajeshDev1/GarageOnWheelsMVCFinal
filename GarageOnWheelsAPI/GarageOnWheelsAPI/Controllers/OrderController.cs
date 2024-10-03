@@ -69,8 +69,6 @@ namespace GarageOnWheelsAPI.Controllers
         }
 
 
-        // Get all orders by a specific garageId
-
         [HttpGet("GetOrdersByGarage/{garageId}")]
         [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> GetOrdersByGarage(Guid garageId)
@@ -101,13 +99,13 @@ namespace GarageOnWheelsAPI.Controllers
 
             var createdOrder = await _orderService.CreateOrderAsync(orderDto);
 
-            return Ok(new { message = "Order created successfully", orderId = createdOrder.Id });
+            return Ok();
         }
 
 
 
         [HttpPut("UpdateOrder/{id}")]
-        [Authorize(Roles = "GarageOwner")]
+        [Authorize(Roles = "GarageOwner,Customer")]
         public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] OrderDto order)
         {
             if (id != order.Id)
@@ -118,6 +116,7 @@ namespace GarageOnWheelsAPI.Controllers
             try
             {
                 await _orderService.UpdateOrderAsync(order);
+
                 return NoContent(); 
             }
             catch (Exception ex)
@@ -129,7 +128,7 @@ namespace GarageOnWheelsAPI.Controllers
 
 
         [HttpDelete("DeleteOrder/{id}")]
-        [Authorize(Roles = "GarageOwner")]
+        [Authorize(Roles = "GarageOwner,Customer")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
             try
@@ -220,19 +219,11 @@ namespace GarageOnWheelsAPI.Controllers
             {
                 return NotFound("Image not found.");
             }
-
             // Remove the file entry from the database
             _context.OrderFiles.Remove(orderFile);
             await _context.SaveChangesAsync();
 
-            // Optionally: Remove the actual file from the server
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", fileName);
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
-
-            return Ok(new { message = "Image deleted successfully." });
+            return NoContent();
         }
 
     }
