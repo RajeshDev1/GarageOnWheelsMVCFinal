@@ -56,6 +56,13 @@
                                 break;
                         }
                     </td>
+                    <td>
+                        <span>@order.Id</span>
+ 
+                        <a asp-action="EditOrderByCustomer" asp-controller="Order" asp-route-id="@order.Id" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
                 </tr>
             }
         </tbody>

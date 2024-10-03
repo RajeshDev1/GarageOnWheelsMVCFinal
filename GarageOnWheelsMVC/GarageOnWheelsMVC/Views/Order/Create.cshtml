@@ -63,12 +63,12 @@
                             $garageSelect.append(
                                 $('<option>', {
                                     value: garage.Id,
-                                    text: garage.Name
+                                    text: `${garage.Name} (${garage.Email})`
                                 })
-                            );
+                             );
                         });
                     })
-                    .fail(function () {
+                    .fail(function () { 
                         alert("An error occurred while fetching garages. Please try again later.");
                     });
             } else {
@@ -78,7 +78,7 @@
                             $garageSelect.append(
                                 $('<option>', {
                                     value: garage.Id,
-                                    text: garage.Name
+                                    text: `${garage.Name} (${garage.Email})`
                                 })
                             );
                         });

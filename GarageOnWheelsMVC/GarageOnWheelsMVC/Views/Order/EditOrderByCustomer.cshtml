@@ -1,0 +1,51 @@
+﻿@model GarageOnWheelsMVC.Models.ViewModel.UpdateOrderViewModel
+
+@{
+    ViewData["Title"] = "EditOrderByCustomer";
+}
+
+<h1>EditOrderByCustomer</h1>
+
+<h4>UpdateOrderViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditOrderByCustomer">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Order.GarageId" class="form-label">Garage<span class="text-danger fw-bold">*</span></label>
+                <select id="garage" asp-for="Order.GarageId" class="form-select" required>
+                    <option value="">Select Garage</option>
+                </select>
+                <span asp-validation-for="Order.GarageId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Order.ServiceDetails" class="form-label">Service Details<span class="text-danger fw-bold">*</span></label>
+                <textarea asp-for="Order.ServiceDetails" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
+                <span asp-validation-for="Order.ServiceDetails" class="text-danger"></span>
+            </div>
+
+           
+            <div class="mb-3">
+                <label class="form-label">Attachments<span class="text-danger fw-bold">*</span></label>
+                @foreach (var image in Model.OrderFiles)
+                {
+                    <img src="~/Images/@image.FileName" alt="Image" style="max-width: 200px;" />
+                }
+                <input type="file" id="imageUpload" name="ImageUploadByCustomer" class="form-control" multiple accept=".jpg,.png,.gif" required />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

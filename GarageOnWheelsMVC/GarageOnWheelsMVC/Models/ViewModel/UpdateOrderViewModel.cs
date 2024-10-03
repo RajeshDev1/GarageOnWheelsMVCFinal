@@ -1,8 +1,19 @@
 ﻿namespace GarageOnWheelsMVC.Models.ViewModel
 {
-    public class ViewImagesViewModel
+    public class UpdateOrderViewModel
     {
-        public Guid OrderId { get; set; }
+        public Order Order { get; set; }
         public List<OrderFilesDto> OrderFiles { get; set; }
     }
 }
+
+
+
+
+
+
+
+
+
+
+

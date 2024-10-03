@@ -104,5 +104,13 @@ namespace GarageOnWheelsAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<OrderFiles>> GetFilesByOrderIdAsync(Guid orderId)
+        {
+            return await _context.OrderFiles
+                                 .Where(of => of.OrderId == orderId)
+                                 .ToListAsync();
+        }
+
+
     }
 }

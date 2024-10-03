@@ -38,7 +38,7 @@ namespace GarageOnWheelsAPI.Controllers
             try
             {
                 var orders = await _orderService.GetAllOrdersAsync();
-                return Ok(orders);
+                return Ok(orders);  
             }
             catch (Exception ex)
             {
@@ -203,5 +203,37 @@ namespace GarageOnWheelsAPI.Controllers
 
             }
         }
+
+        [HttpDelete("DeleteOrderImage/{orderId}")]
+        public async Task<IActionResult> DeleteOrderImage(Guid orderId, [FromQuery] string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return BadRequest("File name is required.");
+            }
+
+            // Find the file associated with the orderId and fileName
+            var orderFile = await _context.OrderFiles
+                .FirstOrDefaultAsync(of => of.OrderId == orderId && of.FileName == fileName);
+
+            if (orderFile == null)
+            {
+                return NotFound("Image not found.");
+            }
+
+            // Remove the file entry from the database
+            _context.OrderFiles.Remove(orderFile);
+            await _context.SaveChangesAsync();
+
+            // Optionally: Remove the actual file from the server
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", fileName);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+
+            return Ok(new { message = "Image deleted successfully." });
+        }
+
     }
 }

@@ -2,9 +2,10 @@
 {
     public class OrderViewModel
     {
-        public Guid OrderId { get; set; }
+        public Guid Id { get; set; }
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }
     }
 }
+ 

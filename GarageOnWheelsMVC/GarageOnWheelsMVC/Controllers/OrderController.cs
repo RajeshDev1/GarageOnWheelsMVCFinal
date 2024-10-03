@@ -220,8 +220,8 @@ namespace GarageOnWheelsMVC.Controllers
         [Authorize(Roles = "GarageOwner")]
         public async Task<IActionResult> ViewImages(Guid orderId)
         {
-            var viewModel = new ViewImagesViewModel();
-            viewModel.OrderId = orderId;
+            var viewModel = new UpdateOrderViewModel();
+           /* viewModel.OrderId = orderId;*/
 
             // Call API to fetch OrderFiles
             var apiResponse = await _apiHelper.GetAsync<List<OrderFilesDto>>($"order/GetOrderImages/{orderId}", HttpContext);
@@ -234,6 +234,42 @@ namespace GarageOnWheelsMVC.Controllers
             return View(viewModel);
         }
 
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> DeleteOrderImage(Guid orderId, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                TempData["Error"] = "File name is required.";
+                return RedirectToAction("OrderDetails", new { id = orderId });
+            }
 
+            // Consuming the API to delete the image by OrderId and FileName
+            var response = await _apiHelper.DeleteAsync($"Order/DeleteOrderImage/{orderId}?fileName={fileName}", HttpContext);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Successful"] = "Image deleted successfully!";
+                return RedirectToAction("OrderDetails", new { id = orderId });
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = $"Error deleting the image: {errorMessage}";
+                return RedirectToAction("OrderDetails", new { id = orderId });
+            }
+        }
+
+        public async Task<IActionResult> EditOrderByCustomer(Guid id)
+        {
+            var order = await _apiHelper.GetAsync<Order>($"order/GetOrderById/{id}", HttpContext);
+            var orderFiles = await _apiHelper.GetAsync<List<OrderFilesDto>>($"order/GetOrderImages/{id}", HttpContext);
+
+            var model = new UpdateOrderViewModel()
+            {
+                Order = order,
+                OrderFiles = orderFiles,
+            };
+            return View(model);
+        }
     }
 }
