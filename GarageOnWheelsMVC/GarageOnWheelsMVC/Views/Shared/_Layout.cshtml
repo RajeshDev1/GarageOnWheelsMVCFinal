@@ -126,11 +126,13 @@
             <ul class="navbar-nav ms-auto d-flex align-items-center">
                 @if (User.Identity.IsAuthenticated)
                 {
+                    var img = User.FindFirstValue("profileimg");
 
                     @if (User.IsInRole("SuperAdmin"))
                     {
                         <li class="nav-item me-3">
                             <span class="navbar-text d-flex align-items-center">
+                            <img src="@Url.Content($"~/images/{img}")" alt="Profile Icon" class="rounded-circle profile-icon me-2" style="max-height:50px; max-width:50px">
                                 <i class="fa-solid fa-user-shield"></i>@User.FindFirstValue(System.Security.Claims.ClaimTypes.Name)
                             </span>
                         </li>
@@ -139,6 +141,7 @@
                     {
                         <li class="nav-item me-3">
                             <span class="navbar-text d-flex align-items-center">
+                            <img src="@Url.Content($"~/images/{img}")" alt="Profile Icon" class="rounded-circle profile-icon me-2" style="max-height:50px; max-width:50px">
                                 <i class="fa-solid fa-user-tie"></i>@User.FindFirstValue(System.Security.Claims.ClaimTypes.Name)
                             </span>
                         </li>
@@ -146,11 +149,17 @@
                     else
                     {
                         <li class="nav-item me-3">
+
+
                             <span class="navbar-text d-flex align-items-center">
+                            <img src="@Url.Content($"~/images/{img}")" alt="Profile Icon" class="rounded-circle profile-icon me-2" style="max-height:50px; max-width:50px">
                                 <i class="fas fa-user me-2"></i>@User.FindFirstValue(System.Security.Claims.ClaimTypes.Name)
                             </span>
                         </li>
                     }
+
+                 
+
                  
                     <li class="nav-item">
                         <a class="nav-link logout-link me-3" asp-controller="Account" asp-action="Logout">
