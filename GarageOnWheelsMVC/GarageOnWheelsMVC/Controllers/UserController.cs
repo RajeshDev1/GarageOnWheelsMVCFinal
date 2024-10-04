@@ -22,6 +22,8 @@ using System.Net.Http.Headers;
 using NuGet.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Hosting;
+
 
 
 namespace GarageOnWheelsMVC.Controllers
@@ -30,12 +32,14 @@ namespace GarageOnWheelsMVC.Controllers
     {
         private readonly ApiHelper _apiHelper;
         private readonly string baseUrl;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
 
-        public UserController(ApiHelper apiHelper, IConfiguration configuration)
+        public UserController(ApiHelper apiHelper, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             _apiHelper = apiHelper;
             baseUrl = configuration["AppSettings:BaseUrl"];
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Dashboard()
         {
@@ -136,7 +140,7 @@ namespace GarageOnWheelsMVC.Controllers
             {
                 await _apiHelper.SendOtp(model.Email, HttpContext);
                 TempData["Email"] = model.Email;
-                return RedirectToAction("VerifyOtp", "Account");
+                return RedirectToAction("VerifyOtp", "User");
             }
             ModelState.AddModelError("", "An error occurred while creating the user.");
             return View(model);
@@ -158,7 +162,7 @@ namespace GarageOnWheelsMVC.Controllers
             if (response.IsSuccessStatusCode)
             {
                 TempData["Successful"] = "OTP Verified Successfully!";
-                string redirectUrl = Url.Action("GetAllUsers", "User"); // Default to SuperAdmin
+                string redirectUrl = Url.Action("GetAllUsers", "User"); 
 
                 if (User.IsInRole("GarageOwner"))
                 {
@@ -194,7 +198,7 @@ namespace GarageOnWheelsMVC.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(UpdateUserViewModel model , IFormFile? UpdateImage)
+        public async Task<IActionResult> Edit(UpdateUserViewModel model, IFormFile? UpdateImage)
         {
             if (!ModelState.IsValid)
             {
@@ -205,19 +209,38 @@ namespace GarageOnWheelsMVC.Controllers
 
             var userModel = UpdateUserViewModel.mapping(model);
 
-            if (UpdateImage != null && UpdateImage.Length > 0)
+            if (Request.Form["DeleteImage"] == "true")
             {
-                if (model.ProfileImage == null)
+
+                userModel.ProfileImage = null; 
+
+                if (!string.IsNullOrEmpty(model.ProfileImage))
                 {
-                    userModel.ProfileImage = await SaveFileAsync(UpdateImage);
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", model.ProfileImage);
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
                 }
-                else
+            }
+            else
+            {
+                // Handle file upload/update
+                if (UpdateImage != null && UpdateImage.Length > 0)
                 {
-                    userModel.ProfileImage = await SaveUpdatedFileAsync(model.ProfileImage, UpdateImage);
+                    if (model.ProfileImage == null)
+                    {
+                        userModel.ProfileImage = await SaveFileAsync(UpdateImage);
+                    }
+                    else
+                    {
+                        userModel.ProfileImage = await SaveUpdatedFileAsync(model.ProfileImage, UpdateImage);
+                    }
                 }
             }
 
-            var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
+            // API call to update user
+            var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", userModel, HttpMethod.Put, HttpContext);
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 TempData["Successful"] = "User Updated Successfully.";
@@ -230,9 +253,13 @@ namespace GarageOnWheelsMVC.Controllers
                     return RedirectToAction("GetAllCustomers");
                 }
             }
+
+            // If update fails, show error
             ModelState.AddModelError(string.Empty, "Failed to update user. Please try again.");
             return View(model);
         }
+
+
 
         [HttpGet]
         [Authorize]
@@ -249,42 +276,97 @@ namespace GarageOnWheelsMVC.Controllers
             return View(userViewModel);
         }
 
+
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> EditProfile(UpdateUserViewModel model, IFormFile ? UpdateImage)
+        public async Task<IActionResult> EditProfile(UpdateUserViewModel model, IFormFile? UpdateImage)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-       
+
             model.UpdatedBy = SessionHelper.GetUserIdFromToken(HttpContext);
 
-            if (UpdateImage != null && UpdateImage.Length > 0)
+            // Check if the image should be deleted
+            if (Request.Form["DeleteImage"] == "true")
             {
-                if (model.ProfileImage == null)
+                // Remove the existing profile image file from the uploads folder
+                if (!string.IsNullOrEmpty(model.ProfileImage))
                 {
-                    model.ProfileImage = await SaveFileAsync(UpdateImage);
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", model.ProfileImage);
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath); // Delete the file from server
+                    }
                 }
-                else
+
+                // Set the ProfileImage to a default value
+                model.ProfileImage = "default-placeholder.png"; // Set to your default image file name
+            }
+            else
+            {
+                // Update the profile image if provided
+                if (UpdateImage != null && UpdateImage.Length > 0)
                 {
-                    model.ProfileImage = await SaveUpdatedFileAsync(model.ProfileImage, UpdateImage);
+                    if (model.ProfileImage == null || model.ProfileImage == "default-placeholder.png")
+                    {
+                        model.ProfileImage = await SaveFileAsync(UpdateImage);
+                    }
+                    else
+                    {
+                        model.ProfileImage = await SaveUpdatedFileAsync(model.ProfileImage, UpdateImage);
+                    }
                 }
             }
 
+            // Send the updated data to the API
             var response = await _apiHelper.SendJsonAsync($"user/update/{model.Id}", model, HttpMethod.Put, HttpContext);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 TempData["Successful"] = "Profile Updated Successfully";
+
+                // Update the user’s claims after successful profile update
+                var userId = SessionHelper.GetUserIdFromToken(HttpContext); // Assuming this gets the current user ID
+                var role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+                var name = $"{model.FirstName} {model.LastName}".Trim();
+                var profileImg = model.ProfileImage;
+
+                // Call the method to update the user’s claims
+                await UpdateSignInUser(role, userId, name, profileImg);
+
                 return RedirectToAction("EditProfile", "User");
             }
 
+            ModelState.AddModelError(string.Empty, "Failed to update profile. Please try again.");
             return View(model);
         }
 
 
+
+
+
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(Guid id)
+        {
+
+            var orders = await _apiHelper.GetAsync<List<Order>>($"order/by-userid/{id}", HttpContext);
+
+            // Check for any pending orders
+            var pendingOrders = orders.Where(o => o.Status == OrderStatus.Pending).ToList();
+
+            if (pendingOrders.Count > 0)
+            {
+                TempData["Warning"] = "This user has pending orders and cannot be deleted.";
+                return RedirectToAction("GetAllUsers");
+            }
+
+  
+            return RedirectToAction("DeleteConfirmed", new { id = id });
+        }
+
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var endpoint = $"user/delete/{id}";
             var response = await _apiHelper.DeleteAsync(endpoint, HttpContext);
@@ -294,9 +376,12 @@ namespace GarageOnWheelsMVC.Controllers
                 TempData["Successful"] = "User Deleted Successfully.";
                 return RedirectToAction("GetAllUsers");
             }
-            return BadRequest($"Failed to delete the user. Status Code: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+
+            TempData["Error"] = $"An error occurred while deleting the user. Status Code: {response.StatusCode}";
+            return RedirectToAction("GetAllUsers");
         }
 
+        // check the email exist or not
         private async Task<bool> IsEmailExists(string email)
         {
             var emailExists = await _apiHelper.CheckIfExists($"user/search?email={email}", HttpContext);
@@ -374,7 +459,6 @@ namespace GarageOnWheelsMVC.Controllers
         }
         private async Task UpdateSignInUser(string role, Guid id, string name, string img)
         {
-
             var existingClaims = HttpContext.User.Claims.ToList();
 
             // Remove any existing claims that you want to replace
@@ -391,7 +475,9 @@ namespace GarageOnWheelsMVC.Controllers
 
             var identity = new ClaimsIdentity(existingClaims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
-           await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            // Sign the user in again with updated claims
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
     }

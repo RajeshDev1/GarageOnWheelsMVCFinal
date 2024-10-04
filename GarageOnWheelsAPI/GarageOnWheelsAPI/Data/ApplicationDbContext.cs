@@ -33,7 +33,7 @@ namespace GarageOnWheelsAPI.Data
                 .Property(o => o.TotalAmount)
                 .HasColumnType("decimal(18,2)");
 
-            // Other entity configurations...
+
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Country)

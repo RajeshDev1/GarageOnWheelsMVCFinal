@@ -90,51 +90,27 @@ public async Task<IActionResult> GetGaragesByCityId(int cityId)
         }
 
 
-        /*
-                [Authorize(Roles = "SuperAdmin,GarageOwner")]
-                public async Task<IActionResult> Delete(Guid id)
-                {
-                    var response = await _apiHelper.DeleteAsync($"garage/delete/{id}", HttpContext);
-                    if (response.StatusCode == HttpStatusCode.NoContent)
-                    {
-                        return RedirectToAction("GetAllGarages", "Garage");
-                    }
-                    return BadRequest();
-                }*/
-
-
-
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(Guid id)
-        {
-            // Check if there are any pending orders for the garage using the API helper
+        {          
             var orders = await _apiHelper.GetAsync<List<Order>>($"order/by-garageid/{id}", HttpContext);
             var pendingOrders = orders.Where(o => o.Status == OrderStatus.Pending).ToList();
-
-            // If there are pending orders, show a warning and don't delete the garage
             if (pendingOrders.Count > 0)
             {
                 TempData["Warning"] = "This garage has pending orders and cannot be deleted.";
                 return RedirectToAction("GetAllGarages");
             }
-
-            // If no pending orders, proceed with the deletion confirmation
             return RedirectToAction("DeleteConfirmed", new { id = id });
         }
 
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            // Perform the deletion of the garage using the API helper
             var response = await _apiHelper.DeleteAsync($"garage/delete-garage/{id}", HttpContext);
-
-            // Check the response status code to confirm deletion
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 TempData["Success"] = "Garage successfully deleted!";
                 return RedirectToAction("GetAllGarages");
             }
-
-            // Handle failure cases (e.g., if the deletion was unsuccessful)
             TempData["Error"] = "An error occurred while deleting the garage.";
             return RedirectToAction("GetAllGarages");
         }

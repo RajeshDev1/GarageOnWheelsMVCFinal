@@ -24,7 +24,7 @@
     <table class="table table-bordered table-striped" id="orderTable">
         <thead class="thead-dark">
             <tr>
-                <th class="text-center">Order Date</th>
+                <th class="text-center">Service Date</th>
                 <th class="text-center">Total Amount</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Action</th>
@@ -113,7 +113,7 @@
             "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
             "dom": '<"top"f>rt<"bottom"lp><"clear">',
             "columnDefs": [
-                { "orderable": false, "targets": [-2, -1] }
+                { "orderable": false, "targets": -1 }
             ]
         });
 

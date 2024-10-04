@@ -90,7 +90,6 @@
                                 <input type="text" asp-for="Address" class="form-control form-control-lg"  />
                                 <span asp-validation-for="Address" class="text-danger"></span>
                             </div>
-
                     <div class="mb-3">
                         <label for="profileImage" class="form-label">Profile Image</label>
                         <div id="profileImage">
@@ -98,6 +97,10 @@
                             {
                                 <input asp-for="ProfileImage" type="hidden" />
                                 <img src="~/Images/@Model.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
+                                <a href="javascript:void(0);" id="deleteImageButton" title="Delete Image" class="text-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                                <input type="hidden" name="DeleteImage" id="DeleteImage" value="false" />
                             }
                             else
                             {
@@ -105,6 +108,7 @@
                             }
                         </div>
                     </div>
+
                     <div class="mb-3">
                         <label asp-for="ProfileImage" class="form-label">Upload Profile Image</label>
                         <input asp-for="ProfileImage" type="file" class="form-control" id="profileImageInput" name="UpdateImage" />
@@ -154,5 +158,14 @@
         });
 
     </script>
+    <script>
+        document.getElementById('deleteImageButton').addEventListener('click', function () {
+            // Set the hidden input to true to indicate image deletion
+            document.getElementById('DeleteImage').value = 'true';
+            // Optionally, you can update the preview to a default image
+            document.getElementById('profileImagePreview').src = '~/Images/default-placeholder.png';
+        });
+    </script>
+
 
 }

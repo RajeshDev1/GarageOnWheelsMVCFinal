@@ -193,6 +193,8 @@ namespace GarageOnWheelsAPI.Controllers
             }
         }
 
+
+
         [Authorize(Roles = "SuperAdmin")]
         [HttpDelete("delete-garage/{garageId}")]
         public async Task<IActionResult> DeleteGarage(Guid Id)
@@ -219,23 +221,5 @@ namespace GarageOnWheelsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
-
-
-       /* [HttpDelete("delete/{id:guid}")]
-        [Authorize(Roles = "SuperAdmin,GarageOwner")]
-        public async Task<IActionResult> DeleteGarage(Guid id)
-        {
-            try
-            {
-                await _garageService.DeleteGarageAsync(id);
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while deleting the garage with ID {GarageId}.", id);
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
-        }*/
     }
 }

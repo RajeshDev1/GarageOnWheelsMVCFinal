@@ -1,38 +1,34 @@
 ﻿@model GarageOnWheelsMVC.Models.ViewModel.UpdateOrderViewModel
 
-<h4>Edit Service</h4>
+<h4 class="text-center">Edit Service</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="EditOrderByCustomer" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form asp-action="EditOrderByCustomer" method="post" enctype="multipart/form-data" class="bg-light p-4 border rounded shadow-sm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <input type="hidden" asp-for="Order.GarageId" />
+            <input type="hidden" asp-for="Order.Id" />
 
             <div class="mb-3">
-                <input type="hidden" asp-for="Order.GarageId" />
-                <div class="mb-3">
-                    <input type="hidden" asp-for="Order.Id" />
-                </div>
-                <span asp-validation-for="Order.GarageId" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">  
                 <label asp-for="Order.ServiceDetails" class="form-label">Service Details<span class="text-danger fw-bold">*</span></label>
                 <textarea asp-for="Order.ServiceDetails" id="serviceDetailsEditor" class="form-control" rows="4" placeholder="Enter details of the service required" required></textarea>
                 <span asp-validation-for="Order.ServiceDetails" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Attachments<span class="text-danger fw-bold">*</span></label>
+                <label class="form-label">Photos</label>
                 @if (Model.OrderFiles != null)
                 {
                     @foreach (var image in Model.OrderFiles)
                     {
                         <div class="d-flex align-items-center mb-2">
-                            <img src="@Url.Content("~/uploads/" + image.FileName)" alt="Image" style="max-width: 200px;" class="me-3" />
+                            <img src="@Url.Content("~/uploads/" + image.FileName)" alt="Image" style="max-width: 200px;" class="me-3 rounded" />
                             <button type="button" class="btn btn-danger btn-sm delete-image" data-file-name="@image.FileName" data-order-id="@Model.Order.Id">Delete</button>
                         </div>
                     }
                 }
+                <label class="form-label">Attachments</label>
                 <input type="file" id="imageUpload" name="ImageUploadByCustomer" class="form-control" multiple accept=".jpg,.png,.gif" />
             </div>
 
@@ -43,7 +39,6 @@
                     <input type="number" asp-for="Order.TotalAmount" class="form-control" required />
                     <span asp-validation-for="Order.TotalAmount" class="text-danger"></span>
                 </div>
-
                 <input type="hidden" asp-for="Order.Status" value="Completed" />
             }
             else
@@ -51,11 +46,10 @@
                 <input type="hidden" asp-for="Order.Status" value="Pending" />
             }
 
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <div class="form-group text-center">            
                 <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
+                <input type="submit" value="Save" class="btn btn-primary me-2" />
             </div>
-
         </form>
     </div>
 </div>
@@ -83,6 +77,11 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <script>
         $(document).ready(function () {
+            var message = '@TempData["Successful"]';
+            if (message) {
+                toastr.success(message);
+            }
+
             var fileNameToDelete = "";
             var orderIdToDelete = 0;
 

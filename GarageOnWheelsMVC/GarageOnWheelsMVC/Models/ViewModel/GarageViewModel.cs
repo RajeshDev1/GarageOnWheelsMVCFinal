@@ -38,5 +38,6 @@ namespace GarageOnWheelsMVC.Models.ViewModel
         public  Area? Area { get; set; }
 
         public string? GarageOwnerName { get; set; }
+        public string? Email { get; set; }
     }
 }

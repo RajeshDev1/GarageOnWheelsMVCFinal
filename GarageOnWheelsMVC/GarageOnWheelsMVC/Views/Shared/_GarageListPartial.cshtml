@@ -40,14 +40,15 @@
                     @Html.DisplayFor(modelItem => item.GarageOwnerName)
                 </td>
                 <td class="text-center">
-                    @($"{item.Country.Name},{item.State.Name},{item.City.Name},{item.Area.Name},{item.Address}.")
+                    @($"{item.Address},{item.Area.Name},{item.City.Name},{item.State.Name},{item.Country.Name}")
                 </td>
                 <td class="text-center">
                     @if (User.IsInRole("SuperAdmin"))
                     {
                         <a asp-action="Save" asp-controller="Garage" asp-route-id="@item.Id" title="Edit">
-                            <i class="fas fa-edit" |></i>
+                            <i class="fas fa-edit"></i>
                         </a> 
+                        <span>|</span>
                         <a asp-action="Delete" asp-controller="Garage" asp-route-id="@item.Id" data-id="@item.Id" title="Delete" data-name="@($"{item.Name}")" class="text-danger deleteLink">
                             <i class="fas fa-trash-alt"></i>
                         </a>

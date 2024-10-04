@@ -39,6 +39,8 @@ namespace GarageOnWheelsAPI.DTOs
 
         public string ? GarageOwnerName { get; set; }
 
+        public string? Email { get; set; }
+
 
 
         public static Garage Mapping(GarageDto garageDto)
@@ -95,6 +97,7 @@ namespace GarageOnWheelsAPI.DTOs
                 State = garage.State,
                 City = garage.City,
                 Area = garage.Area,
+                Email = garage.User?.Email
                
             };
         }

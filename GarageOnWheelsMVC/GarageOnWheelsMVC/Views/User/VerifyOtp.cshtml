@@ -44,23 +44,23 @@
 
     <script>
         $(document).ready(function () {
-            // Handle form submission via jQuery
+   
             $('#otpForm').submit(function (event) {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault();
 
                 $.ajax({
-                    url: '@Url.Action("VerifyOtp", "Account")', // Adjust to your correct action and controller
+                    url: '@Url.Action("VerifyOtp", "User")', 
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function (response) {
+                        console.log(response);
                         if (response.success) {
-                            // Display success message and redirect
-                            toastr.success('OTP Verified Successfully!');
+                                   
                             setTimeout(function () {
                                 window.location.href = response.redirectUrl;
-                            }, 2000); // Redirect after a delay
+                            }, 2000);
                         } else {
-                            // Display error message
+ 
                             toastr.error(response.errorMessage);
                         }
                     },

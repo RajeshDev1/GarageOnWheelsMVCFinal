@@ -279,6 +279,8 @@ namespace GarageOnWheelsMVC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
+
+
         // Remote validation
         [AcceptVerbs("Get", "Post")]
         public async Task<IActionResult> IsEmailAvailable(string email)

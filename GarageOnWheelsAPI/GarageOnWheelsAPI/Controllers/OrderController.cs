@@ -151,11 +151,6 @@ namespace GarageOnWheelsAPI.Controllers
             {
                 var orders = await _orderService.GetOrdersByUserIdAsync(userId);
 
-                if (orders == null || !orders.Any())
-                {
-                    return NoContent();
-                }
-
                 return new JsonResult(orders);
             }
             catch (Exception ex)
@@ -202,6 +197,27 @@ namespace GarageOnWheelsAPI.Controllers
 
             }
         }
+
+        [HttpGet("by-userid/{id:guid}")]
+        public async Task<IActionResult> GetOrderByUserId(Guid id)
+        {
+            try
+            {
+                var orders = await _orderService.GetOrdersByUserIdAsync(id);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while retrieving Orders for UserId : {id}.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+
+            }
+        }
+
+
+
+
+
 
         [HttpDelete("DeleteOrderImage/{orderId}")]
         public async Task<IActionResult> DeleteOrderImage(Guid orderId, [FromQuery] string fileName)

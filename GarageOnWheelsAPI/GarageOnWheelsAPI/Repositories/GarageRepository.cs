@@ -36,6 +36,7 @@ namespace GarageOnWheelsAPI.Repositories
         public async Task<IEnumerable<Garage>> GetGaragesByCityIdAsync(int cityId)
         {
             return await _context.Garages
+                 .Include(g => g.User)
                 .Where(g => g.CityId == cityId && !g.IsDelete)
                 .ToListAsync();
         }

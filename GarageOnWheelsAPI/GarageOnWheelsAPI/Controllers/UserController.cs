@@ -11,6 +11,7 @@ using System.Security.Claims;
 using GarageOnWheelsAPI.DTOs;
 using Microsoft.EntityFrameworkCore;
 using GarageOnWheelsAPI.Data;
+using GarageOnWheelsAPI.Services;
 
 namespace GarageOnWheelsAPI.Controllers
 {
@@ -19,6 +20,7 @@ namespace GarageOnWheelsAPI.Controllers
     
     public class UserController : ControllerBase
     {
+        private readonly IOrderService _orderService;
         private readonly IUserService _userService;
         private readonly IRevenueService _revenueService;
         private readonly ILogger<UserController> _logger;
@@ -28,13 +30,15 @@ namespace GarageOnWheelsAPI.Controllers
             IUserService userService,
             IRevenueService revenueService,
             ILogger<UserController> logger,
-            ApplicationDbContext context
+            ApplicationDbContext context,
+            IOrderService orderService
             )
         {
             _userService = userService;
             _revenueService = revenueService;
             _logger = logger;
             _context = context;
+            _orderService = orderService;
         }
 
         [HttpGet("all")]
@@ -166,21 +170,46 @@ namespace GarageOnWheelsAPI.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+        /*
+                [HttpDelete("delete/{id:guid}")]
+                [Authorize(Roles ="SuperAdmin,GarageOwner")]
+                public async Task<IActionResult> DeleteUser(Guid id)
+                {
+                    try
+                    {
+                         await _userService.DeleteUserAsync(id);
+                        return NoContent();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "An error occurred while deleting the user with ID {UserId}.", id);
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
+                    }
+                }*/
 
         [HttpDelete("delete/{id:guid}")]
-        [Authorize(Roles ="SuperAdmin,GarageOwner")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        [Authorize(Roles = "SuperAdmin,GarageOwner")]
+        public async Task<IActionResult> DeleteUser(Guid Id)
         {
             try
             {
-                 await _userService.DeleteUserAsync(id);
+                var orders = await _orderService.GetOrdersByUserIdAsync(Id);
+                var pendingOrders = orders.Where(o => o.Status == OrderStatus.Pending).ToList();
+
+                if (pendingOrders.Count > 0)
+                {
+                    return BadRequest("This garage has pending orders and cannot be deleted.");
+                }
+                await _userService.DeleteUserAsync(Id);
                 return NoContent();
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the user with ID {UserId}.", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
+                _logger.LogError(ex, $"An error occurred while deleting User ID: {Id}.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
+
         }
 
         [HttpGet("Search")]
@@ -237,25 +266,5 @@ namespace GarageOnWheelsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
-
-   /*     //This delete api is use for check is associated with order or not
-        [HttpGet("exist-order/{id}")]
-        public async Task<IActionResult> CheckExistOrder(Guid id)
-        {
-            var Item = await _context.Orders.FindAsync(id);
-            if (Item == null)
-            {
-                return NotFound("User not found.");
-            }
-            var hasActiveOrders = await _context.Orders
-        .AnyAsync(o => o.UserId == id && o.Status == Pending);
-
-
-            if (hasActiveOrders)
-            {
-                return BadRequest("This Item is associated with active orders and cannot be deleted.");
-            }
-            return Ok("true");
-        }*/
     }
 }

@@ -191,20 +191,22 @@ namespace GarageOnWheelsMVC.Controllers
                 if (System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
-                }
-
-             
+                }            
                
-                    var response = await _apiHelper.DeleteAsync($"Order/DeleteOrderImage/{orderId}?fileName={fileName}", HttpContext);
+                var response = await _apiHelper.DeleteAsync($"Order/DeleteOrderImage/{orderId}?fileName={fileName}", HttpContext);
                 if(response.StatusCode == HttpStatusCode.NoContent)
-            {
+                {
                 TempData["Successful"] = "Image deleted successfully!";
 
-                return RedirectToAction("OrderDetails", new { id = orderId });
+          /*      return RedirectToAction("OrderDetails", new { id = orderId });*/
+                return Json(new { success = true });
             }
             return BadRequest();
                 
         }
+            
+
+
 
 
         public async Task<IActionResult> EditOrderByCustomer(Guid id)

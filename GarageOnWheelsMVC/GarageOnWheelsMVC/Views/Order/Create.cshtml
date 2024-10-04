@@ -1,10 +1,10 @@
 ﻿@model GarageOnWheelsMVC.Models.ViewModel.CreateOrderViewModel
 
 @{
-    ViewData["Title"] = "Create Appointment";
+    ViewData["Title"] = "Request Service";
 }
 
-<h2 class="text-center mb-4">Create Order</h2>
+<h2 class="text-center mb-4">Request Service</h2>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="ImageUploadByCustomer" class="form-label">Add Attachments<span class="text-danger fw-bold">*</span></label>
+                    <label asp-for="ImageUploadByCustomer" class="form-label">Add Attachments</label>
                     <input type="file" id="imageUpload" name="ImageUploadByCustomer" class="form-control" multiple accept=".jpg,.png,.gif" required />
                     <span asp-validation-for="ImageUploadByCustomer" class="text-danger"></span>
                 </div>
@@ -82,7 +82,7 @@
                             $garageSelect.append(
                                 $('<option>', {
                                     value: garage.Id,
-                                    text: `${garage.Name} (${garage.Email})`
+                                    text: `${garage.Name}`
                                 })
                             );
                         });

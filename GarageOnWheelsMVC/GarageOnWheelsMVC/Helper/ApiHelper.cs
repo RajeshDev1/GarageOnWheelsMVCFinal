@@ -34,7 +34,7 @@ namespace GarageOnWheelsMVC.Helper
             }
             else
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
             }
         }
 

@@ -104,23 +104,30 @@
 
                     <div class="mb-3">
                         <label for="profileImage" class="form-label">Profile Image</label>
-                        <div id="profileImage">
-                            @if (!string.IsNullOrEmpty(Model.ProfileImage))
-                            {
-                                <input asp-for="ProfileImage" type="hidden" />
-                                <img src="~/Images/@Model.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
-                            }
-                            else
-                            {
-                                <img src="~/Images/default-placeholder.png" id="profileImagePreview" alt="Default Image" style="max-width: 200px;" />
-                            }
+                        <div id="profileImageWrapper" class="d-flex align-items-center gap-3">
+                            <div id="profileImage">
+                                @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                                {
+                                    <input asp-for="ProfileImage" type="hidden" />
+                                    <img src="~/Images/@Model.ProfileImage" id="profileImagePreview" alt="Profile Image" style="max-width: 200px;" />
+                                }
+                                else
+                                {
+                                    <img src="~/Images/default-placeholder.png" id="profileImagePreview" alt="Default Image" style="max-width: 200px;" />
+                                }
+                            </div>
+                            <a id="deleteProfileImage" class="btn btn-danger btn-sm" title="Delete Profile Image" href="javascript:void(0);" onclick="deleteImageFunction();">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
                         </div>
                     </div>
+
                     <div class="mb-3">
                         <label asp-for="ProfileImage" class="form-label">Upload Profile Image</label>
                         <input asp-for="ProfileImage" type="file" class="form-control" id="profileImageInput" name="UpdateImage" />
                         <span asp-validation-for="ProfileImage" class="text-danger"></span>
                     </div>
+
 
                     <div class="container">
                         <div class="row">
@@ -156,14 +163,30 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/cascadingddl.js"></script>
 <script>
-    document.getElementById('profileImageInput').addEventListener('change', function (event) {
-        var reader = new FileReader();
-        reader.onload = function () {
-            document.getElementById('profileImagePreview').src = reader.result;
-        };
-        if (event.target.files.length > 0) {
-            reader.readAsDataURL(event.target.files[0]);
-        }
+        document.getElementById('profileImageInput').addEventListener('change', function (event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('profileImagePreview').src = reader.result;
+            };
+            if (event.target.files.length > 0) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        });
+
+    document.getElementById('deleteProfileImage').addEventListener('click', function () {
+        // Add a hidden input to notify the server that the image should be deleted
+        var hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'DeleteImage';
+        hiddenInput.value = 'true';
+        document.getElementById('profileImageWrapper').appendChild(hiddenInput);
+
+        // Replace the profile image preview with the default placeholder
+        document.getElementById('profileImagePreview').src = '~/Images/default-placeholder.png';
+
+        // Clear the file input
+        document.getElementById('profileImageInput').value = '';
     });
 
 </script>
+
